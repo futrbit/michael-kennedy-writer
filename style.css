@@ -1,0 +1,4019 @@
+﻿:root{
+  --bg:#080808;
+  --panel:#0d0d0d;
+  --ink:#f0f0ec;
+  --muted:#777;
+  --line:#292929;
+  --line-2:#171717;
+  --accent:#f3f3ed;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+body{overflow-x:hidden}
+button,a{font:inherit}
+button{color:inherit}
+a{text-decoration:none;color:inherit}
+
+.site-shell{min-height:100vh;padding:18px 18px 16px;display:flex;flex-direction:column}
+.masthead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;font-size:11px;letter-spacing:.14em}
+.brand{font-weight:700}
+.role{color:#969696;position:relative}
+.cursor-dot{display:inline-block;width:5px;height:5px;background:#eee;border-radius:50%;margin-left:7px;vertical-align:middle;box-shadow:0 0 12px rgba(255,255,255,.6)}
+
+.hero{flex:1;display:flex;flex-direction:column;min-height:72vh;padding:22px 0 8px}
+.microline{display:flex;justify-content:space-between;color:#606060;font-size:9px;letter-spacing:.15em}
+
+.shelf-stage{position:relative;flex:1;min-height:470px;margin-top:12px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;perspective:1200px}
+.shelf-light{position:absolute;left:5%;right:5%;bottom:25%;height:42%;background:radial-gradient(circle at center,rgba(255,255,255,.09),transparent 66%);pointer-events:none}
+.shelf-shadow{position:absolute;left:7%;right:7%;bottom:17%;height:18px;background:radial-gradient(ellipse at center,rgba(0,0,0,.95),transparent 72%);filter:blur(10px);pointer-events:none}
+
+.book-row{position:relative;z-index:4;display:flex;align-items:flex-end;justify-content:center;gap:7px;width:min(94vw,700px);height:64%;padding-bottom:0;transform-style:preserve-3d}
+.book{position:relative;width:34px;height:180px;padding:0;border:0;background:none;cursor:pointer;transform-style:preserve-3d;transition:transform .72s cubic-bezier(.2,.78,.18,1),filter .4s ease;z-index:2;touch-action:manipulation}
+.book:nth-child(2){height:190px}.book:nth-child(3){height:200px}.book:nth-child(4){height:170px}
+.book:hover{filter:brightness(1.08)}
+.book-spine{position:absolute;inset:0;border:1px solid #404040;background:linear-gradient(90deg,#171717,#303030 55%,#111);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 4px;overflow:hidden;backface-visibility:hidden;box-shadow:inset 1px 0 rgba(255,255,255,.08),4px 0 0 rgba(0,0,0,.25)}
+.book:nth-child(2) .book-spine{background:linear-gradient(90deg,#121212,#222,#151515)}
+.book:nth-child(3) .book-spine{background:linear-gradient(90deg,#202020,#363636,#131313)}
+.book:nth-child(4) .book-spine{border-style:dashed;background:linear-gradient(90deg,#0f0f0f,#1c1c1c,#0f0f0f)}
+.spine-mark{font-size:8px;letter-spacing:.08em;color:#888}
+.spine-title{font-size:7px;line-height:1.2;writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.12em;color:#d2d2ce;text-align:left}
+.book-cover{position:absolute;width:220px;height:310px;left:31px;top:-66px;border:1px solid #444;overflow:hidden;background:#111 url('') center/cover no-repeat;background-image:var(--cover-image);box-shadow:18px 24px 50px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04);display:flex;flex-direction:column;justify-content:space-between;padding:15px;color:#fff;transform-origin:left center;transform:rotateY(90deg);opacity:0;transition:transform .68s cubic-bezier(.2,.78,.18,1),opacity .22s ease;backface-visibility:hidden;pointer-events:none}
+.book-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.54))}
+.cover-kicker,.cover-title{position:relative;z-index:1}
+.cover-kicker{font-size:8px;letter-spacing:.16em}.cover-title{font-size:18px;line-height:.98;font-weight:700;letter-spacing:-.03em}
+.cover-coming{filter:grayscale(.2)}
+.book.active{z-index:30;transform:translate3d(0,-80px,160px) rotateY(-8deg) scale(1.02)}
+.book.active .book-cover{transform:rotateY(0);opacity:1;pointer-events:auto}
+.book.active .book-spine{transform:rotateY(-90deg);opacity:0;transition:opacity .18s ease .08s,transform .65s cubic-bezier(.2,.78,.18,1)}
+.book.dimmed{filter:brightness(.35) blur(.2px);transform:translateZ(-10px) scale(.94)}
+
+.shelf-rule{position:absolute;z-index:5;left:7%;right:7%;bottom:18%;height:2px;background:linear-gradient(90deg,transparent,#343434 10%,#606060 50%,#343434 90%,transparent);box-shadow:0 5px 0 #111,0 10px 30px rgba(0,0,0,.8)}
+.shelf-label{position:absolute;left:8%;bottom:12%;font-size:8px;letter-spacing:.16em;color:#484848}
+.gesture-hint{text-align:center;color:#777;font-size:9px;letter-spacing:.2em;padding:14px 0 4px;transition:opacity .3s ease}
+
+.about-strip{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;font-size:11px}
+.about-strip p{margin:0;color:#9a9a96;line-height:1.4;max-width:440px}
+.about-index{font-size:8px;color:#505050}
+.about-strip button,.site-footer a{border:0;background:none;padding:0;color:#d4d4cf;font-size:9px;letter-spacing:.12em;cursor:pointer}
+.site-footer{display:flex;justify-content:space-between;padding-top:14px;font-size:8px;letter-spacing:.13em;color:#505050}
+.site-footer a:hover,.about-strip button:hover{color:#fff}
+
+.dim-layer{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:90;opacity:0;transition:opacity .35s ease}
+.dim-layer.show{opacity:1}
+
+.reader,.bio-panel{position:fixed;inset:0;z-index:100;background:rgba(8,8,8,.96);transform:translateY(100%);transition:transform .7s cubic-bezier(.2,.8,.16,1);overflow:auto}
+.reader.open,.bio-panel.open{transform:translateY(0)}
+.reader-inner,.bio-inner{min-height:100%;padding:22px 20px 28px;display:flex;align-items:center;justify-content:center}
+.reader-inner{flex-direction:column;gap:24px}.reader-close{position:fixed;top:15px;right:17px;border:1px solid #333;background:#0b0b0b;width:34px;height:34px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;z-index:4}
+.reader-object{width:64vw;max-width:290px;aspect-ratio:220/310;perspective:1000px;display:flex;justify-content:center;align-items:center}
+.reader-cover{width:100%;height:100%;background:center/cover no-repeat;border:1px solid #4b4b4b;box-shadow:25px 30px 80px rgba(0,0,0,.58);transform:rotateY(0) rotateZ(-1deg);transition:transform .7s ease}
+.reader-copy{width:100%;max-width:620px}
+.reader-meta{display:flex;justify-content:space-between;color:#555;font-size:8px;letter-spacing:.15em;border-top:1px solid #232323;padding-top:10px}
+.reader-copy h1{font-size:clamp(34px,11vw,68px);line-height:.9;letter-spacing:-.05em;margin:16px 0 18px;max-width:800px}
+.reader-copy p{font-size:14px;line-height:1.55;color:#a6a6a1;max-width:580px}
+.reader-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.reader-action{display:inline-flex;align-items:center;justify-content:center;border:1px solid #3a3a3a;background:#111;padding:12px 14px;font-size:9px;letter-spacing:.13em;cursor:pointer}.reader-action:hover{background:#1a1a1a;border-color:#666}.reader-action.ghost{color:#888}
+
+.bio-inner{padding:65px 22px 30px;display:block}.bio-kicker{font-size:8px;color:#555;letter-spacing:.18em;margin-bottom:18px}.bio-layout{display:grid;grid-template-columns:minmax(120px,220px) 1fr;gap:22px;align-items:start}.bio-photo{border:1px solid #333;background:#111;aspect-ratio:3/4;overflow:hidden}.bio-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.2)}.bio-layout h2{font-size:clamp(42px,11vw,76px);line-height:.84;letter-spacing:-.06em;margin:0 0 20px}.bio-layout h2 span{color:#777}.bio-layout p{font-size:14px;line-height:1.5;color:#aaa;max-width:580px}
+
+@media (min-width:760px){
+  .site-shell{padding:22px 28px 20px}.hero{min-height:78vh}.shelf-stage{min-height:610px}.book-row{gap:10px;height:67%}.book{width:42px;height:225px}.book:nth-child(2){height:235px}.book:nth-child(3){height:248px}.book:nth-child(4){height:212px}.book-cover{width:300px;height:420px;left:39px;top:-96px}.cover-title{font-size:25px}.book.active{transform:translate3d(0,-120px,210px) rotateY(-8deg) scale(1.02)}.reader-inner{flex-direction:row;gap:58px}.reader-object{width:290px}.reader-copy{width:50%}.bio-inner{padding:85px 8vw}.bio-layout{grid-template-columns:260px minmax(0,650px);gap:55px}.about-strip{grid-template-columns:40px 1fr auto;font-size:12px}
+}
+
+@media (max-width:430px){
+  .shelf-stage{min-height:430px}.book-row{gap:5px}.book{width:28px;height:170px}.book:nth-child(2){height:180px}.book:nth-child(3){height:190px}.book:nth-child(4){height:160px}.book-cover{width:205px;height:289px;left:25px;top:-55px}.cover-title{font-size:16px}.book.active{transform:translate3d(0,-70px,150px) rotateY(-8deg) scale(1.01)}.shelf-rule{bottom:17%}.shelf-label{bottom:10%}.bio-layout{grid-template-columns:1fr;}.bio-photo{max-width:170px}.about-strip{grid-template-columns:26px 1fr}.about-strip button{grid-column:2;text-align:left}
+}
+/* ==========================================================
+   REAL BOOK SPINES
+   ========================================================== */
+
+.book-spine{
+    position:relative!important;
+    overflow:hidden!important;
+    color:transparent!important;
+    text-shadow:none!important;
+    background-repeat:no-repeat!important;
+    background-position:center!important;
+    background-size:100% 100%!important;
+    border:1px solid rgba(255,255,255,.22)!important;
+    box-shadow:
+        inset 1px 0 rgba(255,255,255,.08),
+        inset -2px 0 rgba(0,0,0,.35),
+        0 4px 10px rgba(0,0,0,.35)!important;
+}
+
+.book-1 .book-spine{
+    background-image:url("assets/book1.jpg")!important;
+}
+
+.book-2 .book-spine{
+    background-image:url("assets/book2.jpg")!important;
+}
+
+.book-3 .book-spine{
+    background-image:url("assets/book3.jpg")!important;
+}
+
+.book-4 .book-spine{
+    background-image:url("assets/book4.jpg")!important;
+}
+
+.spine-title{
+    opacity:0!important;
+}
+
+.book-spine::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.10),
+            transparent 18%,
+            transparent 78%,
+            rgba(0,0,0,.28)
+        );
+}
+/* ==========================================================
+   REAL BOOK SPINE VISUALS
+   ========================================================== */
+
+.book-spine{
+    position:absolute!important;
+    inset:0!important;
+    overflow:hidden!important;
+    padding:0!important;
+    display:block!important;
+    background-repeat:no-repeat!important;
+    background-size:cover!important;
+    background-position:center!important;
+    border:1px solid rgba(255,255,255,.22)!important;
+    box-shadow:
+        inset 1px 0 rgba(255,255,255,.10),
+        inset -2px 0 rgba(0,0,0,.38),
+        4px 0 0 rgba(0,0,0,.22)!important;
+}
+
+.book:nth-child(1) .book-spine{
+    background-image:url("assets/book1.jpg")!important;
+}
+
+.book:nth-child(2) .book-spine{
+    background-image:url("assets/book2.jpg")!important;
+}
+
+.book:nth-child(3) .book-spine{
+    background-image:url("assets/book3.jpg")!important;
+}
+
+.book:nth-child(4) .book-spine{
+    background-image:url("assets/book4.jpg")!important;
+}
+
+.spine-mark{
+    position:absolute!important;
+    top:7px!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    z-index:2!important;
+    color:rgba(255,255,255,.78)!important;
+    font-size:7px!important;
+    text-shadow:0 1px 3px rgba(0,0,0,.8);
+}
+
+.spine-title{
+    display:none!important;
+}
+
+.book-spine::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.10) 0%,
+            rgba(255,255,255,0) 22%,
+            rgba(0,0,0,.12) 72%,
+            rgba(0,0,0,.38) 100%
+        );
+}
+/* ==========================================================
+   FINAL BOOK SPINE ART
+   ========================================================== */
+
+.book:nth-child(1) .book-spine{
+    background-image:url("assets/book1side.png")!important;
+}
+
+.book:nth-child(2) .book-spine{
+    background-image:url("assets/book2side.png")!important;
+}
+
+.book:nth-child(3) .book-spine{
+    background-image:url("assets/book3side.png")!important;
+}
+
+.book:nth-child(4) .book-spine{
+    background-image:url("assets/boo4side.png")!important;
+}
+
+.book-spine{
+    background-size:100% 100%!important;
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+}
+
+.spine-mark{
+    display:none!important;
+}
+    
+/* ==========================================================
+   WRITER V1 ' COMPACT HERO + BILLBOARD
+   ========================================================== */
+
+.hero{
+    min-height:auto!important;
+    padding-bottom:0!important;
+}
+
+.shelf-stage{
+    flex:none!important;
+    min-height:390px!important;
+    height:390px!important;
+}
+
+.book-row{
+    height:245px!important;
+}
+
+.gesture-hint{
+    padding-top:8px!important;
+    padding-bottom:8px!important;
+}
+
+/* BILLBOARD */
+
+.billboard-section{
+    margin-top:34px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+}
+
+.billboard-head{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    color:#666;
+    font-size:8px;
+    letter-spacing:.18em;
+}
+
+.billboard-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    background:#050505;
+    border:1px solid #292929;
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.billboard-frame::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(
+        135deg,
+        rgba(255,255,255,.05),
+        transparent 30%,
+        transparent 70%,
+        rgba(0,0,0,.18)
+    );
+}
+
+.billboard-frame video{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+@media (min-width:700px){
+    .hero{
+        min-height:auto!important;
+    }
+
+    .shelf-stage{
+        min-height:500px!important;
+        height:500px!important;
+    }
+
+    .book-row{
+        height:310px!important;
+    }
+
+    .billboard-section{
+        margin-top:48px;
+    }
+}
+
+@media (max-width:430px){
+    .shelf-stage{
+        min-height:360px!important;
+        height:360px!important;
+    }
+
+    .book-row{
+        height:225px!important;
+    }
+
+    .billboard-section{
+        margin-top:26px;
+    }
+}
+/* ==========================================================
+   WRITER V1 ' WELCOME + LARGE SHELF
+   ========================================================== */
+
+.welcome{
+    padding:24px 0 8px;
+    max-width:620px;
+}
+
+.welcome-kicker{
+    color:#666;
+    font-size:8px;
+    letter-spacing:.2em;
+    margin-bottom:12px;
+}
+
+.welcome h2{
+    margin:0 0 8px;
+    font-size:clamp(28px,8vw,52px);
+    line-height:.95;
+    letter-spacing:-.04em;
+}
+
+.welcome p{
+    margin:0;
+    max-width:480px;
+    color:#8e8e8e;
+    font-size:12px;
+    line-height:1.55;
+}
+
+/* BIGGER + HIGHER BOOKSHELF */
+
+.hero{
+    padding-top:8px!important;
+}
+
+.shelf-stage{
+    min-height:430px!important;
+    height:430px!important;
+    margin-top:4px!important;
+}
+
+.book-row{
+    height:295px!important;
+    transform:translateY(-8px);
+}
+
+.book{
+    width:34px!important;
+}
+
+.book:nth-child(1){height:210px!important}
+.book:nth-child(2){height:222px!important}
+.book:nth-child(3){height:234px!important}
+.book:nth-child(4){height:200px!important}
+
+/* SMALLER FEATURED VIDEO */
+
+.billboard-section{
+    margin-top:28px!important;
+}
+
+.billboard-frame{
+    width:78%!important;
+    max-width:620px!important;
+    margin:0 auto!important;
+}
+
+@media (max-width:430px){
+    .welcome{
+        padding-top:18px;
+        padding-bottom:4px;
+    }
+
+    .welcome h2{
+        font-size:32px;
+    }
+
+    .welcome p{
+        font-size:11px;
+    }
+
+    .shelf-stage{
+        min-height:410px!important;
+        height:410px!important;
+    }
+
+    .book-row{
+        height:275px!important;
+        transform:translateY(-10px);
+        gap:6px!important;
+    }
+
+    .book{
+        width:32px!important;
+    }
+
+    .book:nth-child(1){height:200px!important}
+    .book:nth-child(2){height:212px!important}
+    .book:nth-child(3){height:224px!important}
+    .book:nth-child(4){height:190px!important}
+
+    .billboard-frame{
+        width:84%!important;
+    }
+}
+/* ==========================================================
+   WELCOME ' BIGGER + GREY DETAIL
+   ========================================================== */
+
+.welcome{
+    padding:18px 0 0!important;
+    max-width:700px;
+}
+
+.welcome-kicker{
+    color:#666!important;
+    font-size:9px!important;
+    letter-spacing:.22em!important;
+    margin-bottom:14px!important;
+}
+
+.welcome h2{
+    margin:0 0 10px!important;
+    font-size:clamp(38px,10vw,66px)!important;
+    line-height:.92!important;
+    letter-spacing:-.045em!important;
+    color:#f0f0ec!important;
+}
+
+.welcome p{
+    margin:0!important;
+    max-width:600px!important;
+    color:#858585!important;
+    font-size:15px!important;
+    line-height:1.5!important;
+}
+
+/* CLOSE THE GAP */
+
+.hero{
+    padding-top:0!important;
+    margin-top:-4px!important;
+}
+
+.microline{
+    margin-bottom:-2px!important;
+}
+
+/* BIGGER BOOKSHELF */
+
+.shelf-stage{
+    min-height:500px!important;
+    height:500px!important;
+    margin-top:0!important;
+}
+
+.book-row{
+    height:345px!important;
+    transform:translateY(-10px);
+    gap:9px!important;
+}
+
+.book{
+    width:42px!important;
+}
+
+.book:nth-child(1){height:250px!important}
+.book:nth-child(2){height:265px!important}
+.book:nth-child(3){height:280px!important}
+.book:nth-child(4){height:238px!important}
+
+@media (max-width:430px){
+
+    .welcome{
+        padding-top:14px!important;
+    }
+
+    .welcome h2{
+        font-size:39px!important;
+    }
+
+    .welcome p{
+        font-size:13px!important;
+        line-height:1.5!important;
+    }
+
+    .shelf-stage{
+        min-height:455px!important;
+        height:455px!important;
+    }
+
+    .book-row{
+        height:315px!important;
+        transform:translateY(-10px);
+        gap:7px!important;
+    }
+
+    .book{
+        width:36px!important;
+    }
+
+    .book:nth-child(1){height:230px!important}
+    .book:nth-child(2){height:244px!important}
+    .book:nth-child(3){height:258px!important}
+    .book:nth-child(4){height:218px!important}
+}
+
+/* CLOSE WELCOME TO BOOKSHELF */
+.shelf-stage{margin-top:-45px!important}
+.book-row{transform:translateY(-18px)!important}
+
+/* BOOKSHELF ' CLOSE GAP MORE */
+.shelf-stage{margin-top:-90px!important}
+.book-row{transform:translateY(-22px)!important}
+/* ==========================================================
+   HERO BOOK EXPERIMENT
+   ========================================================== */
+
+/* soften the background glow behind the shelf */
+.shelf-light{
+    background:radial-gradient(
+        circle at center,
+        rgba(255,255,255,.045),
+        transparent 62%
+    )!important;
+}
+
+.shelf-shadow{
+    opacity:.55!important;
+}
+
+/* central hero book */
+.book:nth-child(2){
+    width:70px!important;
+    z-index:8!important;
+    transform:translateY(-10px)!important;
+}
+
+.book:nth-child(2) .book-spine{
+    opacity:.12!important;
+}
+
+.book:nth-child(2)::after{
+    content:"";
+    position:absolute;
+    z-index:6;
+    left:50%;
+    top:-24px;
+    width:92px;
+    height:132px;
+    transform:translateX(-50%) rotateZ(-1deg);
+    transform-origin:center bottom;
+    background:url("assets/book2.jpg") center/cover no-repeat;
+    border:1px solid rgba(255,255,255,.28);
+    box-shadow:
+        12px 18px 30px rgba(0,0,0,.6),
+        inset 1px 0 rgba(255,255,255,.08);
+    transition:
+        transform .65s cubic-bezier(.2,.78,.18,1),
+        opacity .3s ease;
+}
+
+.book:nth-child(2)::before{
+    content:"";
+    position:absolute;
+    z-index:5;
+    left:50%;
+    top:-20px;
+    width:96px;
+    height:136px;
+    transform:translateX(-46%) rotateZ(-1deg);
+    background:#111;
+    border-right:3px solid rgba(0,0,0,.6);
+    box-shadow:4px 8px 12px rgba(0,0,0,.25);
+}
+
+.book:nth-child(2).active::after,
+.book:nth-child(2).active::before{
+    opacity:0!important;
+}
+
+@media (max-width:430px){
+    .book:nth-child(2){
+        width:62px!important;
+        transform:translateY(-8px)!important;
+    }
+
+    .book:nth-child(2)::after{
+        width:78px;
+        height:112px;
+        top:-19px;
+    }
+
+    .book:nth-child(2)::before{
+        width:82px;
+        height:116px;
+        top:-16px;
+    }
+}
+
+/* HERO BOOK - BIGGER + MORE SPACE */
+.book-row{gap:18px!important}
+.book:nth-child(2){width:82px!important}
+.book:nth-child(2)::after{width:120px!important;height:170px!important;top:-30px!important}
+.book:nth-child(2)::before{width:124px!important;height:174px!important;top:-26px!important}
+@media (max-width:430px){.book-row{gap:12px!important}.book:nth-child(2){width:72px!important}.book:nth-child(2)::after{width:100px!important;height:145px!important;top:-24px!important}.book:nth-child(2)::before{width:104px!important;height:149px!important;top:-20px!important}}
+
+/* BOOKSHELF - SPREAD OUT */
+.book-row{width:100%!important;max-width:760px!important;justify-content:space-between!important;gap:0!important;padding-left:2%!important;padding-right:2%!important}
+.book:nth-child(1){transform:translateX(-8px)!important}
+.book:nth-child(4){transform:translateX(8px)!important}
+@media (max-width:430px){.book-row{width:100%!important;padding-left:1%!important;padding-right:1%!important}.book:nth-child(1){transform:translateX(-5px)!important}.book:nth-child(4){transform:translateX(5px)!important}}
+
+/* BOOKSHELF - BRING OUTER BOOKS IN */
+.book-row{width:94%!important;max-width:700px!important}
+.book:nth-child(1){transform:translateX(-4px)!important}
+.book:nth-child(4){transform:translateX(4px)!important}
+@media (max-width:430px){.book-row{width:94%!important}.book:nth-child(1){transform:translateX(-3px)!important}.book:nth-child(4){transform:translateX(3px)!important}}
+
+/* BOOKSHELF - MID SPACING */
+.book-row{width:86%!important;max-width:660px!important}
+.book:nth-child(1){transform:translateX(-2px)!important}
+.book:nth-child(4){transform:translateX(2px)!important}
+@media (max-width:430px){.book-row{width:86%!important}.book:nth-child(1){transform:translateX(-1px)!important}.book:nth-child(4){transform:translateX(1px)!important}}
+
+/* CLEAN BOOKSHELF - REMOVE GLOW + SHADOW + LINE */
+.shelf-light,.shelf-shadow,.shelf-rule{display:none!important}
+/* ==========================================================
+   PHYSICAL 3D HERO BOOK ' EXPERIMENT
+   ========================================================== */
+
+.book:nth-child(1){
+    transform:translateX(-2px) rotateZ(-1.2deg)!important;
+}
+
+.book:nth-child(3){
+    transform:translateX(0) rotateZ(1.2deg)!important;
+}
+
+.book:nth-child(4){
+    transform:translateX(2px) rotateZ(-.8deg)!important;
+}
+
+/* HERO BOOK DEPTH */
+.book:nth-child(2)::before{
+    background:
+        linear-gradient(
+            90deg,
+            #0b0b0b 0%,
+            #1b1b1b 78%,
+            #292929 100%
+        )!important;
+    border:1px solid #303030!important;
+    box-shadow:
+        5px 7px 0 rgba(0,0,0,.35),
+        10px 14px 22px rgba(0,0,0,.35)!important;
+    transform:
+        translateX(-42%)
+        translateY(-18px)
+        skewY(-1deg)!important;
+}
+
+/* HERO BOOK FRONT */
+.book:nth-child(2)::after{
+    border:1px solid rgba(255,255,255,.34)!important;
+    box-shadow:
+        12px 18px 34px rgba(0,0,0,.62),
+        3px 0 0 rgba(255,255,255,.06)!important;
+    transform:
+        translateX(-50%)
+        rotateZ(-1deg)
+        translateY(-2px)!important;
+}
+
+/* tiny highlight along the book's right edge */
+.book:nth-child(2)::after{
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 90%,
+            rgba(255,255,255,.13) 96%,
+            rgba(255,255,255,.03) 100%
+        ),
+        url("assets/book2.jpg") center/cover no-repeat!important;
+}
+
+/* MOBILE */
+@media (max-width:430px){
+
+    .book:nth-child(1){
+        transform:rotateZ(-1deg)!important;
+    }
+
+    .book:nth-child(3){
+        transform:rotateZ(1deg)!important;
+    }
+
+    .book:nth-child(4){
+        transform:rotateZ(-.7deg)!important;
+    }
+
+    .book:nth-child(2)::before{
+        transform:
+            translateX(-42%)
+            translateY(-15px)
+            skewY(-1deg)!important;
+    }
+
+    .book:nth-child(2)::after{
+        transform:
+            translateX(-50%)
+            rotateZ(-1deg)
+            translateY(-2px)!important;
+    }
+}
+/* ==========================================================
+   CLEAN BOOKSHELF ' STRAIGHT + HOVER HIGHLIGHT
+   ========================================================== */
+
+/* Keep every spine straight */
+.book:nth-child(1):not(.active),
+.book:nth-child(2):not(.active),
+.book:nth-child(3):not(.active),
+.book:nth-child(4):not(.active){
+    transform:none!important;
+}
+
+/* Keep the centre hero book completely straight */
+.book:nth-child(2)::before{
+    transform:translateX(-46%) translateY(-20px)!important;
+}
+
+.book:nth-child(2)::after{
+    transform:translateX(-50%) rotateZ(0deg)!important;
+}
+
+/* Remove the old shelf line */
+.shelf-rule{
+    display:none!important;
+}
+
+/* ----------------------------------------------------------
+   BOOK HOVER / FOCUS
+   ---------------------------------------------------------- */
+
+.book{
+    transition:
+        transform .45s cubic-bezier(.2,.78,.18,1),
+        filter .35s ease,
+        opacity .35s ease;
+}
+
+.book:hover,
+.book:focus-visible{
+    filter:brightness(1.16)!important;
+    outline:none;
+}
+
+.book:hover .book-spine,
+.book:focus-visible .book-spine{
+    border-color:rgba(255,255,255,.62)!important;
+    box-shadow:
+        inset 1px 0 rgba(255,255,255,.16),
+        inset -2px 0 rgba(0,0,0,.35),
+        0 0 14px rgba(255,255,255,.08)!important;
+}
+
+.book:nth-child(2):hover::after,
+.book:nth-child(2):focus-visible::after{
+    border-color:rgba(255,255,255,.58)!important;
+    box-shadow:
+        12px 18px 34px rgba(0,0,0,.62),
+        0 0 18px rgba(255,255,255,.10)!important;
+}
+
+/* Make the hover feel like the book is being noticed */
+.book:not(.active):hover{
+    transform:translateY(-6px)!important;
+}
+
+.book:nth-child(2):not(.active):hover{
+    transform:translateY(-8px)!important;
+}
+
+/* Touch devices don't need a sticky hover state */
+@media (hover:none){
+    .book:hover,
+    .book:focus-visible{
+        filter:none!important;
+    }
+
+    .book:not(.active):hover,
+    .book:nth-child(2):not(.active):hover{
+        transform:none!important;
+    }
+}
+    
+/* ==========================================================
+   READER INTRO
+   ========================================================== */
+
+#readerBlurb.intro-open{
+    white-space:pre-line;
+    max-height:42vh;
+    overflow-y:auto;
+    padding-right:8px;
+}
+
+.reader-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+@media (max-width:430px){
+    #readerBlurb.intro-open{
+        max-height:38vh;
+        font-size:12px;
+        line-height:1.6;
+    }
+}
+
+/* ==========================================================
+   SWIPEABLE BOOKSHELF
+   ========================================================== */
+
+#shelfStage{
+    touch-action:pan-y;
+    outline:none;
+}
+
+#shelfStage:focus-visible{
+    outline:1px solid rgba(255,255,255,.22);
+    outline-offset:8px;
+}
+
+.book-row{
+    --browse-shift:0px;
+    transform:
+        translate3d(var(--browse-shift),-22px,0)
+        !important;
+    transition:
+        transform .28s cubic-bezier(.2,.8,.2,1)
+        !important;
+}
+
+/* remove the old fixed front-facing experiment */
+.book::before,
+.book::after{
+    display:none!important;
+    content:none!important;
+}
+
+/* current hero book */
+.book.hero-book{
+    z-index:25!important;
+    transform:translateY(-12px) scale(1.035)!important;
+    transition:
+        transform .5s cubic-bezier(.2,.78,.18,1),
+        filter .35s ease,
+        opacity .35s ease!important;
+}
+
+.book.hero-book::before,
+.book.hero-book::after{
+    display:block!important;
+    content:""!important;
+    position:absolute;
+    left:50%;
+    z-index:40;
+    pointer-events:none;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:cover;
+}
+
+.book.hero-book::before{
+    width:124px;
+    height:174px;
+    top:-27px;
+    transform:translateX(-45%);
+    background:#101010;
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:
+        5px 9px 0 rgba(0,0,0,.35),
+        13px 20px 28px rgba(0,0,0,.38);
+}
+
+.book.hero-book::after{
+    width:120px;
+    height:170px;
+    top:-30px;
+    transform:translateX(-50%);
+    background-image:var(--hero-image);
+    border:1px solid rgba(255,255,255,.36);
+    box-shadow:
+        14px 22px 38px rgba(0,0,0,.62);
+}
+
+.book.hero-book:hover::after{
+    filter:brightness(1.1);
+}
+
+.book.active.hero-book::before,
+.book.active.hero-book::after{
+    opacity:0!important;
+}
+
+/* side books remain quieter */
+.book:not(.hero-book){
+    transition:
+        transform .45s cubic-bezier(.2,.78,.18,1),
+        filter .35s ease,
+        opacity .35s ease!important;
+}
+
+
+/* ==========================================================
+   MAILING LIST
+   ========================================================== */
+
+.mailing-section{
+    margin-top:54px;
+    padding:20px 0 30px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+}
+
+.section-meta{
+    display:flex;
+    justify-content:space-between;
+    color:#5f5f5f;
+    font-size:8px;
+    letter-spacing:.18em;
+    margin-bottom:26px;
+}
+
+.mailing-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    align-items:end;
+}
+
+.section-kicker{
+    color:#666;
+    font-size:8px;
+    letter-spacing:.2em;
+    margin-bottom:12px;
+}
+
+.mailing-layout h2{
+    margin:0;
+    font-size:clamp(34px,8vw,58px);
+    line-height:.92;
+    letter-spacing:-.045em;
+}
+
+.mailing-layout p{
+    margin:0 0 18px;
+    max-width:440px;
+    color:#888;
+    font-size:12px;
+    line-height:1.55;
+}
+
+.mailing-form{
+    display:flex;
+    width:100%;
+    border-bottom:1px solid #454545;
+}
+
+.mailing-form input{
+    flex:1;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#eee;
+    padding:12px 0;
+    font-size:10px;
+    letter-spacing:.1em;
+}
+
+.mailing-form input::placeholder{
+    color:#555;
+}
+
+.mailing-form button{
+    border:0;
+    background:none;
+    color:#ddd;
+    padding:12px 0 12px 15px;
+    font-size:8px;
+    letter-spacing:.16em;
+    cursor:pointer;
+}
+
+.mailing-form button:hover{
+    color:#fff;
+}
+
+.mailing-note{
+    min-height:15px;
+    margin:10px 0 0!important;
+    font-size:9px!important;
+    color:#737373!important;
+}
+
+.sr-only{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+}
+
+
+/* ==========================================================
+   CINEMA
+   ========================================================== */
+
+.cinema-section{
+    margin-top:48px;
+}
+
+.cinema-screen{
+    position:relative;
+    width:82%;
+    max-width:720px;
+    margin:0 auto;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    background:#050505;
+    border:1px solid #292929;
+    box-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+
+.cinema-screen video{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.cinema-screen-label{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    color:rgba(255,255,255,.68);
+    font-size:7px;
+    letter-spacing:.18em;
+    pointer-events:none;
+    text-shadow:0 1px 5px #000;
+}
+
+@media (max-width:700px){
+
+    .mailing-layout{
+        grid-template-columns:1fr;
+        gap:22px;
+    }
+
+    .mailing-section{
+        margin-top:38px;
+    }
+
+    .cinema-section{
+        margin-top:36px;
+    }
+
+    .cinema-screen{
+        width:90%;
+    }
+
+    .book.hero-book::before{
+        width:106px;
+        height:150px;
+        top:-22px;
+    }
+
+    .book.hero-book::after{
+        width:102px;
+        height:146px;
+        top:-25px;
+    }
+}
+
+@media (max-width:430px){
+
+    .book-row{
+        transform:
+            translate3d(var(--browse-shift),-22px,0)
+            !important;
+    }
+
+    .book.hero-book{
+        transform:translateY(-10px) scale(1.03)!important;
+    }
+
+    .mailing-layout h2{
+        font-size:38px;
+    }
+
+    .mailing-layout p{
+        font-size:11px;
+    }
+
+    .cinema-screen{
+        width:94%;
+    }
+}
+
+/* SMOOTHER BOOK BROWSING */
+.book-row{transition:transform .55s cubic-bezier(.22,.75,.18,1)!important}
+.book.hero-book{transition:transform .75s cubic-bezier(.22,.75,.18,1),filter .45s ease,opacity .45s ease!important}
+
+/* ==========================================================
+   CENTRE-LOCKED CAROUSEL
+   ========================================================== */
+
+.book-row{
+    transform:
+        translate3d(var(--browse-shift,0px),-22px,0)
+        !important;
+
+    transition:
+        transform .85s cubic-bezier(.2,.78,.18,1)
+        !important;
+}
+
+/* all physical books use the same narrow width */
+.book:nth-child(1),
+.book:nth-child(2),
+.book:nth-child(3),
+.book:nth-child(4){
+    width:42px!important;
+}
+
+.book.hero-book{
+    z-index:25!important;
+
+    transform:
+        translateY(-10px)
+        scale(1.035)
+        !important;
+
+    transition:
+        transform .75s cubic-bezier(.2,.78,.18,1),
+        filter .4s ease,
+        opacity .4s ease
+        !important;
+}
+
+
+/* ----------------------------------------------------------
+   HERO FRONT
+   ---------------------------------------------------------- */
+
+.book.hero-book::before{
+    width:124px!important;
+    height:174px!important;
+    top:-27px!important;
+    left:50%!important;
+
+    background:#101010!important;
+
+    border:1px solid rgba(255,255,255,.16)!important;
+
+    transform:
+        translateX(-45%)
+        !important;
+
+    box-shadow:
+        5px 9px 0 rgba(0,0,0,.35),
+        13px 20px 28px rgba(0,0,0,.38)
+        !important;
+}
+
+.book.hero-book::after{
+    width:120px!important;
+    height:170px!important;
+    top:-30px!important;
+    left:50%!important;
+
+    background-image:
+        var(--hero-image)!important;
+
+    border:1px solid rgba(255,255,255,.36)!important;
+
+    transform:
+        translateX(-50%)
+        !important;
+
+    box-shadow:
+        14px 22px 38px rgba(0,0,0,.62)
+        !important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    .book:nth-child(1),
+    .book:nth-child(2),
+    .book:nth-child(3),
+    .book:nth-child(4){
+        width:36px!important;
+    }
+
+    .book.hero-book::before{
+        width:106px!important;
+        height:150px!important;
+        top:-22px!important;
+    }
+
+    .book.hero-book::after{
+        width:102px!important;
+        height:146px!important;
+        top:-25px!important;
+    }
+
+    .book.hero-book{
+        transform:
+            translateY(-9px)
+            scale(1.03)
+            !important;
+    }
+}
+
+/* ==========================================================
+   CLEAN CENTRE-LOCKED BOOKSHELF
+   ========================================================== */
+
+/* no old glow / shadow / shelf line */
+.shelf-light,
+.shelf-shadow,
+.shelf-rule{
+    display:none!important;
+}
+
+/* stage allows horizontal browsing but preserves page scroll */
+#shelfStage{
+    touch-action:pan-y;
+    overflow:hidden;
+}
+
+/* row moves underneath the fixed centre point */
+#bookRow{
+    transform:translate3d(0,-22px,0)!important;
+    transition:transform .9s cubic-bezier(.18,.78,.18,1)!important;
+    will-change:transform;
+}
+
+/* all side books stay narrow */
+#bookRow .book{
+    width:42px!important;
+}
+
+/* remove every old hero pseudo layer first */
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+/* ==========================================================
+   CURRENT HERO BOOK
+   ========================================================== */
+
+#bookRow .book.hero-book{
+    position:relative!important;
+    z-index:40!important;
+    transform:translateY(-10px) scale(1.03)!important;
+    filter:none!important;
+    transition:
+        transform .7s cubic-bezier(.18,.78,.18,1),
+        filter .35s ease!important;
+}
+
+/* front book face */
+#bookRow .book.hero-book::after{
+    content:""!important;
+    display:block!important;
+    position:absolute!important;
+    z-index:50!important;
+
+    left:50%!important;
+    top:-30px!important;
+
+    width:120px!important;
+    height:170px!important;
+
+    transform:translateX(-50%)!important;
+
+    background-image:var(--hero-image)!important;
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+    background-size:cover!important;
+
+    border:1px solid rgba(255,255,255,.34)!important;
+
+    box-shadow:
+        0 18px 36px rgba(0,0,0,.58),
+        3px 0 0 rgba(255,255,255,.04)!important;
+
+    pointer-events:none!important;
+}
+
+/* tiny physical depth behind front cover */
+#bookRow .book.hero-book::before{
+    content:""!important;
+    display:block!important;
+    position:absolute!important;
+    z-index:49!important;
+
+    left:50%!important;
+    top:-27px!important;
+
+    width:124px!important;
+    height:174px!important;
+
+    transform:translateX(-46%)!important;
+
+    background:#111!important;
+
+    border:1px solid rgba(255,255,255,.12)!important;
+
+    box-shadow:
+        5px 8px 0 rgba(0,0,0,.28)!important;
+
+    pointer-events:none!important;
+}
+
+/* when tapped, the normal reader animation takes control */
+#bookRow .book.active.hero-book::before,
+#bookRow .book.active.hero-book::after{
+    display:none!important;
+    opacity:0!important;
+}
+
+/* mobile hero */
+@media (max-width:430px){
+
+    #bookRow .book{
+        width:36px!important;
+    }
+
+    #bookRow .book.hero-book{
+        transform:translateY(-9px) scale(1.03)!important;
+    }
+
+    #bookRow .book.hero-book::after{
+        width:102px!important;
+        height:146px!important;
+        top:-25px!important;
+    }
+
+    #bookRow .book.hero-book::before{
+        width:106px!important;
+        height:150px!important;
+        top:-22px!important;
+    }
+}
+
+/* ==========================================================
+   LOCK PAGE + SHELF FRAME
+   ONLY THE BOOK TRACK MAY MOVE
+   ========================================================== */
+
+html,
+body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+.site-shell{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden!important;
+}
+
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    touch-action:pan-y!important;
+    overscroll-behavior-x:contain!important;
+    contain:layout paint;
+}
+
+/* track stays inside the fixed shelf frame */
+#bookRow{
+    position:relative!important;
+    left:0!important;
+    width:max-content!important;
+    min-width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    justify-content:flex-start!important;
+    flex-shrink:0!important;
+    will-change:transform;
+}
+/* ==========================================================
+   NO HORIZONTAL PAGE MOVEMENT DURING BOOK DRAG
+   ========================================================== */
+
+html,
+body{
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+#shelfStage{
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    touch-action:pan-y!important;
+    overscroll-behavior-x:none!important;
+}
+
+/* prevent transformed book track from affecting page width */
+#bookRow{
+    max-width:none!important;
+    overflow:visible!important;
+}
+
+/* ==========================================================
+   FINAL BOOK CAROUSEL
+   ========================================================== */
+
+/* page itself never becomes wider than viewport */
+html,
+body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+/* fixed viewing window */
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+
+    /* horizontal gestures belong to the bookshelf */
+    touch-action:pan-y;
+
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+/* book track */
+#bookRow{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+
+    width:max-content!important;
+    max-width:none!important;
+    min-width:0!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:flex-start!important;
+
+    gap:18px!important;
+
+    transform:translate3d(0,-22px,0);
+    transition:
+        transform .85s cubic-bezier(.18,.78,.18,1)!important;
+
+    will-change:transform;
+}
+
+
+/* ----------------------------------------------------------
+   NORMAL BOOKS
+   ---------------------------------------------------------- */
+
+#bookRow .book{
+    flex:0 0 auto!important;
+    width:42px!important;
+
+    transform:none!important;
+
+    transition:
+        transform .45s cubic-bezier(.2,.78,.18,1),
+        filter .35s ease!important;
+}
+
+
+/* ----------------------------------------------------------
+   REMOVE ALL OLD HERO PSEUDO-COVERS
+   ---------------------------------------------------------- */
+
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   HERO BOOK
+   The REAL book-cover element moves with the book.
+   ---------------------------------------------------------- */
+
+#bookRow .book.hero-book{
+    z-index:30!important;
+
+    transform:
+        translateY(-8px)
+        scale(1.02)!important;
+
+    filter:none!important;
+}
+
+/* show actual cover */
+#bookRow .book.hero-book .book-cover{
+    display:flex!important;
+
+    position:absolute!important;
+
+    left:50%!important;
+    top:-30px!important;
+
+    width:120px!important;
+    height:170px!important;
+
+    transform:
+        translateX(-50%)
+        rotateY(0deg)!important;
+
+    transform-origin:left center!important;
+
+    opacity:1!important;
+
+    pointer-events:none!important;
+
+    z-index:20!important;
+
+    background-image:var(--cover-image)!important;
+    background-position:center!important;
+    background-size:cover!important;
+    background-repeat:no-repeat!important;
+
+    border:1px solid rgba(255,255,255,.34)!important;
+
+    box-shadow:
+        12px 20px 36px rgba(0,0,0,.58)!important;
+}
+
+/* hide spine slightly behind the hero cover */
+#bookRow .book.hero-book .book-spine{
+    opacity:.12!important;
+}
+
+
+/* ----------------------------------------------------------
+   SIDE BOOKS
+   ---------------------------------------------------------- */
+
+#bookRow .book:not(.hero-book) .book-cover{
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   WHEN USER ACTUALLY OPENS THE BOOK
+   The existing reader takes over.
+   ---------------------------------------------------------- */
+
+#bookRow .book.active .book-cover{
+    pointer-events:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    #bookRow{
+        gap:12px!important;
+    }
+
+    #bookRow .book{
+        width:36px!important;
+    }
+
+    #bookRow .book.hero-book{
+        transform:
+            translateY(-7px)
+            scale(1.02)!important;
+    }
+
+    #bookRow .book.hero-book .book-cover{
+        width:102px!important;
+        height:146px!important;
+        top:-25px!important;
+    }
+}
+
+/* ==========================================================
+   FINAL SHELF SPACING + HERO COVER CENTRE
+   ========================================================== */
+
+#bookRow{
+    gap:32px!important;
+}
+
+/* keep each book centred on its own position */
+#bookRow .book{
+    position:relative!important;
+    flex:0 0 auto!important;
+}
+
+/* hero front cover - exact centre of selected book */
+#bookRow .book.hero-book .book-cover{
+    left:50%!important;
+    margin-left:0!important;
+    transform:translateX(-50%)!important;
+    transform-origin:center center!important;
+}
+
+/* desktop hero cover */
+#bookRow .book.hero-book .book-cover{
+    width:130px!important;
+    height:184px!important;
+    top:-32px!important;
+}
+
+/* mobile */
+@media (max-width:430px){
+
+    #bookRow{
+        gap:22px!important;
+    }
+
+    #bookRow .book{
+        width:36px!important;
+    }
+
+    #bookRow .book.hero-book .book-cover{
+        width:108px!important;
+        height:154px!important;
+        top:-27px!important;
+        left:50%!important;
+        transform:translateX(-50%)!important;
+    }
+}
+/* ==========================================================
+   FINAL SPINE WIDTH + STABLE HERO COVER
+   ========================================================== */
+
+/* wider physical spines */
+#bookRow{
+    gap:32px!important;
+}
+
+#bookRow .book{
+    width:52px!important;
+    flex:0 0 52px!important;
+    cursor:pointer!important;
+}
+
+/* spine fills the wider book */
+#bookRow .book .book-spine{
+    width:100%!important;
+    height:100%!important;
+    cursor:pointer!important;
+}
+
+/* hero cover: dead-centre and no bouncing */
+#bookRow .book.hero-book .book-cover{
+    left:50%!important;
+    top:-32px!important;
+    width:130px!important;
+    height:184px!important;
+    margin:0!important;
+
+    transform:
+        translateX(-50%)!important;
+
+    transition:
+        opacity .3s ease!important;
+
+    transform-origin:center center!important;
+    pointer-events:none!important;
+}
+
+/* don't let the old book-cover animation interfere */
+#bookRow .book.hero-book .book-cover.cover-coming{
+    transform:translateX(-50%)!important;
+}
+
+/* spine remains completely clickable */
+#bookRow .book{
+    pointer-events:auto!important;
+}
+
+#bookRow .book-spine{
+    pointer-events:auto!important;
+}
+
+/* mobile */
+@media (max-width:430px){
+
+    #bookRow{
+        gap:24px!important;
+    }
+
+    #bookRow .book{
+        width:44px!important;
+        flex:0 0 44px!important;
+    }
+
+    #bookRow .book.hero-book .book-cover{
+        width:108px!important;
+        height:154px!important;
+        top:-27px!important;
+        left:50%!important;
+        transform:translateX(-50%)!important;
+    }
+}
+
+/* ==========================================================
+   FINAL CLEAN CAROUSEL
+   ========================================================== */
+
+html,
+body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    overflow:hidden!important;
+    touch-action:pan-y!important;
+    user-select:none!important;
+    -webkit-user-select:none!important;
+}
+
+/* The track is the ONLY thing that moves horizontally */
+#bookRow{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+
+    display:flex!important;
+    justify-content:flex-start!important;
+    align-items:flex-end!important;
+
+    width:max-content!important;
+    min-width:0!important;
+    max-width:none!important;
+
+    gap:30px!important;
+
+    padding:0!important;
+    margin:0!important;
+
+    transform:translate3d(0,-22px,0);
+    transition:
+        transform .9s cubic-bezier(.18,.78,.18,1)!important;
+
+    will-change:transform;
+}
+
+/* Every spine has the same width */
+#bookRow .book,
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2),
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(4){
+    position:relative!important;
+    flex:0 0 52px!important;
+    width:52px!important;
+    transform:none!important;
+    pointer-events:auto!important;
+}
+
+/* Spine fills clickable button */
+#bookRow .book-spine{
+    width:100%!important;
+    height:100%!important;
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+/* Cover NEVER receives the click */
+#bookRow .book-cover{
+    pointer-events:none!important;
+}
+
+/* No old experimental pseudo covers */
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+/* Only the current hero shows a front cover */
+#bookRow .book:not(.hero-book) .book-cover{
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+}
+
+/* Hero cover is attached to the real hero book */
+#bookRow .book.hero-book{
+    z-index:30!important;
+    transform:translateY(-8px)!important;
+}
+
+/* NO BOUNCING - no transform transition on the cover */
+#bookRow .book.hero-book .book-cover{
+    display:flex!important;
+
+    position:absolute!important;
+
+    left:50%!important;
+    top:-32px!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+    padding:15px!important;
+
+    transform:translateX(-50%)!important;
+    transform-origin:center center!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+
+    background-image:var(--cover-image)!important;
+    background-position:center!important;
+    background-size:cover!important;
+    background-repeat:no-repeat!important;
+
+    border:1px solid rgba(255,255,255,.34)!important;
+
+    box-shadow:
+        12px 20px 36px rgba(0,0,0,.58)!important;
+
+    transition:
+        opacity .25s ease!important;
+
+    z-index:20!important;
+}
+
+/* hero cover text stays stable */
+#bookRow .book.hero-book .cover-kicker,
+#bookRow .book.hero-book .cover-title{
+    position:relative!important;
+    z-index:2!important;
+}
+
+/* Active reader state must not interfere with shelf cover */
+#bookRow .book.active .book-cover{
+    pointer-events:none!important;
+}
+
+/* Mobile */
+@media (max-width:430px){
+
+    #bookRow{
+        gap:24px!important;
+    }
+
+    #bookRow .book,
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2),
+    #bookRow .book:nth-child(3),
+    #bookRow .book:nth-child(4){
+        flex-basis:44px!important;
+        width:44px!important;
+    }
+
+    #bookRow .book.hero-book{
+        transform:translateY(-7px)!important;
+    }
+
+    #bookRow .book.hero-book .book-cover{
+        width:108px!important;
+        height:154px!important;
+        top:-27px!important;
+    }
+}
+
+/* Intro text area */
+#readerBlurb.intro-open{
+    white-space:pre-line!important;
+    overflow-y:auto!important;
+    max-height:44vh!important;
+}
+
+@media (max-width:430px){
+
+    #readerBlurb.intro-open{
+        max-height:40vh!important;
+        font-size:12px!important;
+        line-height:1.6!important;
+    }
+}
+
+/* ==========================================================
+   FIXED CENTRE HERO COVER
+   ========================================================== */
+
+/* Hide all the old front-cover objects attached to books */
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+/* The shelf itself is the fixed viewing window */
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+}
+
+/* One single cover locked to the centre */
+#heroDisplay{
+    position:absolute!important;
+
+    left:50%!important;
+    top:45%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    transform:
+        translate(-50%,-50%)!important;
+
+    z-index:25!important;
+
+    pointer-events:none!important;
+
+    opacity:1;
+
+    will-change:opacity;
+}
+
+/* Actual image */
+#heroDisplayImage{
+    position:absolute!important;
+
+    inset:0!important;
+
+    width:100%!important;
+    height:100%!important;
+
+    background-color:#111!important;
+
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+    background-size:cover!important;
+
+    border:1px solid rgba(255,255,255,.34)!important;
+
+    box-shadow:
+        12px 20px 36px rgba(0,0,0,.58)!important;
+
+    opacity:1;
+
+    transition:
+        opacity .22s ease!important;
+
+    /* absolutely no transform / bounce */
+    transform:none!important;
+
+    animation:none!important;
+}
+
+/* tiny clean transition when changing books */
+#heroDisplay.switching #heroDisplayImage{
+    opacity:.15;
+}
+
+
+/* ----------------------------------------------------------
+   IMPORTANT:
+   The books remain above the page but below the fixed cover.
+   The spine itself is still the clickable button.
+   ---------------------------------------------------------- */
+
+#bookRow{
+    position:absolute!important;
+    z-index:10!important;
+}
+
+#bookRow .book{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+#bookRow .book-spine{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    #heroDisplay{
+        width:108px!important;
+        height:154px!important;
+        top:45%!important;
+    }
+}
+/* ==========================================================
+   LOWER THE BOOK ASSEMBLY
+   KEEP HERO COVER CENTRED
+   ========================================================== */
+
+#shelfStage{
+    position:relative!important;
+}
+
+/* put the spine row down near the bottom of the shelf */
+#bookRow{
+    top:auto!important;
+    bottom:14%!important;
+    height:auto!important;
+    align-items:flex-end!important;
+}
+
+/* fixed hero cover sits with the books */
+#heroDisplay{
+    top:auto!important;
+    bottom:14%!important;
+
+    left:50%!important;
+
+    transform:
+        translate(-50%,-4px)!important;
+}
+
+/* keep the cover itself stable */
+#heroDisplayImage{
+    transform:none!important;
+    animation:none!important;
+}
+
+/* mobile */
+@media (max-width:430px){
+
+    #bookRow{
+        bottom:14%!important;
+    }
+
+    #heroDisplay{
+        bottom:14%!important;
+        transform:translate(-50%,-4px)!important;
+    }
+}
+
+/* ==========================================================
+   CLEAN FINAL BOOKSHELF
+   ========================================================== */
+
+html,
+body{
+    width:100%;
+    max-width:100%;
+    margin:0;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+/* ----------------------------------------------------------
+   SHELF WINDOW
+   ---------------------------------------------------------- */
+
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+
+    touch-action:pan-y!important;
+
+    user-select:none!important;
+    -webkit-user-select:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOVING SPINE TRACK
+   ---------------------------------------------------------- */
+
+#bookRow{
+    position:absolute!important;
+
+    left:0!important;
+    top:auto!important;
+    bottom:14%!important;
+
+    width:max-content!important;
+    min-width:0!important;
+    max-width:none!important;
+
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:flex-start!important;
+
+    gap:32px!important;
+
+    margin:0!important;
+
+    /*
+     * Extra empty space at both ends means
+     * Book 1 and Book 4 can both reach the
+     * exact centre of the shelf.
+     */
+    padding-left:calc(50vw - 26px)!important;
+    padding-right:calc(50vw - 26px)!important;
+
+    transform:translate3d(0,0,0)!important;
+
+    transition:
+        transform .85s cubic-bezier(.18,.78,.18,1)!important;
+
+    will-change:transform;
+}
+
+
+/* ----------------------------------------------------------
+   PHYSICAL SPINES
+   ---------------------------------------------------------- */
+
+#bookRow .book,
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2),
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(4){
+
+    position:relative!important;
+
+    flex:0 0 52px!important;
+    width:52px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    transform:none!important;
+
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* ----------------------------------------------------------
+   SPINES ARE THE ONLY CLICKABLE OBJECTS
+   ---------------------------------------------------------- */
+
+#bookRow .book-spine{
+    position:absolute!important;
+    inset:0!important;
+
+    width:100%!important;
+    height:100%!important;
+
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* ----------------------------------------------------------
+   KILL EVERY MOVING FRONT COVER
+   ---------------------------------------------------------- */
+
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   NO OLD PSEUDO-COVER EXPERIMENTS
+   ---------------------------------------------------------- */
+
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   FIXED CENTRE HERO COVER
+   ---------------------------------------------------------- */
+
+#heroDisplay{
+
+    position:absolute!important;
+
+    left:50%!important;
+
+    /*
+     * Lower than before so the welcome text
+     * remains completely clear.
+     */
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    transform:
+        translateX(-50%)!important;
+
+    z-index:20!important;
+
+    pointer-events:none!important;
+
+    margin:0!important;
+
+    opacity:1!important;
+
+    overflow:visible!important;
+}
+
+
+/* actual cover image */
+#heroDisplayImage{
+
+    position:absolute!important;
+
+    inset:0!important;
+
+    width:100%!important;
+    height:100%!important;
+
+    background-color:#111!important;
+
+    background-image:none;
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+    background-size:cover!important;
+
+    border:1px solid rgba(255,255,255,.32)!important;
+
+    box-shadow:
+        12px 20px 36px rgba(0,0,0,.58)!important;
+
+    /*
+     * ABSOLUTELY NO BOUNCE.
+     */
+    transform:none!important;
+    animation:none!important;
+
+    transition:
+        opacity .18s ease!important;
+
+    pointer-events:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   LITTLE HERO CHANGE FADE
+   ---------------------------------------------------------- */
+
+#heroDisplay.switching #heroDisplayImage{
+    opacity:.2!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    #bookRow{
+
+        bottom:14%!important;
+
+        gap:24px!important;
+
+        padding-left:calc(50vw - 22px)!important;
+        padding-right:calc(50vw - 22px)!important;
+
+    }
+
+    #bookRow .book,
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2),
+    #bookRow .book:nth-child(3),
+    #bookRow .book:nth-child(4){
+
+        flex:0 0 44px!important;
+        width:44px!important;
+
+    }
+
+    #heroDisplay{
+
+        left:50%!important;
+        bottom:22%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:
+            translateX(-50%)!important;
+
+    }
+
+}
+
+
+/* ----------------------------------------------------------
+   REMOVE OLD SHELF VISUALS
+   ---------------------------------------------------------- */
+
+.shelf-light,
+.shelf-shadow,
+.shelf-rule{
+    display:none!important;
+}
+
+
+/* ==========================================================
+   FINAL HERO ' EXACTLY CENTRED LIKE CINEMA/MP4
+   ========================================================== */
+
+#heroDisplay{
+    position:absolute!important;
+
+    left:50%!important;
+    right:auto!important;
+
+    bottom:22%!important;
+    top:auto!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+
+    transform:
+        translateX(-50%)!important;
+
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+
+    overflow:visible!important;
+
+    pointer-events:none!important;
+
+    z-index:25!important;
+}
+
+
+/* THE ACTUAL IMAGE ' NOTHING OVER IT */
+
+#heroDisplayImage{
+    position:absolute!important;
+
+    left:0!important;
+    top:0!important;
+
+    width:100%!important;
+    height:100%!important;
+
+    margin:0!important;
+
+    background-color:transparent!important;
+    background-repeat:no-repeat!important;
+    background-position:center!important;
+    background-size:cover!important;
+
+    border:1px solid rgba(255,255,255,.28)!important;
+
+    box-shadow:
+        10px 16px 28px rgba(0,0,0,.45)!important;
+
+    opacity:1!important;
+
+    transform:none!important;
+    animation:none!important;
+
+    transition:opacity .18s ease!important;
+
+    pointer-events:none!important;
+}
+
+/* absolutely nothing can sit on top of the image */
+#heroDisplayImage::before,
+#heroDisplayImage::after{
+    display:none!important;
+    content:none!important;
+}
+
+
+/* ==========================================================
+   BOOK TRACK ' TRUE CENTRE ORIGIN
+   ========================================================== */
+
+#bookRow{
+
+    left:50%!important;
+
+    top:auto!important;
+    bottom:14%!important;
+
+    width:max-content!important;
+
+    min-width:0!important;
+    max-width:none!important;
+
+    padding-left:0!important;
+    padding-right:0!important;
+
+    margin:0!important;
+
+    justify-content:flex-start!important;
+
+    gap:32px!important;
+
+    transform:
+        translate3d(-26px,0,0)!important;
+
+    transition:
+        transform .9s cubic-bezier(.18,.78,.18,1)!important;
+}
+
+
+/* every spine is clickable */
+#bookRow .book,
+#bookRow .book-spine{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* never allow the hidden covers to appear */
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+
+/* remove ALL old pseudo cover experiments */
+#bookRow .book::before,
+#bookRow .book::after{
+    display:none!important;
+    content:none!important;
+}
+
+
+/* hero spine doesn't move or transform itself */
+#bookRow .book.hero-book{
+    transform:none!important;
+    filter:none!important;
+}
+
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width:430px){
+
+    #heroDisplay{
+        left:50%!important;
+        right:auto!important;
+
+        bottom:22%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:
+            translateX(-50%)!important;
+    }
+
+    #heroDisplayImage{
+        width:100%!important;
+        height:100%!important;
+    }
+
+    #bookRow{
+
+        left:50%!important;
+        bottom:14%!important;
+
+        gap:24px!important;
+
+        padding-left:0!important;
+        padding-right:0!important;
+
+        transform:
+            translate3d(-22px,0,0)!important;
+
+    }
+
+    #bookRow .book,
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2),
+    #bookRow .book:nth-child(3),
+    #bookRow .book:nth-child(4){
+
+        flex:0 0 44px!important;
+        width:44px!important;
+
+    }
+}
+
+
+/* ==========================================================
+   FINAL CLEAN BOOK SHELF
+   ========================================================== */
+
+html,
+body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none!important;
+}
+
+#shelfStage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    touch-action:pan-y!important;
+    user-select:none!important;
+    -webkit-user-select:none!important;
+}
+
+/* ----------------------------------------------------------
+   BOOK TRACK
+   The track begins at the exact centre of the shelf.
+   JS moves it left/right to centre whichever spine
+   has been selected.
+   ---------------------------------------------------------- */
+
+#bookRow{
+    position:absolute!important;
+
+    left:50%!important;
+    top:auto!important;
+    bottom:14%!important;
+
+    width:max-content!important;
+    min-width:0!important;
+    max-width:none!important;
+
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:flex-start!important;
+
+    gap:32px!important;
+
+    padding:0!important;
+    margin:0!important;
+
+    transform:translate3d(-26px,0,0)!important;
+
+    transition:
+        transform .85s cubic-bezier(.18,.78,.18,1)!important;
+
+    will-change:transform;
+}
+
+#bookRow .book{
+    position:relative!important;
+
+    flex:0 0 52px!important;
+    width:52px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    pointer-events:auto!important;
+    cursor:pointer!important;
+
+    transform:none!important;
+}
+
+/* the custom PNG spine remains the clickable area */
+#bookRow .book-spine{
+    position:absolute!important;
+    inset:0!important;
+
+    width:100%!important;
+    height:100%!important;
+
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+/* ----------------------------------------------------------
+   KILL EVERY OLD FRONT-COVER VERSION
+   ---------------------------------------------------------- */
+
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+
+/* ==========================================================
+   ONE FIXED CENTRE COVER
+   ========================================================== */
+
+#heroFixedCover{
+
+    position:absolute!important;
+
+    left:50%!important;
+    top:auto!important;
+
+    /*
+     * Lower portion of shelf, aligned with the books.
+     * It cannot drift horizontally.
+     */
+    bottom:18%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+
+    transform:
+        translateX(-50%)!important;
+
+    display:block!important;
+
+    object-fit:cover!important;
+    object-position:center!important;
+
+    background:transparent!important;
+
+    border:1px solid rgba(255,255,255,.30)!important;
+
+    box-shadow:
+        10px 17px 30px rgba(0,0,0,.46)!important;
+
+    z-index:20!important;
+
+    pointer-events:none!important;
+
+    animation:none!important;
+
+    transition:
+        opacity .15s ease!important;
+}
+
+
+/* No black background, pseudo element or overlay */
+#heroFixedCover::before,
+#heroFixedCover::after{
+    display:none!important;
+    content:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    #bookRow{
+        bottom:14%!important;
+        gap:24px!important;
+    }
+
+    #bookRow .book{
+        flex:0 0 44px!important;
+        width:44px!important;
+    }
+
+    #heroFixedCover{
+        left:50%!important;
+        bottom:18%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:
+            translateX(-50%)!important;
+    }
+}
+
+
+/* ==========================================================
+   SINGLE FIXED HERO COVER
+   ========================================================== */
+
+/* Kill every old hero container */
+.hero-display,
+.carousel-focus,
+#heroDisplay,
+#carouselFocus{
+    display:none!important;
+}
+
+/* Only one cover exists now */
+#heroFixedCover{
+    display:block!important;
+
+    position:absolute!important;
+
+    left:50%!important;
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    transform:translateX(-50%)!important;
+
+    background:none!important;
+
+    border:1px solid rgba(255,255,255,.28)!important;
+
+    object-fit:cover!important;
+    object-position:center!important;
+
+    box-shadow:
+        10px 16px 30px rgba(0,0,0,.48)!important;
+
+    z-index:20!important;
+
+    pointer-events:none!important;
+
+    animation:none!important;
+
+    transition:opacity .18s ease!important;
+}
+
+/* No black wrapper / pseudo layer */
+#heroFixedCover::before,
+#heroFixedCover::after{
+    display:none!important;
+    content:none!important;
+}
+
+/* The actual book spines */
+#bookRow .book-cover{
+    display:none!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+}
+
+/* Spines remain clickable */
+#bookRow .book,
+#bookRow .book-spine{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+/* No old pseudo-cover experiments */
+#bookRow .book::before,
+#bookRow .book::after{
+    display:none!important;
+    content:none!important;
+}
+
+/* Fixed row geometry */
+#bookRow{
+    left:50%!important;
+    top:auto!important;
+    bottom:14%!important;
+
+    width:max-content!important;
+    min-width:0!important;
+    max-width:none!important;
+
+    gap:32px!important;
+
+    padding:0!important;
+    margin:0!important;
+
+    transform:
+        translate3d(-26px,0,0)!important;
+
+    transition:
+        transform .85s cubic-bezier(.18,.78,.18,1)!important;
+}
+
+/* Mobile */
+@media (max-width:430px){
+
+    #heroFixedCover{
+        left:50%!important;
+        bottom:22%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:
+            translateX(-50%)!important;
+    }
+
+    #bookRow{
+        left:50%!important;
+        bottom:14%!important;
+        gap:24px!important;
+    }
+
+    #bookRow .book{
+        width:44px!important;
+        min-width:44px!important;
+        max-width:44px!important;
+        flex:0 0 44px!important;
+    }
+}
+
+
+/* ==========================================================
+   FINAL FINAL HERO COVER
+   MP4-STYLE CENTRE / NO BLACK BOX
+   ========================================================== */
+
+/* kill every old moving cover */
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+}
+
+/* kill old hero containers */
+#heroDisplay,
+.hero-display,
+#carouselFocus,
+.carousel-focus{
+    display:none!important;
+}
+
+/* ----------------------------------------------------------
+   THE ONE REAL HERO IMAGE
+   ---------------------------------------------------------- */
+
+#heroFixedCover{
+
+    display:block!important;
+
+    position:absolute!important;
+
+    /*
+     * This is the important part:
+     * exactly the same centring method we use
+     * for a normal centred media block.
+     */
+    left:0!important;
+    right:0!important;
+
+    margin-left:auto!important;
+    margin-right:auto!important;
+
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    padding:0!important;
+
+    transform:none!important;
+
+    /*
+     * NO BLACK BACKGROUND.
+     */
+    background:transparent!important;
+    background-color:transparent!important;
+
+    /*
+     * Show the actual whole image.
+     */
+    object-fit:contain!important;
+    object-position:center center!important;
+
+    border:0!important;
+
+    box-shadow:none!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+
+    filter:none!important;
+
+    z-index:999!important;
+
+    pointer-events:none!important;
+
+    animation:none!important;
+
+    transition:none!important;
+}
+
+
+/* nothing can be painted over the image */
+#heroFixedCover::before,
+#heroFixedCover::after{
+    display:none!important;
+    content:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   SPINE TRACK
+   ---------------------------------------------------------- */
+
+#bookRow{
+
+    z-index:10!important;
+
+    left:50%!important;
+
+    top:auto!important;
+    bottom:14%!important;
+
+    width:max-content!important;
+
+    padding:0!important;
+
+    margin:0!important;
+
+    gap:32px!important;
+
+    transform-origin:center center!important;
+
+}
+
+
+/* spines are real buttons */
+#bookRow .book{
+    z-index:10!important;
+
+    pointer-events:auto!important;
+
+    cursor:pointer!important;
+
+    transform:none!important;
+}
+
+
+/* spine itself gets the click */
+#bookRow .book-spine{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* no pseudo-cover */
+#bookRow .book::before,
+#bookRow .book::after{
+    display:none!important;
+    content:none!important;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width:430px){
+
+    #heroFixedCover{
+
+        left:0!important;
+        right:0!important;
+
+        margin-left:auto!important;
+        margin-right:auto!important;
+
+        top:auto!important;
+        bottom:22%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:none!important;
+    }
+
+    #bookRow{
+        gap:24px!important;
+    }
+
+    #bookRow .book{
+        width:44px!important;
+        min-width:44px!important;
+        max-width:44px!important;
+        flex:0 0 44px!important;
+    }
+}
+
+
+/* ==========================================================
+   FINAL OVERRIDE
+   ========================================================== */
+
+/* The JS must be allowed to position the track */
+#bookRow{
+    transform:none!important;
+    transition:transform .85s cubic-bezier(.18,.78,.18,1)!important;
+}
+
+/*
+   Remove every possible old cover attached to the books.
+*/
+#bookRow .book-cover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+}
+
+/*
+   One clean hero image.
+   No rectangle, no background, no shadow.
+*/
+#heroFixedCover{
+    display:block!important;
+
+    position:absolute!important;
+
+    left:50%!important;
+    right:auto!important;
+
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    transform:translateX(-50%)!important;
+
+    background:transparent!important;
+    background-color:transparent!important;
+
+    border:0!important;
+    outline:0!important;
+
+    box-shadow:none!important;
+
+    object-fit:contain!important;
+    object-position:center!important;
+
+    z-index:1000!important;
+
+    pointer-events:none!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+
+    animation:none!important;
+
+    filter:none!important;
+}
+
+/* Nothing can draw over the hero image */
+#heroFixedCover::before,
+#heroFixedCover::after{
+    display:none!important;
+    content:none!important;
+}
+
+/* Keep spines clickable */
+#bookRow .book{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+#bookRow .book-spine{
+    pointer-events:auto!important;
+    cursor:pointer!important;
+}
+
+
+/* MOBILE */
+
+@media (max-width:430px){
+
+    #heroFixedCover{
+        left:50%!important;
+        right:auto!important;
+
+        bottom:22%!important;
+
+        width:108px!important;
+        height:154px!important;
+
+        transform:
+            translateX(-50%)!important;
+    }
+
+    #bookRow{
+        gap:24px!important;
+    }
+
+    #bookRow .book{
+        width:44px!important;
+        min-width:44px!important;
+        flex:0 0 44px!important;
+    }
+}
+
+/* ==========================================================
+   REMOVE HERO COVER BOX COMPLETELY
+   SHOW ONLY THE ACTUAL BOOK IMAGE
+   ========================================================== */
+
+#heroFixedCover{
+    position:absolute!important;
+
+    left:50%!important;
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:auto!important;
+
+    max-width:130px!important;
+    max-height:184px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    transform:translateX(-50%)!important;
+
+    display:block!important;
+
+    background:none!important;
+    background-color:transparent!important;
+
+    border:none!important;
+    outline:none!important;
+    box-shadow:none!important;
+
+    object-fit:initial!important;
+    object-position:initial!important;
+
+    z-index:10000!important;
+
+    pointer-events:none!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+}
+
+/* make absolutely sure no black layer exists */
+#heroFixedCover::before,
+#heroFixedCover::after{
+    content:none!important;
+    display:none!important;
+}
+
+/* selected spine itself must disappear behind the image */
+#bookRow .book.hero-book .book-spine{
+    opacity:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    border-color:transparent!important;
+}
+
+/* BUT the BOOK BUTTON remains clickable */
+#bookRow .book.hero-book{
+    pointer-events:auto!important;
+}
+
+/* mobile */
+@media (max-width:430px){
+
+    #heroFixedCover{
+        width:108px!important;
+        max-width:108px!important;
+        max-height:154px!important;
+
+        left:50%!important;
+        bottom:22%!important;
+
+        transform:translateX(-50%)!important;
+    }
+}
+
+
+/* REMOVE BLACK HERO RECTANGLE ONLY */
+#heroFixedCover{
+    background:transparent!important;
+    border:none!important;
+    box-shadow:none!important;
+    outline:none!important;
+    filter:none!important;
+}
+
+/* REMOVE ANY LAYER THAT COULD SIT OVER THE FIXED COVER */
+#shelfStage::before,
+#shelfStage::after,
+#heroFixedCover::before,
+#heroFixedCover::after{
+    background:transparent!important;
+    border:none!important;
+    box-shadow:none!important;
+    content:none!important;
+    display:none!important;
+}
+
+/* OLD COVER ELEMENTS MUST NEVER PAINT */
+#bookRow .book-cover{
+    display:none!important;
+    background:transparent!important;
+    border:none!important;
+    box-shadow:none!important;
+}
+
+/* FINAL: NO BOOK PSEUDO-COVERS */
+#bookRow .book::before,
+#bookRow .book::after,
+#bookRow .book.hero-book::before,
+#bookRow .book.hero-book::after{
+    content:none!important;
+    display:none!important;
+    background:none!important;
+    box-shadow:none!important;
+    border:none!important;
+}
+
+/* ==========================================================
+   REAL FIXED HERO IMAGE
+   ========================================================== */
+#heroFixedCover{
+    display:block!important;
+    position:absolute!important;
+    left:50%!important;
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin:0!important;
+    padding:0!important;
+
+    transform:translateX(-50%)!important;
+
+    border:0!important;
+    outline:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+
+    object-fit:cover!important;
+    object-position:center!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+
+    z-index:20!important;
+    pointer-events:none!important;
+}
+
+#bookRow{
+    z-index:10!important;
+}
+
+#bookRow .book-cover,
+#bookRow .book::before,
+#bookRow .book::after{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    content:none!important;
+}
+
+/* ==========================================================
+   CLEAN SHELF — SINGLE FIXED HERO IMAGE
+   ========================================================== */
+
+.shelf-stage{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+}
+
+#heroFixedCover{
+    display:block!important;
+    position:absolute!important;
+
+    left:50%!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:22%!important;
+
+    width:130px!important;
+    height:184px!important;
+
+    margin-left:-65px!important;
+    margin-right:0!important;
+
+    padding:0!important;
+    border:0!important;
+    outline:0!important;
+
+    background:none!important;
+    box-shadow:none!important;
+
+    object-fit:cover!important;
+    object-position:center!important;
+
+    opacity:1!important;
+    visibility:visible!important;
+
+    z-index:50!important;
+    pointer-events:none!important;
+}
+
+#bookRow{
+    z-index:10!important;
+}
+
+#bookRow .book{
+    position:relative!important;
+    z-index:10!important;
+    background:none!important;
+    border:0!important;
+}
+
+#bookRow .book-spine{
+    pointer-events:auto!important;
+}
+
+.shelf-light,
+.shelf-shadow,
+.shelf-rule{
+    display:none!important;
+}
+
+#bookRow .book::before,
+#bookRow .book::after{
+    content:none!important;
+    display:none!important;
+}
+
+/* SPREAD THE BOOK SPINES A LITTLE */
+#bookRow{
+    gap:42px!important;
+}
+
+@media (max-width:430px){
+    #bookRow{
+        gap:30px!important;
+    }
+}
+
+/* MOVE FIXED HERO SLIGHTLY RIGHT */
+#heroFixedCover{
+    left:calc(50% + 25px)!important;
+}
+
+@media (max-width:430px){
+    #heroFixedCover{
+        left:calc(50% + 20px)!important;
+    }
+}
+
+/* MOVE BOOK 1 SLIGHTLY LEFT */
+#bookRow .book:nth-child(1){
+    transform:translateX(-25px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1){
+        transform:translateX(-20px)!important;
+    }
+}
+
+/* MOVE BOOK 1 A LITTLE FURTHER LEFT */
+#bookRow .book:nth-child(1){
+    transform:translateX(-40px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1){
+        transform:translateX(-35px)!important;
+    }
+}
+
+/* MOVE BOOK 1 A LITTLE FURTHER LEFT */
+#bookRow .book:nth-child(1){
+    transform:translateX(-40px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1){
+        transform:translateX(-35px)!important;
+    }
+}
+
+/* BOOK 1 — A LITTLE MORE LEFT */
+#bookRow .book:nth-child(1){
+    transform:translateX(-50px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1){
+        transform:translateX(-45px)!important;
+    }
+}
+
+/* BOOK 1 — MOVE A LITTLE MORE LEFT */
+#bookRow .book:nth-child(1){
+    transform:translateX(-60px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1){
+        transform:translateX(-55px)!important;
+    }
+}
+
+/* FIX SPINE SHADOW LAYERING */
+#bookRow .book:nth-child(1){
+    z-index:4!important;
+}
+
+#bookRow .book:nth-child(2){
+    z-index:3!important;
+}
+
+#bookRow .book:nth-child(3){
+    z-index:2!important;
+}
+
+#bookRow .book:nth-child(4){
+    z-index:1!important;
+}
+
+
+/* MOVE BOOK 2 SLIGHTLY LEFT */
+#bookRow .book:nth-child(2){
+    transform:translateX(-15px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(2){
+        transform:translateX(-12px)!important;
+    }
+}
+
+/* MOVE BOOK 2 CLEARLY LEFT OF HERO */
+#bookRow .book:nth-child(2){
+    transform:translateX(-40px)!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(2){
+        transform:translateX(-32px)!important;
+    }
+}
+
+/* RESTORE TRUE BOOK CENTRING */
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2){
+    transform:none!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2){
+        transform:none!important;
+    }
+}
+
+/* ==========================================================
+   CAROUSEL GEOMETRY RESET
+   ONLY THE ROW MOVES
+   ========================================================== */
+
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2),
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(4){
+    transform:none!important;
+}
+
+/* The track is the only horizontal movement */
+#bookRow{
+    left:50%!important;
+    margin-left:0!important;
+}
+
+/* Fixed hero never participates in the movement */
+#heroFixedCover{
+    pointer-events:none!important;
+}
+
+/* ==========================================================
+   CAROUSEL GEOMETRY RESET
+   ONLY THE ROW MOVES
+   ========================================================== */
+
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2),
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(4){
+    transform:none!important;
+}
+
+/* The track is the only horizontal movement */
+#bookRow{
+    left:50%!important;
+    margin-left:0!important;
+}
+
+/* Fixed hero never participates in the movement */
+#heroFixedCover{
+    pointer-events:none!important;
+}
+
+/* MOVE BOOK 2 VISUALLY LEFT — DOES NOT ALTER CAROUSEL GEOMETRY */
+#bookRow .book:nth-child(2){
+    position:relative!important;
+    left:-18px!important;
+}
+
+@media (max-width:430px){
+    #bookRow .book:nth-child(2){
+        left:-14px!important;
+    }
+}
+
+/* ==========================================================
+   SELECTED SPINE — VISIBLE + HIGHLIGHTED
+   The hero image stays in front of it.
+   ========================================================== */
+
+#bookRow .book.hero-book{
+    z-index:40!important;
+    filter:brightness(1.18)!important;
+}
+
+#bookRow .book.hero-book .book-spine{
+    opacity:1!important;
+    visibility:visible!important;
+    filter:brightness(1.22)!important;
+    border-color:rgba(255,255,255,.65)!important;
+    box-shadow:
+        inset 1px 0 rgba(255,255,255,.18),
+        inset -2px 0 rgba(0,0,0,.35),
+        0 0 12px rgba(255,255,255,.12)!important;
+}
+
+/* Hero image remains in front */
+#heroFixedCover{
+    z-index:50!important;
+}
+
+/* BOOK 2 — BRIGHTER + FURTHER LEFT */
+#bookRow .book:nth-child(2){
+    position:relative!important;
+    left:-32px!important;
+    filter:brightness(1.22)!important;
+    z-index:35!important;
+}
+
+#bookRow .book:nth-child(2) .book-spine{
+    opacity:1!important;
+    visibility:visible!important;
+    filter:brightness(1.18)!important;
+    border-color:rgba(255,255,255,.62)!important;
+    box-shadow:
+        inset 1px 0 rgba(255,255,255,.16),
+        inset -2px 0 rgba(0,0,0,.3),
+        0 0 12px rgba(255,255,255,.08)!important;
+}
+
+
+/* ==========================================================
+   SELECTED SPINE — FAINT COVER PREVIEW
+   ========================================================== */
+
+#bookRow .book.hero-book .book-spine{
+    position:absolute!important;
+    overflow:hidden!important;
+}
+
+#bookRow .book.hero-book .book-spine::after{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+
+    background-position:center!important;
+    background-size:cover!important;
+    background-repeat:no-repeat!important;
+
+    opacity:.16!important;
+
+    pointer-events:none!important;
+    z-index:1!important;
+}
+
+/* Cover image for each selected spine */
+#bookRow .book:nth-child(1).hero-book .book-spine::after{
+    background-image:url("assets/book1.jpg")!important;
+}
+
+#bookRow .book:nth-child(2).hero-book .book-spine::after{
+    background-image:url("assets/book2.jpg")!important;
+}
+
+#bookRow .book:nth-child(3).hero-book .book-spine::after{
+    background-image:url("assets/book3.jpg")!important;
+}
+
+#bookRow .book:nth-child(4).hero-book .book-spine::after{
+    background-image:url("assets/book4.jpg")!important;
+}
+
+/* Keep spine details above the faint cover */
+#bookRow .book.hero-book .book-spine > *{
+    position:relative!important;
+    z-index:2!important;
+}
+
+
+/* ==========================================================
+   MAILING LIST POPUP
+   ========================================================== */
+
+.mail-popup{
+    position:fixed;
+    inset:0;
+    z-index:500;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+
+    background:rgba(0,0,0,.68);
+    backdrop-filter:blur(8px);
+
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+
+    transition:
+        opacity .3s ease,
+        visibility .3s ease;
+}
+
+.mail-popup.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+}
+
+.mail-popup-panel{
+    position:relative;
+    width:min(460px,100%);
+    padding:34px 26px 28px;
+
+    background:#0c0c0c;
+    border:1px solid #363636;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.5);
+}
+
+.mail-popup-kicker{
+    margin-bottom:18px;
+    color:#666;
+    font-size:8px;
+    letter-spacing:.18em;
+}
+
+.mail-popup-panel h2{
+    margin:0 0 12px;
+    color:#e6e6e1;
+    font-size:clamp(34px,9vw,52px);
+    line-height:.9;
+    letter-spacing:-.055em;
+}
+
+.mail-popup-panel p{
+    margin:0 0 22px;
+    max-width:390px;
+    color:#999;
+    font-size:13px;
+    line-height:1.55;
+}
+
+.mail-popup-close{
+    position:absolute;
+    top:12px;
+    right:15px;
+
+    border:0;
+    background:none;
+
+    color:#777;
+    font-size:24px;
+    line-height:1;
+    cursor:pointer;
+}
+
+.mail-popup-close:hover{
+    color:#fff;
+}
+
+.mail-popup-form{
+    display:flex;
+    border:1px solid #383838;
+}
+
+.mail-popup-form input{
+    flex:1;
+    min-width:0;
+
+    border:0;
+    outline:0;
+    background:#111;
+
+    color:#eee;
+    padding:13px 14px;
+
+    font:inherit;
+    font-size:9px;
+    letter-spacing:.1em;
+}
+
+.mail-popup-form button{
+    border:0;
+    border-left:1px solid #383838;
+    background:#e8e8e3;
+    color:#0a0a0a;
+
+    padding:0 15px;
+
+    font:inherit;
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:.1em;
+
+    cursor:pointer;
+}
+
+.mail-popup-form button:hover{
+    background:#fff;
+}
+
+.mail-popup-note{
+    margin-top:10px;
+    min-height:13px;
+    color:#777;
+    font-size:8px;
+    letter-spacing:.05em;
+    line-height:1.4;
+}
+
+@media (max-width:430px){
+
+    .mail-popup{
+        padding:14px;
+    }
+
+    .mail-popup-panel{
+        padding:30px 18px 20px;
+    }
+
+    .mail-popup-form{
+        display:block;
+        border:0;
+    }
+
+    .mail-popup-form input{
+        width:100%;
+        box-sizing:border-box;
+        border:1px solid #383838;
+    }
+
+    .mail-popup-form button{
+        width:100%;
+        min-height:44px;
+        margin-top:8px;
+        border:1px solid #383838;
+    }
+}
+
+
+/* =========================================================
+   FINAL BOOK GALLERY FIX
+   ========================================================= */
+
+#bookRow {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: 1180px !important;
+  margin: 18px auto 0 !important;
+  padding: 0 !important;
+  gap: clamp(20px, 3.5vw, 54px) !important;
+  transform: none !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#bookRow .book,
+#bookRow .book:nth-child(1),
+#bookRow .book:nth-child(2),
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(4) {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+#bookRow .book-spine,
+#bookRow .book:nth-child(1) .book-spine,
+#bookRow .book:nth-child(2) .book-spine,
+#bookRow .book:nth-child(3) .book-spine,
+#bookRow .book:nth-child(4) .book-spine {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  background-image: none !important;
+}
+
+#bookRow .cover-image,
+#bookRow .book:nth-child(1) .cover-image,
+#bookRow .book:nth-child(2) .cover-image,
+#bookRow .book:nth-child(3) .cover-image,
+#bookRow .book:nth-child(4) .cover-image {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3 !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+#bookRow .book:nth-child(3),
+#bookRow .book:nth-child(3) .book-spine,
+#bookRow .book:nth-child(3) .cover-image {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+#bookRow .book.hero-book,
+#bookRow .book.hero-book .book-spine,
+#bookRow .book.hero-book .cover-image {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+#bookRow .book::before,
+#bookRow .book::after,
+#bookRow .book-spine::before,
+#bookRow .book-spine::after {
+  display: none !important;
+  content: none !important;
+}
+
+#bookRow .spine-mark,
+#bookRow .spine-title {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 900px) {
+  #bookRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 28px 16px !important;
+  }
+
+  #bookRow .cover-image {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #bookRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 22px 10px !important;
+  }
+
+  #bookRow .cover-image {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+

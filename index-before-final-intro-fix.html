@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#fffdf7" />
+  <meta name="description" content="Michael Kennedy — Writer. Books, writing, music and ideas." />
+  <title>MICHAEL KENNEDY // WRITER</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style id="bauhaus-theme">
+  :root{
+    --paper:#fffdf7;
+    --ink:#111111;
+    --yellow:#ffd21a;
+    --red:#ed3426;
+    --blue:#155dcc;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper)!important;color:var(--ink)!important}
+  body{font-family:Arial,Helvetica,sans-serif!important;overflow-x:hidden!important}
+  button,input{font:inherit}
+  .site-shell{width:min(1500px,100%);margin:0 auto;padding:0 32px 36px!important}
+
+  .masthead{min-height:76px!important;padding:20px 0 14px!important;background:transparent!important;border:0!important;border-bottom:3px solid var(--ink)!important;box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:space-between!important;position:relative!important;z-index:20!important}
+  .masthead .brand,.masthead .role{color:var(--ink)!important;font-weight:900!important;letter-spacing:.08em!important}
+  .masthead .brand{font-size:clamp(16px,2.1vw,28px)!important}
+  .masthead .role{font-size:11px!important;display:flex;align-items:center;gap:7px}
+  .cursor-dot{width:10px!important;height:10px!important;border:0!important;background:var(--red)!important;border-radius:50%!important;margin:0!important;display:inline-block}
+
+  .welcome{position:relative!important;padding:54px 0 64px!important;background:transparent!important;overflow:hidden!important}
+  .welcome-kicker{margin:0 0 26px!important;color:var(--red)!important;font-size:10px!important;font-weight:900!important;line-height:1!important;letter-spacing:.20em!important;text-transform:uppercase!important}
+  .welcome-scroll{position:relative!important;min-height:250px!important;width:100%!important;overflow:hidden!important;padding:10px 0!important;background:transparent!important;border:0!important;cursor:default!important;display:flex!important;align-items:center!important}
+  .welcome-track{width:100%!important;max-width:none!important;margin:0!important;will-change:transform}
+  .welcome-track p{margin:0!important;width:100%!important;max-width:1320px!important;display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;gap:0 .27em!important;color:var(--ink)!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(34px,5.4vw,88px)!important;font-weight:900!important;line-height:.93!important;letter-spacing:-.065em!important;text-align:left!important;overflow-wrap:normal!important;word-break:normal!important;user-select:none!important}
+  .welcome-track .dance-word{display:inline-block!important;position:relative!important;transform-origin:50% 82%!important;will-change:transform!important;transition:transform .22s cubic-bezier(.2,.85,.2,1),color .22s ease!important;cursor:default!important}
+  .welcome-track .dance-word:nth-child(4n+1){color:var(--ink)!important}
+  .welcome-track .dance-word:nth-child(4n+2){color:var(--red)!important}
+  .welcome-track .dance-word:nth-child(4n+3){color:var(--blue)!important}
+  .welcome-track .dance-word:nth-child(4n){color:#b58b00!important}
+  .welcome-track .dance-word.pointer-near{transform:translateY(calc(-1 * var(--hoverLift, 10px))) rotate(-3deg) scale(1.10)!important;z-index:5!important}
+  .welcome-track .dance-word:hover{transform:translateY(-14px) rotate(-4deg) scale(1.14)!important;color:var(--red)!important;z-index:5!important}
+  .welcome-track .dance-word:nth-child(3n):hover{transform:translateY(-10px) rotate(4deg) scale(1.19)!important;color:var(--blue)!important}
+  .welcome-track .dance-word:nth-child(5n):hover{transform:translateY(-18px) rotate(-2deg) scale(1.1)!important;color:#b58b00!important}
+  .welcome-scroll.dancing .dance-word{animation:welcomeDance .52s cubic-bezier(.22,.72,.18,1) both!important;animation-delay:calc(var(--i) * 11ms)!important}
+  @keyframes welcomeDance{0%{transform:translateY(0) rotate(0) scale(1)}24%{transform:translateY(calc(-9px * var(--danceDir))) rotate(calc(3deg * var(--danceDir))) scale(1.04)}50%{transform:translateY(4px) rotate(calc(-2deg * var(--danceDir))) scale(.98)}78%{transform:translateY(-3px) rotate(calc(1deg * var(--danceDir))) scale(1.01)}100%{transform:translateY(0) rotate(0) scale(1)}}
+  .welcome-scroll::after{content:""!important;position:absolute!important;right:2%!important;bottom:4%!important;width:clamp(58px,9vw,130px)!important;height:clamp(58px,9vw,130px)!important;border-radius:50%!important;background:var(--yellow)!important;z-index:-1!important;pointer-events:none!important}
+
+  .hero{background:transparent!important;padding:0!important;position:relative!important}
+  .microline{display:flex!important;justify-content:space-between!important;gap:20px!important;align-items:end!important;padding:12px 0 16px!important;border:0!important;border-top:3px solid var(--ink)!important;color:var(--ink)!important;font-size:10px!important;font-weight:900!important;letter-spacing:.15em!important}
+  .microline-right{color:var(--red)!important}
+  .shelf-stage{position:relative!important;min-height:600px!important;overflow:hidden!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:54px 0 28px!important}
+  .shelf-stage::before{content:""!important;position:absolute!important;left:-7%!important;top:18%!important;width:260px!important;height:260px!important;border-radius:50%!important;background:var(--yellow)!important;z-index:-2!important}
+  .shelf-stage::after{content:""!important;position:absolute!important;right:7%!important;top:9%!important;width:92px!important;height:92px!important;border-radius:50%!important;background:var(--red)!important;z-index:-2!important}
+  .hero-fixed-cover{display:none!important}
+  #bookRow{position:absolute!important;left:50%!important;top:50%!important;bottom:auto!important;display:flex!important;align-items:flex-end!important;gap:clamp(24px,4.3vw,72px)!important;z-index:4!important;width:max-content!important;transform:translate3d(0,-42%,0)!important;transition:transform .85s cubic-bezier(.18,.78,.18,1)!important}
+  #bookRow .book{position:relative!important;width:clamp(180px,20vw,295px)!important;min-width:clamp(180px,20vw,295px)!important;padding:0!important;margin:0!important;border:0!important;outline:0!important;background:transparent!important;color:var(--ink)!important;box-shadow:none!important;appearance:none!important;cursor:pointer!important}
+  #bookRow .book::before,#bookRow .book::after,#bookRow .book.hero-book::before,#bookRow .book.hero-book::after{display:none!important;content:none!important}
+  #bookRow .book-spine{position:relative!important;display:block!important;width:100%!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;color:inherit!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;transform:rotate(var(--tilt,0deg))!important;transition:transform .28s cubic-bezier(.2,.85,.2,1),filter .28s ease!important}
+  #bookRow .book:nth-child(1){--tilt:-4deg}
+  #bookRow .book:nth-child(2){--tilt:2deg}
+  #bookRow .book:nth-child(3){--tilt:-2deg}
+  #bookRow .book:nth-child(4){--tilt:5deg}
+  #bookRow .book-spine::after{display:none!important;content:none!important}
+  #bookRow .book-spine .cover-image{display:block!important;width:100%!important;height:auto!important;aspect-ratio:2/3!important;object-fit:cover!important;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;filter:saturate(1.03) contrast(1.02)!important;transition:transform .3s cubic-bezier(.2,.85,.2,1),filter .3s ease!important}
+  #bookRow .book:hover .book-spine{transform:translateY(-18px) rotate(0deg)!important}
+  #bookRow .book:hover .cover-image{transform:scale(1.045)!important;filter:saturate(1.12) contrast(1.05)!important}
+  #bookRow .book.hero-book .book-spine{transform:translateY(-8px) rotate(0deg) scale(1.055)!important}
+  #bookRow .book.hero-book .cover-image{filter:saturate(1.12) contrast(1.05)!important}
+  #bookRow .spine-mark{position:absolute!important;left:10px!important;top:9px!important;z-index:3!important;font-size:10px!important;font-weight:900!important;letter-spacing:.12em!important;color:#fff!important;mix-blend-mode:difference!important}
+  #bookRow .spine-title{display:block!important;margin-top:13px!important;padding-left:3px!important;writing-mode:horizontal-tb!important;transform:none!important;font-size:clamp(11px,1vw,14px)!important;line-height:1.05!important;font-weight:900!important;letter-spacing:.06em!important;color:var(--ink)!important;text-align:left!important}
+  #bookRow .book:nth-child(2) .spine-title{color:var(--red)!important}
+  #bookRow .book:nth-child(3) .spine-title{color:var(--blue)!important}
+  #bookRow .book:nth-child(4) .spine-title{color:#b58b00!important}
+  .shelf-label{position:static!important;display:inline-block!important;margin-top:8px!important;color:var(--ink)!important;background:transparent!important;border:0!important;padding:0!important;font-size:10px!important;font-weight:900!important;letter-spacing:.12em!important}
+  .gesture-hint{color:var(--red)!important;font-weight:900!important;letter-spacing:.14em!important;font-size:10px!important;padding:8px 0 0!important}
+
+  .excerpt-section{margin-top:78px!important;padding:0!important;background:transparent!important}
+  .excerpt-header{display:flex!important;justify-content:space-between!important;gap:20px!important;align-items:flex-end!important;border-top:3px solid var(--ink)!important;padding:12px 0 20px!important}
+  .excerpt-label{color:var(--red)!important;font-weight:900!important;letter-spacing:.14em!important;font-size:10px!important}
+  .excerpt-number{color:var(--blue)!important;font-weight:900!important;font-size:10px!important;letter-spacing:.12em!important}
+  .excerpt-card{position:relative!important;display:grid!important;grid-template-columns:1.15fr .85fr!important;gap:clamp(28px,6vw,90px)!important;padding:28px 0 20px!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+  .excerpt-card::after{display:none!important;content:none!important}
+  .excerpt-card h2{margin:0 0 22px!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(34px,5vw,78px)!important;font-weight:900!important;line-height:.9!important;letter-spacing:-.06em!important;color:var(--ink)!important}
+  .excerpt-card .excerpt-copy{font-family:Georgia,'Times New Roman',serif!important;color:#292929!important;font-size:clamp(17px,1.45vw,22px)!important;line-height:1.48!important;max-width:61ch!important}
+  .excerpt-side{position:relative!important;z-index:2!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  .excerpt-side .excerpt-subhead{margin:0 0 20px!important;font-weight:900!important;font-size:clamp(18px,2vw,27px)!important;letter-spacing:-.025em!important;text-transform:none!important;color:var(--red)!important}
+  .excerpt-quote{margin:24px 0 0!important;padding:0!important;border:0!important;font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(29px,3.7vw,58px)!important;line-height:.94!important;font-weight:900!important;letter-spacing:-.055em!important;color:var(--blue)!important}
+  .excerpt-quote cite{display:block!important;margin-top:18px!important;font-family:Arial,Helvetica,sans-serif!important;font-size:10px!important;font-style:normal!important;font-weight:900!important;letter-spacing:.12em!important;color:var(--ink)!important}
+
+  .billboard-section{margin-top:78px!important;padding-top:12px!important;border-top:3px solid var(--ink)!important;background:transparent!important}
+  .billboard-head{display:flex!important;justify-content:space-between!important;padding:0!important;background:transparent!important;border:0!important;color:var(--ink)!important;font-size:10px!important;font-weight:900!important;letter-spacing:.15em!important}
+  .billboard-head span:first-child{color:var(--red)!important}
+  .billboard-frame{margin-top:16px!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important;line-height:0!important}
+  .billboard-frame video{display:block;width:100%;height:auto;max-height:72vh;object-fit:cover}
+
+  .mailing-section{margin-top:84px!important;background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:none!important;padding:0!important;border-top:3px solid var(--ink)!important}
+  .mailing-section .section-meta{display:flex!important;justify-content:space-between!important;padding:12px 0 20px!important;color:var(--red)!important;font-weight:900!important;letter-spacing:.14em!important;font-size:10px!important}
+  .mailing-layout{display:grid!important;grid-template-columns:.9fr 1.1fr!important;gap:60px!important}
+  .mailing-section .section-kicker{color:var(--blue)!important;font-size:10px!important;font-weight:900!important;letter-spacing:.13em!important}
+  .mailing-section h2{font-size:clamp(40px,5vw,76px)!important;line-height:.9!important;letter-spacing:-.06em!important;margin:10px 0 0!important;color:var(--ink)!important;font-weight:900!important}
+  .mailing-section p{color:#2d2d2d!important;font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(17px,1.5vw,23px)!important;line-height:1.45!important}
+  .mailing-form{display:flex!important;gap:12px!important;margin-top:22px!important}
+  .mailing-form input,.mail-popup-form input{background:transparent!important;color:var(--ink)!important;border:0!important;border-bottom:3px solid var(--ink)!important;min-height:48px!important;font-weight:700!important;flex:1!important;padding:10px 4px!important}
+  .mailing-form button,.mail-popup-form button,.reader-action,#aboutButton{background:var(--yellow)!important;color:var(--ink)!important;border:0!important;box-shadow:none!important;font-weight:900!important;text-transform:uppercase!important;padding:12px 18px!important;cursor:pointer!important;transition:transform .2s ease,background .2s ease,color .2s ease!important}
+  .mailing-form button:hover,.mail-popup-form button:hover,.reader-action:hover,#aboutButton:hover{background:var(--red)!important;color:#fff!important;transform:translateY(-4px)!important}
+  .about-strip{margin-top:70px!important;background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:none!important;border-top:3px solid var(--ink)!important;padding:18px 0!important;display:grid!important;grid-template-columns:auto 1fr auto!important;gap:20px!important;align-items:center!important}
+  .about-index{color:var(--red)!important;font-weight:900!important}
+  .about-strip p{margin:0!important;color:var(--ink)!important;font-size:clamp(20px,2.2vw,32px)!important;line-height:1!important;font-weight:800!important;letter-spacing:-.03em!important}
+  .site-footer{border-top:3px solid var(--ink)!important;color:var(--ink)!important;margin-top:42px!important;padding:18px 0!important;font-weight:900!important;display:flex;justify-content:space-between}
+  .site-footer a{color:var(--red)!important;font-weight:900!important;text-decoration:none}
+
+  .dim-layer{background:rgba(17,17,17,.28)!important;backdrop-filter:blur(2px)!important}
+  .reader,.bio-panel,.mail-popup-panel{background:var(--paper)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:14px 14px 0 var(--yellow)!important}
+  .reader-cover{border:0!important;box-shadow:none!important}
+  .reader h1,.bio-panel h2,.mail-popup-panel h2{color:var(--ink)!important;font-weight:900!important;letter-spacing:-.055em!important}
+  .reader-copy p,.bio-panel p,.mail-popup-panel p{color:#303030!important}
+  .reader-close,.mail-popup-close{background:var(--red)!important;color:#fff!important;border:0!important;width:44px!important;height:44px!important;font-weight:900!important;box-shadow:none!important}
+  .reader-action.ghost{background:transparent!important;color:var(--ink)!important;border:0!important;border-bottom:3px solid var(--ink)!important}
+  .mail-popup{background:rgba(17,17,17,.28)!important;backdrop-filter:blur(3px)!important}
+  .mail-popup-kicker{color:var(--red)!important;font-weight:900!important}
+
+  @media (max-width:900px){
+    .site-shell{padding:0 20px 24px!important}
+    .welcome{padding:44px 0 50px!important}
+    .welcome-track p{font-size:clamp(31px,7.4vw,64px)!important}
+    .shelf-stage{min-height:510px!important;padding-top:35px!important}
+    #bookRow{gap:26px!important;transform:translate3d(0,-43%,0)!important}
+    #bookRow .book{width:clamp(145px,24vw,220px)!important;min-width:clamp(145px,24vw,220px)!important}
+    .excerpt-card{grid-template-columns:1fr!important;gap:24px!important}
+    .mailing-layout{grid-template-columns:1fr!important;gap:18px!important}
+  }
+  @media (max-width:600px){
+    .site-shell{padding:0 14px 18px!important}
+    .masthead{min-height:64px!important;padding:16px 0 11px!important}
+    .masthead .brand{font-size:13px!important}
+    .masthead .role{font-size:9px!important}
+    .welcome{padding:34px 0 40px!important}
+    .welcome-scroll{min-height:245px!important}
+    .welcome-track p{font-size:clamp(29px,10.5vw,52px)!important;line-height:.94!important;gap:0 .22em!important}
+    .shelf-stage{min-height:455px!important;padding-top:30px!important}
+    .shelf-stage::before{width:180px!important;height:180px!important;left:-18%!important}
+    .shelf-stage::after{width:58px!important;height:58px!important;right:7%!important}
+    #bookRow{gap:18px!important}
+    #bookRow .book{width:150px!important;min-width:150px!important}
+    #bookRow .spine-title{font-size:9px!important;letter-spacing:.04em!important}
+    .microline{font-size:8px!important}
+    .excerpt-section,.billboard-section{margin-top:54px!important}
+    .excerpt-card{padding:20px 0!important}
+    .excerpt-card .excerpt-copy{font-size:17px!important}
+    .excerpt-quote{font-size:36px!important}
+    .mailing-form{flex-direction:column!important}
+    .about-strip{grid-template-columns:auto 1fr!important}
+    #aboutButton{grid-column:2!important;justify-self:start!important;margin-top:8px!important}
+  }
+
+  /* FINAL WORD-FLOW CLEANUP */
+  .hero{padding-bottom:0!important}
+  .shelf-stage{min-height:390px!important;padding:26px 0 12px!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important}
+  .shelf-stage::before,.shelf-stage::after{display:none!important;content:none!important}
+  .hero-fixed-cover,.legacy-hero-placeholder{display:none!important;visibility:hidden!important;opacity:0!important;width:0!important;height:0!important;max-width:0!important;max-height:0!important;pointer-events:none!important;position:absolute!important;left:-99999px!important;top:-99999px!important}
+  #bookRow{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;transform:none!important;display:flex!important;justify-content:center!important;align-items:flex-start!important;flex-wrap:nowrap!important;width:100%!important;gap:clamp(22px,5vw,82px)!important;margin:18px auto 0!important}
+  #bookRow .book{width:clamp(190px,19vw,285px)!important;min-width:clamp(190px,19vw,285px)!important}
+  #bookRow .book:nth-child(1){--tilt:-4deg!important}
+  #bookRow .book:nth-child(2){--tilt:2deg!important}
+  #bookRow .book:nth-child(3){--tilt:-2deg!important}
+  #bookRow .book:nth-child(4){--tilt:4deg!important}
+  #bookRow .book-spine{transform:rotate(var(--tilt,0deg))!important}
+  #bookRow .book:hover .book-spine{transform:translateY(-16px) rotate(0deg) scale(1.035)!important}
+  #bookRow .book.hero-book .book-spine{transform:translateY(-8px) rotate(0deg) scale(1.035)!important}
+  .shelf-label{display:none!important}
+  .gesture-hint{padding:16px 0 0!important;color:var(--red)!important;font-size:9px!important;letter-spacing:.18em!important;background:transparent!important;border:0!important}
+
+  .about-strip{position:relative!important;margin-top:86px!important;display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;gap:24px!important;align-items:center!important;border-top:2px solid var(--ink)!important;padding:28px 0 34px!important;background:transparent!important;overflow:visible!important}
+  .about-index{align-self:start!important;padding-top:8px!important;color:var(--red)!important;font-size:11px!important;font-weight:900!important}
+  .about-flow-line{display:flex!important;align-items:baseline!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:.02em .24em!important;margin:0!important;min-width:0!important;line-height:.82!important;letter-spacing:-.065em!important;font-weight:900!important;cursor:default!important}
+  .about-flow-line .flow-word{display:inline-block!important;position:relative!important;transform-origin:50% 80%!important;transition:transform .24s cubic-bezier(.2,.85,.2,1),color .24s ease,letter-spacing .24s ease!important;will-change:transform!important}
+  .about-flow-line .flow-word-1{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(31px,4.8vw,78px)!important;color:var(--ink)!important;transform:rotate(-2deg)!important}
+  .about-flow-line .flow-word-2{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;font-weight:700!important;font-size:clamp(34px,5.1vw,84px)!important;color:var(--red)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word-3{font-family:'Trebuchet MS',Arial,sans-serif!important;font-size:clamp(29px,4.3vw,69px)!important;color:var(--blue)!important;transform:rotate(-1deg)!important}
+  .about-flow-line .flow-word-4{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(22px,3vw,46px)!important;color:#8f7000!important;transform:rotate(4deg)!important}
+  .about-flow-line .flow-word-5{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(36px,5.7vw,92px)!important;color:var(--ink)!important;transform:rotate(-3deg)!important}
+  .about-flow-line .flow-word-6{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;font-size:clamp(35px,5.4vw,86px)!important;color:var(--red)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word-7{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(20px,2.7vw,42px)!important;color:var(--blue)!important;transform:rotate(-4deg)!important}
+  .about-flow-line .flow-word-8{font-family:'Trebuchet MS',Arial,sans-serif!important;font-size:clamp(34px,5vw,80px)!important;color:var(--ink)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word:hover{transform:translateY(-12px) rotate(0deg) scale(1.08)!important;letter-spacing:-.035em!important;z-index:4!important}
+  #aboutButton{white-space:nowrap!important;align-self:end!important}
+
+  @media(max-width:900px){
+    .shelf-stage{min-height:320px!important;padding-top:18px!important}
+    #bookRow{gap:18px!important;margin-top:12px!important}
+    #bookRow .book{width:clamp(130px,23vw,185px)!important;min-width:clamp(130px,23vw,185px)!important}
+    .about-strip{grid-template-columns:auto minmax(0,1fr)!important;gap:14px!important}
+    #aboutButton{grid-column:2!important;justify-self:start!important;margin-top:12px!important}
+  }
+  @media(max-width:600px){
+    .shelf-stage{min-height:250px!important}
+    #bookRow{gap:10px!important}
+    #bookRow .book{width:23vw!important;min-width:23vw!important}
+    #bookRow .book:nth-child(4){display:none!important}
+    .about-flow-line{gap:.03em .18em!important;line-height:.86!important}
+    .about-flow-line .flow-word-1{font-size:clamp(29px,10vw,48px)!important}
+    .about-flow-line .flow-word-2{font-size:clamp(30px,10.5vw,50px)!important}
+    .about-flow-line .flow-word-3{font-size:clamp(27px,9.2vw,44px)!important}
+    .about-flow-line .flow-word-4{font-size:clamp(21px,7vw,34px)!important}
+    .about-flow-line .flow-word-5{font-size:clamp(31px,11vw,53px)!important}
+    .about-flow-line .flow-word-6{font-size:clamp(30px,10.7vw,51px)!important}
+    .about-flow-line .flow-word-7{font-size:clamp(20px,6.6vw,31px)!important}
+    .about-flow-line .flow-word-8{font-size:clamp(29px,10vw,48px)!important}
+  }
+
+  /* === BOOK COVER GALLERY V3 === */
+  .shelf-stage{
+    min-height:unset!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:34px 0 18px!important;
+    background:transparent!important;
+  }
+  .shelf-stage::before{left:-8%!important;top:18%!important;width:210px!important;height:210px!important;z-index:-2!important}
+  .shelf-stage::after{right:8%!important;top:5%!important;width:88px!important;height:88px!important;z-index:-2!important}
+  .hero-fixed-cover{display:none!important;visibility:hidden!important;opacity:0!important;width:0!important;height:0!important}
+  #bookRow{
+    position:relative!important;
+    inset:auto!important;
+    left:auto!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:100%!important;
+    max-width:1180px!important;
+    margin:0 auto!important;
+    padding:12px 0 6px!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    align-items:start!important;
+    gap:clamp(20px,4vw,62px)!important;
+    transform:none!important;
+    transition:none!important;
+    z-index:4!important;
+  }
+  #bookRow .book{
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    outline:0!important;
+    background:transparent!important;
+    color:var(--ink)!important;
+    box-shadow:none!important;
+    transform:none!important;
+    appearance:none!important;
+    cursor:pointer!important;
+  }
+  #bookRow .book::before,
+  #bookRow .book::after,
+  #bookRow .book.hero-book::before,
+  #bookRow .book.hero-book::after{display:none!important;content:none!important}
+  #bookRow .book-spine{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    transform:none!important;
+    transition:none!important;
+  }
+  #bookRow .cover-image{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:2/3!important;
+    object-fit:cover!important;
+    border:0!important;
+    outline:0!important;
+    background:#f3efe3!important;
+    box-shadow:none!important;
+    opacity:1!important;
+    visibility:visible!important;
+    filter:saturate(1.04) contrast(1.03)!important;
+    transform:none!important;
+    transition:transform .32s cubic-bezier(.2,.85,.2,1),filter .32s ease!important;
+  }
+  #bookRow .book:hover .cover-image{
+    transform:translateY(-12px) rotate(-1.2deg) scale(1.035)!important;
+    filter:saturate(1.12) contrast(1.06)!important;
+  }
+  #bookRow .book.hero-book .cover-image{
+    transform:translateY(-8px) scale(1.025)!important;
+    filter:saturate(1.12) contrast(1.06)!important;
+  }
+  #bookRow .spine-mark{
+    position:absolute!important;
+    top:9px!important;
+    left:10px!important;
+    z-index:5!important;
+    color:#fff!important;
+    mix-blend-mode:difference!important;
+    font:900 11px/1 Arial,Helvetica,sans-serif!important;
+    letter-spacing:.12em!important;
+    pointer-events:none!important;
+  }
+  #bookRow .spine-title{
+    display:block!important;
+    margin:12px 0 0!important;
+    padding:0!important;
+    writing-mode:horizontal-tb!important;
+    transform:none!important;
+    color:var(--ink)!important;
+    font:900 clamp(11px,1.05vw,15px)/.98 Arial,Helvetica,sans-serif!important;
+    letter-spacing:-.025em!important;
+    text-align:left!important;
+    text-transform:none!important;
+    transition:transform .25s ease,color .25s ease!important;
+  }
+  #bookRow .book:nth-child(2) .spine-title{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;color:var(--red)!important;font-size:clamp(13px,1.22vw,18px)!important}
+  #bookRow .book:nth-child(3) .spine-title{font-family:'Trebuchet MS',Arial,sans-serif!important;color:var(--blue)!important;font-size:clamp(11px,1vw,15px)!important}
+  #bookRow .book:nth-child(4) .spine-title{font-family:Georgia,'Times New Roman',serif!important;color:#9a7900!important;font-style:italic!important}
+  #bookRow .book:hover .spine-title{transform:translateX(7px)!important}
+  .shelf-label{display:none!important}
+  .gesture-hint{padding:12px 0 0!important;color:var(--red)!important;background:transparent!important;border:0!important;font:900 9px/1 Arial,Helvetica,sans-serif!important;letter-spacing:.18em!important}
+
+  /* === BOTTOM WORD FLOW V3 === */
+  .about-strip{
+    position:relative!important;
+    display:block!important;
+    margin-top:86px!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    overflow:hidden!important;
+  }
+  .about-index{display:none!important}
+  .about-flow-line{
+    position:relative!important;
+    display:flex!important;
+    align-items:baseline!important;
+    justify-content:flex-start!important;
+    flex-wrap:nowrap!important;
+    gap:.17em!important;
+    width:max-content!important;
+    min-width:max-content!important;
+    margin:0!important;
+    padding:10px 0 16px!important;
+    line-height:.78!important;
+    letter-spacing:-.065em!important;
+    cursor:default!important;
+    white-space:nowrap!important;
+    border-top:3px solid var(--ink)!important;
+  }
+  .about-flow-line::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:8px;background:linear-gradient(90deg,var(--yellow) 0 32%,transparent 32% 35%,var(--red) 35% 63%,transparent 63% 66%,var(--blue) 66% 100%);opacity:.95}
+  .about-flow-line .flow-word{
+    display:inline-block!important;
+    position:relative!important;
+    transform-origin:50% 80%!important;
+    transition:transform .28s cubic-bezier(.2,.85,.2,1),color .2s ease,font-family .2s ease!important;
+    will-change:transform!important;
+  }
+  .about-flow-line .flow-word-1{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(45px,7vw,112px)!important;color:var(--ink)!important;transform:rotate(-2deg)!important}
+  .about-flow-line .flow-word-2{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;font-size:clamp(39px,6.1vw,98px)!important;color:var(--red)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word-3{font-family:'Trebuchet MS',Arial,sans-serif!important;font-size:clamp(48px,6.7vw,106px)!important;color:var(--blue)!important;transform:rotate(-1deg)!important}
+  .about-flow-line .flow-word-4{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(29px,4.1vw,65px)!important;color:#9a7900!important;transform:rotate(4deg)!important}
+  .about-flow-line .flow-word-5{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(52px,7.8vw,124px)!important;color:var(--ink)!important;transform:rotate(-3deg)!important}
+  .about-flow-line .flow-word-6{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;font-size:clamp(44px,7vw,108px)!important;color:var(--red)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word-7{font-family:Arial,Helvetica,sans-serif!important;font-size:clamp(28px,4vw,64px)!important;color:var(--blue)!important;transform:rotate(-4deg)!important}
+  .about-flow-line .flow-word-8{font-family:'Trebuchet MS',Arial,sans-serif!important;font-size:clamp(49px,7.1vw,112px)!important;color:var(--ink)!important;transform:rotate(2deg)!important}
+  .about-flow-line .flow-word:hover{transform:translateY(-16px) rotate(0deg) scale(1.09)!important}
+  .about-flow-line .flow-word-2:hover,.about-flow-line .flow-word-6:hover{font-family:'Courier New',monospace!important}
+  .about-flow-line .flow-word-3:hover,.about-flow-line .flow-word-8:hover{font-family:Impact,Arial Black,sans-serif!important;letter-spacing:-.09em!important}
+  .about-flow-line .flow-word-4:hover,.about-flow-line .flow-word-7:hover{font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important}
+  #aboutButton{display:inline-block!important;margin:12px 0 0!important;background:transparent!important;color:var(--ink)!important;border:0!important;padding:0!important;font:900 11px/1 Arial,Helvetica,sans-serif!important;letter-spacing:.13em!important}
+  #aboutButton:hover{background:transparent!important;color:var(--red)!important;transform:translateX(7px)!important}
+
+  /* JS in the existing carousel tries to move #bookRow. In the new gallery the row is intentionally static. */
+  @media(max-width:900px){
+    #bookRow{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:26px 22px!important}
+    .shelf-stage{padding-top:24px!important}
+    .about-flow-line{gap:.12em!important}
+  }
+  @media(max-width:600px){
+    #bookRow{gap:28px 16px!important}
+    .about-flow-line{gap:.12em!important;line-height:.84!important}
+    .about-flow-line .flow-word-1{font-size:clamp(41px,13vw,65px)!important}
+    .about-flow-line .flow-word-2{font-size:clamp(36px,11.6vw,58px)!important}
+    .about-flow-line .flow-word-3{font-size:clamp(41px,12.7vw,63px)!important}
+    .about-flow-line .flow-word-4{font-size:clamp(26px,8.5vw,43px)!important}
+    .about-flow-line .flow-word-5{font-size:clamp(46px,14.1vw,70px)!important}
+    .about-flow-line .flow-word-6{font-size:clamp(40px,12.9vw,64px)!important}
+    .about-flow-line .flow-word-7{font-size:clamp(25px,8vw,40px)!important}
+    .about-flow-line .flow-word-8{font-size:clamp(43px,13vw,66px)!important}
+  }
+
+  .about-subline{margin:12px 0 0!important;max-width:70ch!important;font-family:Georgia,'Times New Roman',serif!important;font-style:italic!important;font-size:clamp(16px,1.35vw,21px)!important;line-height:1.35!important;color:#353535!important}
+  @media(max-width:600px){.about-subline{font-size:16px!important;line-height:1.42!important}}
+
+  /* FINAL MOBILE / LEGACY COVER RESET */
+  .hero-fixed-cover,
+  #heroFixedCover,
+  .legacy-hero-placeholder,
+  #bookRow .book::before,
+  #bookRow .book::after,
+  #bookRow .book-spine::before,
+  #bookRow .book-spine::after {
+    display:none!important;
+    content:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    background:none!important;
+    box-shadow:none!important;
+  }
+
+  #bookRow .book-spine {
+    position:relative!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+
+  #bookRow .cover-image {
+    position:relative!important;
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:2/3!important;
+    object-fit:cover!important;
+    background:transparent!important;
+  }
+
+  /* Smaller, calmer introduction type */
+  .welcome-track p{
+    font-size:clamp(28px,4.35vw,70px)!important;
+    line-height:.96!important;
+    letter-spacing:-.055em!important;
+  }
+  @media(max-width:900px){
+    .welcome-track p{font-size:clamp(27px,6.7vw,56px)!important}
+  }
+  @media(max-width:600px){
+    .welcome-track p{font-size:clamp(24px,8.6vw,44px)!important;line-height:.98!important}
+  }
+
+
+  /* =========================
+     FINAL GALLERY / RESPONSIVE FIX
+     ========================= */
+  #bookRow .book,
+  #bookRow .book:nth-child(1),
+  #bookRow .book:nth-child(2),
+  #bookRow .book:nth-child(3),
+  #bookRow .book:nth-child(4){
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+
+  #bookRow .book-spine,
+  #bookRow .cover-image,
+  #bookRow .spine-mark,
+  #bookRow .spine-title{
+    visibility:visible!important;
+  }
+
+  #bookRow{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    width:100%!important;
+    max-width:1180px!important;
+    margin:18px auto 0!important;
+    padding:0!important;
+    gap:clamp(20px,3.5vw,54px)!important;
+    transform:none!important;
+  }
+
+  #bookRow .book{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  #bookRow .cover-image{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:2 / 3!important;
+    object-fit:cover!important;
+    opacity:1!important;
+    visibility:visible!important;
+  }
+
+  #bookRow .book:nth-child(3) .cover-image{
+    display:block!important;
+    opacity:1!important;
+    visibility:visible!important;
+  }
+
+  .shelf-stage{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:24px 0 12px!important;
+  }
+
+  .hero-fixed-cover,
+  #heroFixedCover{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+  }
+
+  @media (max-width:900px){
+    .shelf-stage{
+      padding:18px 0 10px!important;
+    }
+
+    #bookRow{
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:30px 18px!important;
+      width:100%!important;
+      max-width:none!important;
+      margin:0 auto!important;
+      padding:6px 0 4px!important;
+      transform:none!important;
+    }
+
+    #bookRow .book,
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2),
+    #bookRow .book:nth-child(3),
+    #bookRow .book:nth-child(4){
+      display:block!important;
+      width:100%!important;
+      min-width:0!important;
+      max-width:none!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+
+    #bookRow .book-spine{
+      width:100%!important;
+      transform:none!important;
+    }
+
+    #bookRow .cover-image,
+    #bookRow .book:nth-child(3) .cover-image{
+      width:100%!important;
+      height:auto!important;
+      aspect-ratio:2 / 3!important;
+      object-fit:cover!important;
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      transform:none!important;
+    }
+
+    #bookRow .spine-title{
+      margin-top:9px!important;
+      font-size:clamp(9px,2.6vw,12px)!important;
+      line-height:1.02!important;
+      min-height:2.05em!important;
+      display:block!important;
+      visibility:visible!important;
+    }
+  }
+
+  @media (max-width:600px){
+    .site-shell{padding-left:14px!important;padding-right:14px!important}
+
+    .microline{
+      font-size:8px!important;
+      padding:10px 0 12px!important;
+    }
+
+    .shelf-stage{
+      padding:12px 0 8px!important;
+    }
+
+    #bookRow{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:26px 14px!important;
+      padding:4px 0!important;
+    }
+
+    #bookRow .book,
+    #bookRow .book:nth-child(1),
+    #bookRow .book:nth-child(2),
+    #bookRow .book:nth-child(3),
+    #bookRow .book:nth-child(4){
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+
+    #bookRow .cover-image,
+    #bookRow .book:nth-child(3) .cover-image{
+      display:block!important;
+      width:100%!important;
+      aspect-ratio:2 / 3!important;
+      height:auto!important;
+      object-fit:cover!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+
+    #bookRow .spine-title{
+      font-size:clamp(9px,2.55vw,12px)!important;
+      line-height:1!important;
+      margin-top:8px!important;
+    }
+
+    .gesture-hint{
+      font-size:7px!important;
+      letter-spacing:.15em!important;
+      text-align:center!important;
+    }
+  }
+
+  @media (max-width:380px){
+    #bookRow{gap:22px 10px!important}
+    #bookRow .spine-title{font-size:9px!important}
+  }
+
+</style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+
+      {
+        "@type": "Person",
+        "@id": "#michael-kennedy",
+        "name": "Michael Kennedy",
+        "jobTitle": "Writer",
+        "description": "Writer, musician, designer and lifelong explorer of ideas."
+      },
+
+      {
+        "@type": "WebSite",
+        "@id": "#michael-kennedy-writer",
+        "name": "Michael Kennedy // Writer",
+        "description": "Michael Kennedy — Writer. Books, writing, music and ideas.",
+        "inLanguage": "en",
+        "publisher": {
+          "@id": "#michael-kennedy"
+        }
+      },
+
+      {
+        "@type": "WebPage",
+        "@id": "#writer-home",
+        "name": "Michael Kennedy // Writer",
+        "description": "Michael Kennedy — Writer. Books, writing, music and ideas.",
+        "inLanguage": "en",
+        "mainEntity": {
+          "@id": "#michael-kennedy"
+        },
+        "isPartOf": {
+          "@id": "#michael-kennedy-writer"
+        }
+      },
+
+      {
+        "@type": "Book",
+        "@id": "#book-01",
+        "name": "Ancient Wisdom For Modern Souls",
+        "image": "assets/book1.jpg",
+        "author": {
+          "@id": "#michael-kennedy"
+        },
+        "url": "https://www.amazon.co.uk/Ancient-Wisdom-Modern-Souls-Self-Help/dp/B0DSQZYJCL/ref=sr_1_2?sr=8-2"
+      },
+
+      {
+        "@type": "Book",
+        "@id": "#book-02",
+        "name": "What Do Lions Eat?",
+        "image": "assets/book2.jpg",
+        "author": {
+          "@id": "#michael-kennedy"
+        },
+        "url": "https://www.amazon.co.uk/What-Lions-Manchester-United-Takeover/dp/B0F3J2RZWR/ref=sr_1_3?sr=8-3"
+      },
+
+      {
+        "@type": "Book",
+        "@id": "#book-03",
+        "name": "The Merchant of the Silk Road",
+        "image": "assets/book3.jpg",
+        "author": {
+          "@id": "#michael-kennedy"
+        },
+        "url": "https://www.amazon.co.uk/Merchant-Silk-Road-journey-through/dp/B0FP293BFC/ref=sr_1_1?sr=8-1"
+      }
+
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main class="site-shell">
+    <header class="masthead" aria-label="Site header">
+      <div class="brand">MICHAEL KENNEDY</div>
+      <div class="role">WRITER<span class="cursor-dot" aria-hidden="true"></span></div>
+    </header>
+    <section class="welcome" aria-label="Welcome">
+      <div class="welcome-kicker">WELCOME / MICHAEL KENNEDY</div>
+      <div class="welcome-scroll" id="welcomeScroll" tabindex="0" aria-label="Introduction statement">
+        <div class="welcome-track" id="welcomeTrack">
+          <p>You have crossed the threshold into my digital domain. Consider this space a curated sanctuary of vision and intent—engage with purpose, extract value, and align with the principles set forth herein.</p>
+        </div>
+      </div>
+      <script>
+        (() => {
+          const box=document.getElementById('welcomeScroll');
+          const track=document.getElementById('welcomeTrack');
+          const text=track ? track.querySelector('p') : null;
+          if(!box || !track || !text) return;
+
+          const raw=text.textContent.trim();
+          text.innerHTML='';
+          let wordIndex=0;
+          raw.split(/(\s+)/).forEach(part=>{
+            if(/^\s+$/.test(part)){
+              text.appendChild(document.createTextNode(part));
+              return;
+            }
+            const span=document.createElement('span');
+            span.className='dance-word';
+            span.style.setProperty('--i',wordIndex++);
+            span.textContent=part;
+            text.appendChild(span);
+          });
+
+          let danceTimer=null;
+          const triggerDance=(delta)=>{
+            box.style.setProperty('--danceDir',delta<0?-1:1);
+            box.classList.remove('dancing');
+            void box.offsetWidth;
+            box.classList.add('dancing');
+            clearTimeout(danceTimer);
+            danceTimer=setTimeout(()=>box.classList.remove('dancing'),720);
+          };
+
+          let flowX=0,targetX=0;
+          const render=()=>{
+            flowX+=(targetX-flowX)*0.10;
+            track.style.transform=`translate3d(${flowX}px,0,0)`;
+            requestAnimationFrame(render);
+          };
+
+          box.addEventListener('wheel',e=>{
+            const amount=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;
+            if(!amount)return;
+            e.preventDefault();
+            targetX=Math.max(-34,Math.min(34,targetX+amount*0.12));
+            triggerDance(amount);
+          },{passive:false});
+
+          box.addEventListener('pointermove',e=>{
+            const words=[...text.querySelectorAll('.dance-word')];
+            let closest=null,closestDist=Infinity;
+            for(const word of words){
+              const r=word.getBoundingClientRect();
+              const d=Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));
+              if(d<closestDist){closestDist=d;closest=word;}
+            }
+            words.forEach(w=>w.classList.remove('pointer-near'));
+            if(closest && closestDist<150){
+              closest.classList.add('pointer-near');
+              closest.style.setProperty('--hoverLift',`${Math.max(4,18-closestDist/12)}px`);
+            }
+          });
+
+          box.addEventListener('pointerleave',()=>{
+            text.querySelectorAll('.dance-word').forEach(w=>w.classList.remove('pointer-near'));
+          });
+
+          box.addEventListener('keydown',e=>{
+            if(e.key==='ArrowLeft'){e.preventDefault();targetX=Math.max(-34,targetX-12);triggerDance(-1)}
+            if(e.key==='ArrowRight'){e.preventDefault();targetX=Math.min(34,targetX+12);triggerDance(1)}
+          });
+
+          render();
+        })();
+      </script>
+    </section>
+    <section class="hero" aria-label="Books">
+      <div class="microline">
+        <span>BOOKS / SELECT A COVER</span>
+        <span class="microline-right">01—04 / WRITING</span>
+      </div>
+
+      <div class="shelf-stage" id="shelfStage" tabindex="0">
+        <img id="heroFixedCover" class="hero-fixed-cover legacy-hero-placeholder" src="assets/book2.jpg" alt="" aria-hidden="true" />
+
+        <div class="book-row" id="bookRow">
+          <button class="book" type="button" data-index="0" aria-label="Open Ancient Wisdom For Modern Souls">
+            <span class="book-spine">
+              <img class="cover-image" src="assets/book1.jpg" alt="Ancient Wisdom For Modern Souls cover" />
+              <span class="spine-mark">01</span>
+              <span class="spine-title">ANCIENT WISDOM FOR MODERN SOULS</span>
+            </span>
+          </button>
+
+          <button class="book" type="button" data-index="1" aria-label="Open What Do Lions Eat">
+            <span class="book-spine">
+              <img class="cover-image" src="assets/book2.jpg" alt="What Do Lions Eat? cover" />
+              <span class="spine-mark">02</span>
+              <span class="spine-title">WHAT DO LIONS EAT?</span>
+            </span>
+          </button>
+
+          <button class="book" type="button" data-index="2" aria-label="Open The Merchant of the Silk Road">
+            <span class="book-spine">
+              <img class="cover-image" src="assets/book3.jpg" alt="The Merchant of the Silk Road cover" onerror="this.onerror=null;this.src='https://m.media-amazon.com/images/P/B0FP293BFC.01.LZZZZZZZ.jpg';" />
+              <span class="spine-mark">03</span>
+              <span class="spine-title">THE MERCHANT OF THE SILK ROAD</span>
+            </span>
+          </button>
+
+          <button class="book book-coming" type="button" data-index="3" aria-label="Open Book 4 Coming Soon">
+            <span class="book-spine">
+              <img class="cover-image" src="assets/book4.jpg" alt="Book 4 coming soon cover" />
+              <span class="spine-mark">04</span>
+              <span class="spine-title">COMING SOON</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="shelf-label" aria-hidden="true">ARCHIVE / 001—004</div>
+      </div>
+
+      <div class="gesture-hint" id="gestureHint">HOVER / SELECT / OPEN</div>
+    </section>
+    <section class="excerpt-section" aria-label="Book excerpt">
+      <div class="excerpt-header">
+        <span class="excerpt-label">BOOK / 01 — ANCIENT WISDOM FOR MODERN SOULS</span>
+        <span class="excerpt-number">EXCERPT / IMPERMANENCE</span>
+      </div>
+      <article class="excerpt-card">
+        <div>
+          <h2>Life is in constant motion.</h2>
+          <p id="thoughtOne" class="excerpt-copy">Yet as humans, we often <span class="accent-word red">resist change</span>. Whether it&#8217;s clinging to a past relationship, fearing an <span class="accent-word blue">uncertain future</span>, or holding onto outdated beliefs, our resistance to impermanence can create unnecessary suffering. Ancient wisdom teaches us that <span class="accent-word gold">letting go</span> is not a loss but a powerful act of courage and freedom.</p>
+        </div>
+        <div class="excerpt-side">
+          <div class="excerpt-subhead">THE UNIVERSAL TRUTH OF IMPERMANENCE</div>
+          <p id="thoughtTwo" class="excerpt-copy">From the flowing <span class="accent-word blue">river</span> to the changing <span class="accent-word gold">seasons</span>, nature constantly reminds us that nothing stays the same. Ancient traditions embrace this truth as a cornerstone of their teachings, urging us to align with the <span class="accent-word red">natural rhythms of life</span>.</p>
+          <blockquote class="excerpt-quote">&#8220;This too shall pass.&#8221;<cite>— PERSIAN PROVERB</cite></blockquote>
+        </div>
+      </article>
+    </section>
+        <section class="billboard-section" aria-label="Featured">
+      <div class="billboard-head">
+        <span>FEATURED</span>
+        <span>/ NOW PLAYING</span>
+      </div>
+
+      <div class="billboard-frame">
+        <video src="assets/billboard.mp4" autoplay loop muted playsinline></video>
+      </div>
+    </section>
+    
+    <section class="mailing-section" id="mailingList" aria-label="Mailing list">
+      <div class="section-meta">
+        <span>MAIL / EVENTS</span>
+        <span>KEEP IN TOUCH</span>
+      </div>
+
+      <div class="mailing-layout">
+        <div>
+          <div class="section-kicker">MICHAEL KENNEDY / LETTERS</div>
+          <h2>Stay in the loop.</h2>
+        </div>
+
+        <div>
+          <p>
+            Join the mailing list for new books, readings, launches,
+            appearances and future events.
+          </p>
+
+          <form class="mailing-form" id="mailingForm">
+            <label class="sr-only" for="mailingEmail">Email address</label>
+            <input
+              id="mailingEmail"
+              name="email"
+              type="email"
+              placeholder="YOUR EMAIL"
+              autocomplete="email"
+              required
+            />
+            <button type="submit">JOIN LIST</button>
+          </form>
+
+          <p class="mailing-note" id="mailingNote"></p>
+        </div>
+      </div>
+    </section>
+<section class="about-strip" id="aboutFlow" aria-label="About Michael">
+      <span class="about-index">[00]</span>
+      <p class="about-flow-line" aria-label="Writer, musician, designer and lifelong explorer of ideas.">
+        <span class="flow-word flow-word-1">Writer</span>
+        <span class="flow-word flow-word-2">musician</span>
+        <span class="flow-word flow-word-3">designer</span>
+        <span class="flow-word flow-word-4">and</span>
+        <span class="flow-word flow-word-5">lifelong</span>
+        <span class="flow-word flow-word-6">explorer</span>
+        <span class="flow-word flow-word-7">of</span>
+        <span class="flow-word flow-word-8">ideas</span>
+      </p>
+      <p id="thoughtThree" class="about-subline">I move between <span class="accent-word gold">history</span>, technology, <span class="accent-word blue">artificial intelligence</span>, music and the <span class="accent-word red">creative arts</span> &#8212; looking for the connections between them.</p>
+      <button id="aboutButton" type="button">ABOUT MICHAEL &#8599;</button>
+    </section>
+
+    <footer class="site-footer">
+      <span>© MICHAEL KENNEDY</span>
+      <a href="mailto:futrbit@gmail.com">CONTACT</a>
+    </footer>
+  </main>
+
+  <div class="dim-layer" id="dimLayer" hidden></div>
+
+  <section class="reader" id="reader" aria-hidden="true" aria-label="Book details">
+    <button class="reader-close" id="readerClose" type="button" aria-label="Close book">×</button>
+    <div class="reader-inner">
+      <div class="reader-object">
+        <div class="reader-cover" id="readerCover"></div>
+      </div>
+      <div class="reader-copy">
+        <div class="reader-meta"><span id="readerNumber">BOOK 01</span><span>MICHAEL KENNEDY / WRITER</span></div>
+        <h1 id="readerTitle"></h1>
+        <p id="readerBlurb"></p>
+        <div class="reader-actions">
+          <a id="readLink" class="reader-action" href="#" target="_blank" rel="noopener">BUY</a>
+          <button class="reader-action ghost" id="readIntro" type="button">READ INTRO</button>
+        <button class="reader-action ghost" id="nextBook" type="button">NEXT BOOK</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bio-panel" id="bioPanel" aria-hidden="true" aria-label="About Michael">
+    <button class="reader-close" id="bioClose" type="button" aria-label="Close About">×</button>
+    <div class="bio-inner">
+      <div class="bio-kicker">ABOUT / 000</div>
+      <div class="bio-layout">
+        
+        <div>
+          <h2>MICHAEL<br><span>KENNEDY</span></h2>
+          <p>Writer, musician, designer and lifelong explorer of ideas.</p>
+          <p>My work moves between history, technology, artificial intelligence, music and the creative arts — often looking for the connections between them.</p>
+          <p>I write books, make music, build things and experiment with new technology.</p>
+          <a class="reader-action" href="mailto:futrbit@gmail.com">CONTACT â†’</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+  <script>
+    (() => {
+      const row = document.getElementById('bookRow');
+      if (!row) return;
+      const freezeGallery = () => {
+        row.style.setProperty('transform', 'none', 'important');
+      };
+      freezeGallery();
+      window.addEventListener('resize', freezeGallery);
+      const observer = new MutationObserver(freezeGallery);
+      observer.observe(row, { attributes:true, attributeFilter:['style'] });
+    })();
+  </script>
+  
+
+  <script>
+    (() => {
+      const flow = document.getElementById('aboutFlow');
+      if (!flow) return;
+      const words = [...flow.querySelectorAll('.flow-word')];
+      flow.addEventListener('pointermove', (event) => {
+        const rect = flow.getBoundingClientRect();
+        const px = event.clientX - rect.left;
+        words.forEach((word, i) => {
+          const r = word.getBoundingClientRect();
+          const cx = r.left - rect.left + r.width / 2;
+          const distance = Math.abs(px - cx);
+          const influence = Math.max(0, 1 - distance / 230);
+          const lift = influence * (5 + (i % 3) * 3);
+          const twist = (i % 2 ? 1 : -1) * influence * 3;
+          word.style.setProperty('--flowLift', `${lift}px`);
+          word.style.setProperty('--flowTwist', `${twist}deg`);
+          word.style.transform = `translateY(calc(-1 * var(--flowLift))) rotate(calc(var(--flowTwist) + ${(i%3)-1}deg)) scale(${1 + influence * .035})`;
+        });
+      });
+      flow.addEventListener('pointerleave', () => {
+        words.forEach((word, i) => {
+          word.style.removeProperty('--flowLift');
+          word.style.removeProperty('--flowTwist');
+          word.style.transform = '';
+        });
+      });
+    })();
+  </script>
+
+  <div class="mail-popup" id="mailPopup" aria-hidden="true">
+    <div class="mail-popup-panel" role="dialog" aria-modal="true" aria-labelledby="mailPopupTitle">
+
+      <button
+        class="mail-popup-close"
+        id="mailPopupClose"
+        type="button"
+        aria-label="Close mailing list">
+        ×
+      </button>
+
+      <div class="mail-popup-kicker">
+        MAIL / MICHAEL KENNEDY
+      </div>
+
+      <h2 id="mailPopupTitle">
+        Stay in the loop.
+      </h2>
+
+      <p>
+        New books, readings, launches, appearances and future events.
+        Nothing excessive. Just the occasional letter.
+      </p>
+
+      <form class="mail-popup-form" id="mailPopupForm">
+
+        <label class="sr-only" for="mailPopupEmail">
+          Email address
+        </label>
+
+        <input
+          id="mailPopupEmail"
+          type="email"
+          placeholder="YOUR EMAIL"
+          autocomplete="email"
+          required
+        />
+
+        <button type="submit">
+          JOIN LIST ?
+        </button>
+
+      </form>
+
+      <div class="mail-popup-note" id="mailPopupNote"></div>
+
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="mobile-about-flow-fix">
+  @media (max-width: 700px) {
+    .about-flow-line {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 auto !important;
+      padding: 0 18px !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      align-items: center !important;
+      text-align: center !important;
+      gap: 0 8px !important;
+      font-size: clamp(22px, 6.5vw, 32px) !important;
+      line-height: 1.15 !important;
+    }
+
+    .about-flow-line .flow-word {
+      display: inline-block !important;
+      position: relative !important;
+      white-space: nowrap !important;
+      font-size: inherit !important;
+      line-height: inherit !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+
+<style id="FINAL-FLOW-MOBILE">
+@media screen and (max-width: 700px) {
+  html body .about-flow-line {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    padding: 0 15px !important;
+    text-align: center !important;
+    font-size: 24px !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em !important;
+    transform: none !important;
+  }
+
+  html body .about-flow-line .flow-word {
+    display: inline-block !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 24px !important;
+    line-height: 1.1 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
+
+
+<style id="FLOW-MOBILE-FINAL">
+@media screen and (max-width: 700px) {
+  html body .about-flow-line {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 2px 7px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+
+  html body .about-flow-line .flow-word {
+    display: inline-block !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 23px !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em !important;
+    transform: none !important;
+    scale: 1 !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
+
+<script>
+(() => {
+  const mobileFlowFix = () => {
+    if (window.innerWidth <= 700) {
+      const flow = document.querySelector('.about-flow-line');
+      if (!flow) return;
+
+      flow.querySelectorAll('.flow-word').forEach(word => {
+        word.style.setProperty('transform', 'none', 'important');
+        word.style.setProperty('font-size', '23px', 'important');
+      });
+    }
+  };
+
+  mobileFlowFix();
+  window.addEventListener('resize', mobileFlowFix);
+})();
+</script>
+
+
+<style id="ABOUT-MOBILE-FINAL">
+@media screen and (max-width: 700px) {
+
+  html body section.about-strip#aboutFlow {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 35px 16px !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-index {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 0 12px !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-flow-line {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto 18px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    font-size: 22px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.02em !important;
+    gap: 3px 7px !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-flow-line .flow-word {
+    display: inline-block !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 22px !important;
+    line-height: 1.15 !important;
+    transform: none !important;
+    scale: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-subline {
+    width: 100% !important;
+    max-width: 340px !important;
+    margin: 0 auto 20px !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  html body section.about-strip#aboutFlow #aboutButton {
+    display: inline-block !important;
+    margin: 0 auto !important;
+  }
+}
+</style>
+
+<script>
+(() => {
+  function lockAboutMobile() {
+    if (window.innerWidth <= 700) {
+      const flow = document.querySelector('#aboutFlow .about-flow-line');
+      if (!flow) return;
+
+      flow.querySelectorAll('.flow-word').forEach(word => {
+        word.style.setProperty('transform', 'none', 'important');
+        word.style.setProperty('font-size', '22px', 'important');
+      });
+    }
+  }
+
+  lockAboutMobile();
+  window.addEventListener('resize', lockAboutMobile);
+})();
+</script>
+
+
+<style id="ABOUT-MOBILE-BALANCED">
+@media screen and (max-width: 700px) {
+
+  html body section.about-strip#aboutFlow {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-flow-line {
+    width: 100% !important;
+    max-width: 390px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: clamp(26px, 8vw, 38px) !important;
+    line-height: 1.05 !important;
+    gap: 2px 7px !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-flow-line .flow-word {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+
+  html body section.about-strip#aboutFlow .about-subline {
+    max-width: 360px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+}
+</style>
+
+
+<style id="FEATURE-TEXT-FINAL">
+/* =========================================================
+   FEATURED WRITING — LARGE / COLOURFUL / SAME TYPE STYLE
+   ========================================================= */
+
+.excerpt-copy {
+  font-size: clamp(22px, 3vw, 42px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.025em !important;
+  max-width: 1100px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Make the ABOUT statement substantially larger */
+.about-subline {
+  font-size: clamp(24px, 3.2vw, 44px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.025em !important;
+  max-width: 1100px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Mobile */
+@media screen and (max-width: 700px) {
+  .excerpt-copy {
+    font-size: clamp(20px, 6vw, 30px) !important;
+    line-height: 1.2 !important;
+    max-width: 100% !important;
+  }
+
+  .about-subline {
+    font-size: clamp(20px, 6vw, 30px) !important;
+    line-height: 1.2 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Colour individual words without changing the typography */
+.about-subline .colour-word,
+.excerpt-copy .colour-word {
+  display: inline !important;
+}
+
+
+
+<style id="FEATURED-THOUGHTS">
+/* =========================================================
+   FEATURED THOUGHTS
+   ========================================================= */
+
+.featured-thought {
+  font-size: clamp(24px, 3.2vw, 44px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.025em !important;
+  max-width: 1100px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Individual emphasis colours */
+.thought-one {
+  --thought-accent: #d65a4a;
+}
+
+.thought-two {
+  --thought-accent: #4b7f8c;
+}
+
+.thought-three {
+  --thought-accent: #9a7045;
+}
+
+/* Mobile */
+@media screen and (max-width: 700px) {
+  .featured-thought {
+    font-size: clamp(22px, 6vw, 32px) !important;
+    line-height: 1.18 !important;
+    max-width: 100% !important;
+  }
+}
+</style>
+
+
+
+<style id="FINAL-THOUGHT-TYPOGRAPHY">
+
+html body #thoughtOne,
+html body #thoughtTwo {
+  font-size: clamp(28px, 3.4vw, 46px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.025em !important;
+  max-width: 1100px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+html body #thoughtThree {
+  font-size: clamp(28px, 3.5vw, 48px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.025em !important;
+  max-width: 1100px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+/* Individual words */
+html body .accent-word {
+  font: inherit !important;
+}
+
+html body .accent-word.red {
+  color: #c94f45 !important;
+}
+
+html body .accent-word.blue {
+  color: #477b87 !important;
+}
+
+html body .accent-word.gold {
+  color: #a4773e !important;
+}
+
+/* MOBILE */
+@media screen and (max-width: 700px) {
+
+  html body #thoughtOne,
+  html body #thoughtTwo {
+    font-size: clamp(23px, 6.3vw, 31px) !important;
+    line-height: 1.18 !important;
+    max-width: 100% !important;
+  }
+
+  html body #thoughtThree {
+    font-size: clamp(24px, 6.5vw, 32px) !important;
+    line-height: 1.18 !important;
+    max-width: 390px !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  html body .accent-word {
+    font-size: inherit !important;
+    line-height: inherit !important;
+  }
+}
+
+</style>
+
+
+
+<style id="FINAL-THOUGHT-COLOURS">html body #thoughtOne .accent-word.red{color:#c94f45!important}html body #thoughtOne .accent-word.blue{color:#477b87!important}html body #thoughtOne .accent-word.gold{color:#a4773e!important}</style>
+
+
+<style id="MAILING-LIST-STYLE">html body .mailing-list-copy,html body #mailingList p,html body .newsletter-copy{font-family:inherit!important;font-size:clamp(22px,2.4vw,34px)!important;line-height:1.2!important;letter-spacing:-.02em!important;color:#477b87!important}html body .mailing-list-copy strong,html body #mailingList p strong,html body .newsletter-copy strong{color:#c94f45!important}@media(max-width:700px){html body .mailing-list-copy,html body #mailingList p,html body .newsletter-copy{font-size:clamp(20px,5.8vw,28px)!important;line-height:1.2!important}}</style>
+
+<style id="FINAL-ABOUT-TYPO">html body #thoughtThree{font-size:clamp(32px,3.8vw,52px)!important;line-height:1.12!important;letter-spacing:-.025em!important}html body #aboutButton{font-size:clamp(16px,1.4vw,21px)!important;letter-spacing:.08em!important;font-weight:700!important}@media(max-width:700px){html body #thoughtThree{font-size:clamp(26px,7vw,36px)!important;line-height:1.16!important}html body #aboutButton{font-size:16px!important}}</style>
+
+<style id="FINAL-ABOUT-BIGGER">html body #thoughtThree{font-size:clamp(36px,4.5vw,60px)!important;line-height:1.08!important;letter-spacing:-.035em!important;max-width:1200px!important;margin-left:auto!important;margin-right:auto!important;text-align:center!important}html body #aboutButton{font-size:clamp(17px,1.5vw,22px)!important;letter-spacing:.09em!important;font-weight:700!important}@media(max-width:700px){html body #thoughtThree{font-size:clamp(28px,8vw,40px)!important;line-height:1.12!important;max-width:100%!important}html body #aboutButton{font-size:16px!important}}</style>
+<style id="ABOUT-THOUGHT-EXTRA-BIG">html body #thoughtThree{font-size:clamp(42px,5.2vw,68px)!important;line-height:1.06!important;letter-spacing:-.04em!important}@media(max-width:700px){html body #thoughtThree{font-size:clamp(30px,8.5vw,44px)!important;line-height:1.1!important}}</style>
+
+
+
+

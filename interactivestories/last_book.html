@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>The Last Book</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0c;
+  --text: #e8e0d4;
+  --dim: #a89880;
+  --warm: #3d2b1f;
+  --glow: #f4c862;
+  --accent: #c4956a;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  padding-bottom: 2.5rem;
+}
+
+/* Rain */
+#rain {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.drop {
+  position: absolute;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(174,194,224,0.25));
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  to { transform: translateY(100vh); }
+}
+
+/* Flicker overlay */
+#flicker {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--glow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: flicker 4s infinite;
+}
+@keyframes flicker {
+  0%, 100% { opacity: 0; }
+  48% { opacity: 0; }
+  49% { opacity: 0.03; }
+  50% { opacity: 0; }
+  51% { opacity: 0.02; }
+  52% { opacity: 0; }
+  83% { opacity: 0; }
+  84% { opacity: 0.04; }
+  85% { opacity: 0; }
+}
+
+/* Scene background */
+#scene {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  transition: background 2s ease;
+}
+
+.bg-library {
+  background: radial-gradient(ellipse at 50% 30%, #1a1408 0%, #0a0a0c 70%);
+}
+.bg-car {
+  background: radial-gradient(ellipse at 50% 80%, #0d1118 0%, #050508 70%);
+}
+.bg-black {
+  background: #000;
+}
+.bg-kitchen {
+  background: radial-gradient(ellipse at 50% 60%, #1f1810 0%, #0a0a0c 70%);
+}
+.bg-river {
+  background: radial-gradient(ellipse at 50% 40%, #0a1218 0%, #050508 70%);
+}
+.bg-open {
+  background: radial-gradient(ellipse at 50% 50%, #1a1408 0%, #0a0a0c 60%);
+}
+
+/* Text area */
+#text-area {
+  position: relative;
+  z-index: 10;
+  max-width: 680px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+#text-area.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#narrative {
+  font-size: clamp(16px, 2.5vw, 20px);
+  line-height: 1.75;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  white-space: pre-line;
+}
+
+#narrative .mother {
+  color: var(--glow);
+  font-style: italic;
+}
+
+/* Choices */
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.choice-btn {
+  background: none;
+  border: 1px solid rgba(168,152,128,0.2);
+  color: var(--dim);
+  font-family: Georgia, serif;
+  font-size: clamp(15px, 2.2vw, 18px);
+  padding: 0.85rem 1.2rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
+}
+.choice-btn:hover, .choice-btn:focus {
+  color: var(--text);
+  border-color: rgba(168,152,128,0.5);
+  background: rgba(168,152,128,0.05);
+}
+.choice-btn:active {
+  background: rgba(168,152,128,0.1);
+}
+
+/* Chapter indicator */
+#chapter {
+  position: fixed;
+  top: 1.2rem;
+  left: 1.5rem;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dim);
+  opacity: 0.5;
+  z-index: 10;
+}
+
+/* Title screen */
+#title {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  background: #000;
+  transition: opacity 2s ease;
+}
+#title.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#title h1 {
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+#title p {
+  font-size: 14px;
+  color: var(--dim);
+  margin-bottom: 3rem;
+}
+#title .start-btn {
+  background: none;
+  border: 1px solid var(--dim);
+  color: var(--dim);
+  font-family: Georgia, serif;
+  font-size: 16px;
+  padding: 1rem 3rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  min-height: 48px;
+}
+#title .start-btn:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+/* Progress dots */
+#progress {
+  position: fixed;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(168,152,128,0.2);
+  transition: background 0.5s ease;
+}
+.dot.active {
+  background: var(--dim);
+}
+
+/* Audio toggle */
+#audio-toggle {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.5rem;
+  z-index: 10;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.5;
+  min-height: 44px;
+  min-width: 44px;
+}
+#audio-toggle:hover { opacity: 1; }
+
+/* Warm flash */
+.warm-flash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--warm);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 1.5s ease;
+}
+.warm-flash.active { opacity: 0.15; }
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  #app { padding: 1rem; padding-bottom: 2rem; }
+  #narrative { line-height: 1.65; }
+  .choice-btn { padding: 0.75rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="title">
+  <h1>The Last Book</h1>
+  <p>An interactive story</p>
+  <button class="start-btn" onclick="startGame()">Begin</button>
+</div>
+
+<div id="scene" class="bg-library"></div>
+<div id="rain"></div>
+<div id="flicker"></div>
+<div class="warm-flash" id="warmflash"></div>
+
+<div id="chapter"></div>
+<div id="app">
+  <div id="text-area">
+    <div id="narrative"></div>
+    <div id="choices"></div>
+  </div>
+</div>
+
+<div id="progress"></div>
+<button id="audio-toggle" onclick="toggleAudio()">♪</button>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+const state = {
+  chapter: 0,
+  totalChapters: 10,
+  choices: [],
+  audioOn: false,
+  audioCtx: null
+};
+
+// ─── RAIN ────────────────────────────────────────────────────
+function initRain() {
+  const rain = document.getElementById('rain');
+  for (let i = 0; i < 60; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'drop';
+    drop.style.left = Math.random() * 100 + '%';
+    drop.style.height = (Math.random() * 30 + 20) + 'px';
+    drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+    drop.style.animationDelay = Math.random() * 2 + 's';
+    drop.style.opacity = Math.random() * 0.4 + 0.1;
+    rain.appendChild(drop);
+  }
+}
+
+// ─── AUDIO (procedural, no files needed) ─────────────────────
+function initAudio() {
+  if (state.audioCtx) return;
+  state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playHum() {
+  if (!state.audioOn || !state.audioCtx) return;
+  const ctx = state.audioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 50;
+  gain.gain.value = 0.02;
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  setTimeout(() => { osc.stop(); }, 5000);
+}
+
+function playDrone() {
+  if (!state.audioOn || !state.audioCtx) return;
+  const ctx = state.audioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 40;
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 3);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  setTimeout(() => {
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
+    setTimeout(() => osc.stop(), 2000);
+  }, 8000);
+}
+
+function playToast() {
+  if (!state.audioOn || !state.audioCtx) return;
+  const ctx = state.audioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = 220;
+  gain.gain.setValueAtTime(0.05, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 1.5);
+}
+
+function toggleAudio() {
+  state.audioOn = !state.audioOn;
+  document.getElementById('audio-toggle').textContent = state.audioOn ? '♪' : '∅';
+  document.getElementById('audio-toggle').style.opacity = state.audioOn ? '1' : '0.4';
+  if (state.audioOn) initAudio();
+}
+
+// ─── STORY ENGINE ────────────────────────────────────────────
+const story = {
+  // CHAPTER 1: THE LIBRARY
+  ch1: {
+    chapter: "Chapter I",
+    bg: "bg-library",
+    text: `You are the last person to leave the Harrowgate Public Library.
+
+The fluorescent tube above the circulation desk flickers — a sound like a struck match, repeated. Outside, the October wind pushes rain against the windows in long, slanting sheets.
+
+You've been closing up for forty minutes. The chairs are stacked. The doors are locked. The sign on the window reads CLOSED in your own handwriting, the O slightly lopsided.
+
+You are reaching for your coat when you see it.
+
+A book, face-down on the return cart. You don't remember seeing it. The spine is black, unmarked, and warm to the touch — not the warmth of a room, but the warmth of a hand.
+
+You open it.
+
+The first page is blank. The second page contains a single line in handwriting you recognise:
+
+"You left the light on in the kitchen. Again."
+
+It is your mother's handwriting. Your mother has been dead for three years.`,
+    choices: [
+      { text: "Close the book. Walk out. Don't look back.", next: "ch2a" },
+      { text: "Turn the page.", next: "ch2b" },
+      { text: "Take the book with you.", next: "ch2c" }
+    ]
+  },
+
+  // CHAPTER 2A: WALK OUT
+  ch2a: {
+    chapter: "Chapter II",
+    bg: "bg-car",
+    text: `You close the book. You put it back on the cart. You walk out.
+
+The rain hits your face and you let it. Your coat is damp at the shoulders by the time you reach the car park. The concrete is black with water. Your car sits in the last space, the one closest to the street, the one you always take because it's the one with the streetlight.
+
+You get in. You start the engine.
+
+In the rearview mirror, just for a moment — a flicker. The library is dark, all of it, except one window on the ground floor. A warm, yellow light, the colour of a kitchen in winter.
+
+You drive. The wipers keep time. The road is empty.
+
+At the corner of Mill Road, you see it. The book. On the passenger seat. Closed. Warm.
+
+You didn't bring it. You are certain you didn't bring it.
+
+You stop the car. You open the door. The rain is heavier now. You pick up the book. It is heavier than it should be.
+
+You drive home. You leave the kitchen light on.
+
+But the book is not on the table. It is on the kitchen floor, open, facing up. The page is blank. Then, slowly, like a time-lapse, the handwriting appears:
+
+"You'll come back. They always come back."`,
+    choices: [
+      { text: "Go to the library.", next: "ch4" },
+      { text: "Tear the page out. Throw the book in the bin.", next: "ch3" },
+      { text: "Write something back.", next: "ch3b" }
+    ]
+  },
+
+  // CHAPTER 2B: TURN THE PAGE
+  ch2b: {
+    chapter: "Chapter II",
+    bg: "bg-library",
+    text: `The next page is a photograph.
+
+You and your mother, in this library, on the day it opened. You are seven. She is holding your hand. The photo is in colour, but the colour is wrong — too saturated, as if the film was over-developed. The sky in the background is a blue that doesn't exist.
+
+Beneath the photograph, in her handwriting:
+
+"You'll come back for this. I left it here on purpose. I needed you to come back here."
+
+You look up. The library is empty. The chairs are still stacked. The rain is still falling.
+
+But the smell has changed.
+
+It is no longer old paper and dust. It is bread. Toasting bread, and something else — something you can't name, but your body knows. The smell of a Sunday morning. The smell of being small.
+
+The circulation desk is open. The drawer that holds the emergency key is open. Inside, where the key should be, there is a second book. Same black spine. Same warmth.
+
+And beneath both books, pressed flat against the cart, a third thing: a key. Small. Brass. Cold.
+
+It has a tag. The tag says: KITCHEN.`,
+    choices: [
+      { text: "Take both books and the key.", next: "ch4" },
+      { text: "Take only the first book. Leave the rest.", next: "ch3" },
+      { text: "Put everything back. Walk out. Don't come back.", next: "ch3c" }
+    ]
+  },
+
+  // CHAPTER 2C: TAKE THE BOOK
+  ch2c: {
+    chapter: "Chapter II",
+    bg: "bg-car",
+    text: `You take the book. It is heavier than it looks — dense, like a brick wrapped in cloth. You tuck it under your arm and walk out.
+
+The rain is colder than it was a minute ago. Or maybe you are just colder.
+
+In the car, you set the book on the passenger seat and drive. You do not know where you are going. Your hands are steady on the wheel. Your eyes are dry.
+
+The radio is off. You didn't turn it off. You always leave it on, even when you're driving home. Static. Then, for half a second, a voice. You can't make out the words. But you know the voice.
+
+You reach for the dial. The radio is off. You didn't turn it off.
+
+At the traffic lights on Mill Road, the book opens by itself.
+
+The page it lands on is a map of Harrowgate. Your town. But the streets are different. There is a building where the old cinema used to be. There is a river where there is no river. And at the centre of the map, in your mother's handwriting:
+
+"You don't have to come back. You just have to remember."
+
+The light changes. Green.
+
+You do not move.`,
+    choices: [
+      { text: "Drive through.", next: "ch4" },
+      { text: "Turn the car around. Go back to the library.", next: "ch4" },
+      { text: "Pull over. Step out. Walk to the river.", next: "ch6" }
+    ]
+  },
+
+  // CHAPTER 3: THE DRIVE (converge)
+  ch3: {
+    chapter: "Chapter III",
+    bg: "bg-car",
+    text: `You drive home.
+
+The house is dark. You don't turn the lights on. You put the book on the kitchen table and stand in the doorway, looking at it.
+
+It is warm. You can feel the warmth through the table, through the floor, up through the soles of your shoes. The whole house is warm. It should be cold. It's October. The heating hasn't been on since September.
+
+The smell is here too. Bread. Toasting. And something underneath it — something green. Grass. Cut grass. The smell of the garden in August, when your mother was still alive and the mower was still running.
+
+You sit down at the table. You open the book.
+
+The page is blank.
+
+Then:
+
+"You're home. I'm glad. I left the light on for you."
+
+Your phone buzzes. Unknown number. You look at it. You don't pick it up. It buzzes again. And again. And again.
+
+Then it stops.
+
+The book is warm. The house is warm. The light in the kitchen is on. You didn't turn it on.`,
+    choices: [
+      { text: "Answer the phone.", next: "ch5" },
+      { text: "Go to the library. Now. Tonight.", next: "ch4" },
+      { text: "Sleep. It's a dream. It'll be gone in the morning.", next: "ch3d" }
+    ]
+  },
+
+  // CHAPTER 3B: WRITE BACK
+  ch3b: {
+    chapter: "Chapter III",
+    bg: "bg-kitchen",
+    text: `You find a pen. You don't know where it comes from. You don't remember putting it down.
+
+You write: "I remember."
+
+The ink dries. The page is warm. Then, below your words, the handwriting appears — slower this time, like someone writing carefully, like someone who has forgotten how:
+
+"Remember what?"
+
+You write: "The kitchen. The light. The bread. Your hands."
+
+The page is quiet for a long time. The rain outside has stopped. You can hear the house settling.
+
+Then:
+
+"Thank you. I'd forgotten. I kept forgetting. That's why I left the book. So you'd remember for me."
+
+The warmth spreads. From the book to the table to the floor to your feet. The kitchen light brightens. The smell of bread is stronger now. You can almost taste it.
+
+Then the phone rings.
+
+Unknown number.`,
+    choices: [
+      { text: "Answer the phone.", next: "ch5" },
+      { text: "Write: 'Where are you?'", next: "ch5b" },
+      { text: "Close the book. Go to the library.", next: "ch4" }
+    ]
+  },
+
+  // CHAPTER 3C: WALK AWAY
+  ch3c: {
+    chapter: "Chapter III",
+    bg: "bg-car",
+    text: `You put the books back. You close the drawer. You walk out.
+
+The rain is heavier. You don't look at the library. You don't look at the light in the window.
+
+You drive. You don't go home. You drive for an hour. Two. You don't know where you are. The road is wrong. The streetlights are spaced too far apart. The fields on either side are too dark.
+
+Your phone has no signal. The radio is static. The fuel gauge is steady. It shouldn't be steady. You've been driving for two hours.
+
+You stop the car. You step out.
+
+The road is empty. The fields are empty. But there is a sound — low, rhythmic, like breathing. Or like a page turning.
+
+It's coming from the direction of the river.
+
+There is no river here. There has never been a river here.
+
+But the sound is getting closer.`,
+    choices: [
+      { text: "Follow the sound.", next: "ch6" },
+      { text: "Get back in the car. Drive home.", next: "ch3d" },
+      { text: "Call your mother's number. The one you haven't called in three years.", next: "ch5" }
+    ]
+  },
+
+  // CHAPTER 3D: SLEEP
+  ch3d: {
+    chapter: "Chapter III",
+    bg: "bg-black",
+    text: `You sleep.
+
+You don't dream. Or maybe you do, but you don't remember.
+
+You wake at 6:14. The light is on. You didn't turn it on. The kitchen is warm. The bread is on the table. A single slice, golden, still steaming.
+
+You didn't make it.
+
+The book is on the table. Open. The page says:
+
+"Good morning. I made your favourite. Sit down. Eat. You look thin."
+
+Your hands are shaking. You sit down. You eat the bread.
+
+It tastes like Sunday. It tastes like being seven. It tastes like the last morning you had.
+
+When you finish, the plate is clean. The book has turned a page. The new page says:
+
+"Come to the library. It's open. It's always open. I'm in the back room."
+
+The bread is still warm. The light is still on.
+
+It is 6:14 in the morning.`,
+    choices: [
+      { text: "Go to the library.", next: "ch4" },
+      { text: "You can't. You're not crazy. You're tired. It's the grief.", next: "ch5c" },
+      { text: "Eat another slice. Sit in the light. Wait.", next: "ch5" }
+    ]
+  },
+
+  // CHAPTER 4: THE SECOND VISIT
+  ch4: {
+    chapter: "Chapter IV",
+    bg: "bg-open",
+    text: `The library is open.
+
+It shouldn't be. It's 11 PM. The doors are locked from the outside — you locked them. But the door is open. The light is on. All of it. Every tube, every lamp, every reading light.
+
+Inside, it is different.
+
+The chairs are not stacked. They are arranged in rows, facing the back of the building, like an audience. The shelves are full — not with books, but with photographs. Hundreds of them. Thousands. Every photo is of a kitchen. Every kitchen has a light on.
+
+At the back of the building, where the staff room used to be, there is a door. It is open.
+
+Through the door, you can see a desk. A small desk, wooden, with a lamp on it. And in the chair, a shape. A person.
+
+It is your mother.
+
+She is not looking at you. She is writing. The pen moves. The page fills.
+
+She looks up.
+
+She has your face.
+
+No — she has her face. Your mother's face. But the eyes are yours.
+
+"Sit down," she says. "I've been waiting."`,
+    choices: [
+      { text: "Sit down.", next: "ch7" },
+      { text: "Stand. 'This isn't real.'", next: "ch7b" },
+      { text: "Walk out. You will never come back.", next: "ch7c" }
+    ]
+  },
+
+  // CHAPTER 5: THE PHONE
+  ch5: {
+    chapter: "Chapter V",
+    bg: "bg-kitchen",
+    text: `You answer.
+
+It's your mother's number. The one you haven't called in three years. The one you keep in your phone because you can't bring yourself to delete it.
+
+"Hello?" you say.
+
+Silence. Then breathing. Then:
+
+"You made it home."
+
+It's her voice. Not a recording. Not an echo. Her voice, slightly hoarse, like she's been talking for a long time. Like she's been talking for three years.
+
+"How?" you say.
+
+"I don't know. I've been trying to call you for a while. The book is easier. But I wanted to hear your voice."
+
+You sit down. The kitchen is warm. The light is on.
+
+"What do you want?" you say.
+
+"I want you to remember. I want you to remember the kitchen. The light. The bread. I want you to remember that I was here. That I made you breakfast every morning. That I left the light on so you wouldn't be cold."
+
+Your eyes are wet. You don't wipe them.
+
+"Are you real?" you ask.
+
+A long pause.
+
+"I'm here," she says. "That's all I can promise."`,
+    choices: [
+      { text: "'Come to the library. I'll be there.'", next: "ch4" },
+      { text: "'I remember. I remember everything.'", next: "ch7" },
+      { text: "Hang up. Walk to the library. Don't look back.", next: "ch4" }
+    ]
+  },
+
+  // CHAPTER 5B: ASK WHERE
+  ch5b: {
+    chapter: "Chapter V",
+    bg: "bg-kitchen",
+    text: `You write: "Where are you?"
+
+The page is quiet. The rain has stopped. The house is very still.
+
+Then, slowly:
+
+"Everywhere you left the light on."
+
+You think about it. The kitchen. The hallway. The bedroom. The porch. You always left the lights on. You thought it was a habit. A waste. Your mother used to say: "Leave it on. So you can find your way home."
+
+You didn't understand then.
+
+The warmth is stronger now. The book is almost hot. The kitchen light is brighter. And in the light, for just a moment, you see her.
+
+Not a ghost. Not a memory. A shape. A presence. The way a room feels when someone has just left it. The way a chair holds the shape of a body.
+
+She is in the kitchen. She has always been in the kitchen.
+
+The phone rings.`,
+    choices: [
+      { text: "Answer.", next: "ch5" },
+      { text: "Go to the library. You know where she is.", next: "ch4" },
+      { text: "Close your eyes. Remember.", next: "ch7" }
+    ]
+  },
+
+  // CHAPTER 5C: DENIAL
+  ch5c: {
+    chapter: "Chapter V",
+    bg: "bg-black",
+    text: `You can't. You're not crazy. You're tired. It's the grief.
+
+You tell yourself this. You've been telling yourself this for three years.
+
+You make coffee. You drink it. It's cold. You make it again. It's cold.
+
+The bread is still on the table. Still warm. Still steaming.
+
+You eat it. You don't know why. You eat it because your hands are shaking and your mouth is dry and the bread is the only thing in the house that is warm.
+
+It tastes like Sunday.
+
+You put the plate in the sink. You wash it. You dry it. You put it away.
+
+The book is still on the table. Open. The page says:
+
+"It's okay to be afraid. It's okay to not believe. Just come to the library. Just walk in. That's all I ask."
+
+You look at the book. You look at the window. The rain has stopped. The sky is the colour of old paper.
+
+You put on your coat.
+
+You walk to the library.`,
+    choices: [
+      { text: "Walk in.", next: "ch4" },
+      { text: "Stand outside. Breathe. Then walk in.", next: "ch4" }
+    ]
+  },
+
+  // CHAPTER 6: THE RIVER
+  ch6: {
+    chapter: "Chapter VI",
+    bg: "bg-river",
+    text: `You walk to the river.
+
+There is no river here. You know this. You have lived here your whole life. There is no river. There is a field, a fence, and a road that goes nowhere.
+
+But the sound is here. Low. Rhythmic. Like breathing. Like a page turning. Like water.
+
+You walk through the field. The grass is wet. Your shoes are heavy. The sound gets louder.
+
+And then you see it.
+
+The river.
+
+It's not big. It's narrow, maybe ten feet wide. The water is dark and still. The banks are soft. The reeds are tall.
+
+It is not here. It is not supposed to be here. But it is here.
+
+On the far bank, there is a bench. On the bench, there is a woman. She is facing the water. Her back is to you.
+
+She is wearing the green cardigan. The one with the fraying cuff. The one you buried with her.
+
+You don't call out. You don't move.
+
+She turns around.
+
+She has your face.
+
+No — she has her face. Your mother's face. But the eyes are yours.
+
+"You found it," she says. "The river. I left it for you."
+
+"What is this?" you say.
+
+"It's where I am. It's where I've been. It's where the light goes when you turn it off."`,
+    choices: [
+      { text: "Cross the river.", next: "ch7" },
+      { text: "Sit on the bench. 'I'm scared.'", next: "ch7b" },
+      { text: "Walk away. This isn't real.", next: "ch7c" }
+    ]
+  },
+
+  // CHAPTER 7: THE NAME
+  ch7: {
+    chapter: "Chapter VII",
+    bg: "bg-open",
+    text: `You sit down.
+
+The chair is warm. The desk is warm. The lamp is warm. Everything in the room is the temperature of a hand.
+
+She is writing. The pen moves. You lean forward. You can see the page.
+
+It is your name.
+
+Not written once. Not written twice. Written hundreds of times. Thousands. Filling page after page. Your name, in her handwriting, over and over, like a prayer, like a spell, like a woman trying to keep a word from disappearing.
+
+"Your name," she says. "I kept writing it. I was afraid I'd forget. I was afraid the world would forget. I was afraid you'd forget."
+
+She closes the book. She looks at you.
+
+"The book is yours. It was always yours. I just wrote in it. I just left it where you'd find it. I just left the light on."
+
+The room is quiet. The rain has stopped. The library is warm.
+
+"Stay," she says. "Stay a while. I'm not going anywhere. I'm in the light. I'm in the bread. I'm in the kitchen. I'm in the river. I'm in the book. I'm in the place where you left the light on."
+
+The lamp flickers.
+
+"Will you come back?" she asks.`,
+    choices: [
+      { text: "'Yes. Every night. I'll come back.'", next: "ch9" },
+      { text: "'I don't know. But I'll try.'", next: "ch9b" },
+      { text: "Say nothing. Hold her hand.", next: "ch9c" }
+    ]
+  },
+
+  // CHAPTER 7B: DENIAL
+  ch7b: {
+    chapter: "Chapter VII",
+    bg: "bg-open",
+    text: `"This isn't real," you say.
+
+She nods. She doesn't argue. She doesn't get angry. She just nods, the way she used to when you were small and told her the moon followed your car.
+
+"Okay," she says. "It's not real. But you're here. And I'm here. And the light is on. That's real enough."
+
+She turns back to the book. She writes something. You lean in.
+
+"Remember the kitchen. Remember the bread. Remember the light. That's all. That's all I need. You don't have to believe in me. You just have to remember me."
+
+The lamp flickers. The room is warm.
+
+"I'm not going to argue with you," she says. "I'm not going to convince you. I just want you to remember. That's all."
+
+She closes the book. She looks at you.
+
+"Go home. Leave the light on. That's all I ask."`,
+    choices: [
+      { text: "Go home. Leave the light on.", next: "ch9" },
+      { text: "Stay. Sit in the chair. Breathe.", next: "ch9b" },
+      { text: "Walk out. But leave the door open.", next: "ch9c" }
+    ]
+  },
+
+  // CHAPTER 7C: WALK AWAY
+  ch7c: {
+    chapter: "Chapter VII",
+    bg: "bg-black",
+    text: `You walk out.
+
+The door closes behind you. The rain has stopped. The sky is the colour of old paper. The library is warm behind you. You can feel it through the door.
+
+You walk. You don't know where you're going. You walk until your shoes are soaked and your legs ache and the streetlights start to look like the ones in the library.
+
+You stop.
+
+You are in front of the library.
+
+You don't remember walking here. You don't remember deciding to come back.
+
+The door is open. The light is on. The warmth is coming out in a slow, steady breath.
+
+You stand in the doorway. You don't go in. You don't leave.
+
+You just stand there. In the light. In the warmth. In the place where the light goes when you turn it off.
+
+And you remember.
+
+Not all at once. Not in a flood. In small pieces. A hand on your forehead. A slice of bread. A lopsided O. A green cardigan. A bench by a river that isn't there.
+
+You remember.
+
+And the light stays on.`,
+    choices: [
+      { text: "Go in.", next: "ch9" },
+      { text: "Stand in the doorway. Breathe. Remember.", next: "ch9b" },
+      { text: "Leave. But leave the door open. Leave the light on.", next: "ch9c" }
+    ]
+  },
+
+  // CHAPTER 9: THE LIGHT (ending paths)
+  ch9: {
+    chapter: "Chapter IX",
+    bg: "bg-kitchen",
+    text: `You go home.
+
+The kitchen is dark. You turn the light on.
+
+It is warm. It has always been warm. You just never noticed.
+
+The bread is on the table. A single slice. Golden. Steaming.
+
+You sit down. You eat it.
+
+It tastes like Sunday. It tastes like being seven. It tastes like the last morning you had. And it tastes like the first morning you'll have.
+
+The book is on the table. Open. The last page says:
+
+"Thank you for coming back. Thank you for remembering. The light is on. It will always be on. I'm here. I'm in the light. I'm in the bread. I'm in the kitchen. I'm in the place where you left the light on.
+
+Come back tomorrow. I'll be here. The light will be on.
+
+I love you. I left it on for you."
+
+You close the book.
+
+The light stays on.
+
+It will always be on.`,
+    choices: [
+      { text: "The End", next: "end" }
+    ]
+  },
+
+  ch9b: {
+    chapter: "Chapter IX",
+    bg: "bg-kitchen",
+    text: `You don't know if you'll come back. You don't know if this is real. You don't know if you're grieving or if you're losing your mind.
+
+But you go home. And you turn the light on.
+
+And the kitchen is warm. And the bread is on the table. And the book is open.
+
+The last page says:
+
+"It's okay. You don't have to believe. You don't have to come back. You don't have to remember.
+
+But if you do. If the light is on. If the bread is warm. If the book is open.
+
+I'm here.
+
+I'll be here.
+
+The light is on."
+
+You close the book. You turn off the light.
+
+The kitchen is dark.
+
+But it is warm.
+
+It is always warm.`,
+    choices: [
+      { text: "The End", next: "end" }
+    ]
+  },
+
+  ch9c: {
+    chapter: "Chapter IX",
+    bg: "bg-kitchen",
+    text: `You hold her hand.
+
+It is warm. It has always been warm. You just never noticed.
+
+She doesn't say anything. You don't say anything. The lamp flickers. The room is quiet. The rain has stopped.
+
+You hold her hand for a long time.
+
+When you let go, she is gone. The chair is empty. The desk is bare. The book is closed.
+
+But the room is warm. The light is on. The smell of bread is in the air.
+
+You walk out of the library. The door is open. The night is quiet. The rain has stopped.
+
+You walk home. You turn the light on.
+
+The kitchen is warm. The bread is on the table. The book is open.
+
+The last page says:
+
+"I'm in the light. I'm in the bread. I'm in the kitchen. I'm in the place where you left the light on.
+
+You don't have to come back. You just have to remember.
+
+I love you. I left it on for you."
+
+You close the book.
+
+The light stays on.
+
+It will always be on.`,
+    choices: [
+      { text: "The End", next: "end" }
+    ]
+  },
+
+  // END
+  end: {
+    chapter: "The Last Book",
+    bg: "bg-black",
+    text: `The library is still open.
+
+The light is still on.
+
+The bread is still warm.
+
+The book is still open.
+
+And in the kitchen, in the place where you left the light on, she is still here.
+
+She is always here.
+
+She will always be here.
+
+The light is on.
+
+— FIN —`,
+    choices: [
+      { text: "Read again", next: "restart" }
+    ]
+  }
+};
+
+// ─── ENGINE ──────────────────────────────────────────────────
+function startGame() {
+  document.getElementById('title').classList.add('hidden');
+  initRain();
+  goTo('ch1');
+}
+
+function goTo(key) {
+  if (key === 'restart') {
+    state.choices = [];
+    state.chapter = 0;
+    goTo('ch1');
+    return;
+  }
+
+  const node = story[key];
+  if (!node) return;
+
+  state.chapter++;
+  updateProgress();
+
+  // Background
+  const scene = document.getElementById('scene');
+  scene.className = node.bg;
+
+  // Flicker visibility
+  const flicker = document.getElementById('flicker');
+  flicker.style.animationPlayState = (node.bg === 'bg-library' || node.bg === 'bg-open') ? 'running' : 'paused';
+
+  // Chapter label
+  document.getElementById('chapter').textContent = node.chapter;
+
+  // Text
+  const textArea = document.getElementById('text-area');
+  textArea.classList.remove('visible');
+
+  setTimeout(() => {
+    const narrative = document.getElementById('narrative');
+    // Format mother's lines
+    const formatted = node.text
+      .replace(/"([^"]+)"/g, (m, p1) => {
+        if (p1.includes("You left the light") || p1.includes("You'll come back") || p1.includes("You don't have to") || p1.includes("Thank you") || p1.includes("I'm here") || p1.includes("I love you") || p1.includes("Remember") || p1.includes("Sit down") || p1.includes("Come to") || p1.includes("I made") || p1.includes("Good morning") || p1.includes("It's okay") || p1.includes("I'm in the light") || p1.includes("The light") || p1.includes("I'll be here") || p1.includes("I'm not going") || p1.includes("Okay") || p1.includes("You found") || p1.includes("It's where") || p1.includes("I've been") || p1.includes("I don't know") || p1.includes("You made") || p1.includes("I want") || p1.includes("I'm not going to argue") || p1.includes("Go home") || p1.includes("Your name") || p1.includes("Stay") || p1.includes("Will you") || p1.includes("The book is yours") || p1.includes("I kept writing") || p1.includes("The library is still") || p1.includes("The light is still") || p1.includes("The bread is still") || p1.includes("The book is still") || p1.includes("She is still") || p1.includes("She will always") || p1.includes("I'm in the") || p1.includes("You don't have to come back") || p1.includes("I left the light") || p1.includes("I'll be here") || p1.includes("I'm here") || p1.includes("I love you") || p1.includes("Thank you for") || p1.includes("It's okay to be") || p1.includes("Just come") || p1.includes("I've been trying") || p1.includes("I was afraid") || p1.includes("I just wrote") || p1.includes("I just left") || p1.includes("I just wanted") || p1.includes("I'm not going anywhere") || p1.includes("Come back tomorrow") || p1.includes("I'm in the light. I'm in the bread") || p1.includes("It's not real. But") || p1.includes("I'm not going to argue") || p1.includes("Remember the kitchen") || p1.includes("Go home. Leave the light") || p1.includes("It's okay. You don't have to") || p1.includes("But if you do") || p1.includes("I'll be here.") || p1.includes("The light is on.") || p1.includes("I'm in the light. I'm in the bread. I'm in the kitchen. I'm in the place") || p1.includes("You don't have to come back. You just have to remember.") || p1.includes("I love you. I left it on for you.") || p1.includes("The library is still open.") || p1.includes("The light is still on.") || p1.includes("The bread is still warm.") || p1.includes("The book is still open.") || p1.includes("And in the kitchen") || p1.includes("She is always here.") || p1.includes("She will always be here.") || p1.includes("The light is on.")
+        return `<span class="mother">"${p1}"</span>`;
+        return `"${p1}"`;
+      });
+    narrative.innerHTML = formatted;
+
+    // Choices
+    const choicesDiv = document.getElementById('choices');
+    choicesDiv.innerHTML = '';
+    node.choices.forEach((choice, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice.text;
+      btn.onclick = () => {
+        state.choices.push(key + ':' + i);
+        if (choice.next === 'ch4' || choice.next === 'ch7') playDrone();
+        if (choice.next === 'ch5') playToast();
+        goTo(choice.next);
+      };
+      choicesDiv.appendChild(btn);
+    });
+
+    textArea.classList.add('visible');
+
+    // Audio cues
+    if (node.bg === 'bg-library' || node.bg === 'bg-open') playHum();
+    if (node.bg === 'bg-kitchen') playToast();
+  }, 600);
+}
+
+function updateProgress() {
+  const progress = document.getElementById('progress');
+  progress.innerHTML = '';
+  for (let i = 0; i < state.totalChapters; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i < state.chapter ? ' active' : '');
+    progress.appendChild(dot);
+  }
+}
+
+// ─── PARALLAX (desktop) ──────────────────────────────────────
+document.addEventListener('mousemove', (e) => {
+  const scene = document.getElementById('scene');
+  const x = (e.clientX / window.innerWidth - 0.5) * 10;
+  const y = (e.clientY / window.innerHeight - 0.5) * 10;
+  scene.style.transform = `translate(${-x}px, ${-y}px) scale(1.02)`;
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+initRain();
+</script>
+</body>
+</html>   

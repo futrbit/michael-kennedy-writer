@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Last Edit & The Overlapping Room</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Fira+Code:wght@400;600&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkObsidian: '#07090e',
+                        panelBg: 'rgba(15, 20, 28, 0.85)',
+                        amberAmber: '#ffaa00',
+                        cyanCyan: '#00f0ff',
+                        crimsonRed: '#ff2a55',
+                        emeraldGreen: '#10b981',
+                        violetEra: '#a855f7'
+                    },
+                    fontFamily: {
+                        mono: ['Share Tech Mono', 'monospace'],
+                        code: ['Fira Code', 'monospace'],
+                        sans: ['Rajdhani', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #05070a;
+            color: #d1d5db;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay for Games */
+        .crt-scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), 
+                        linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            background: rgba(13, 18, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-action {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-action:active {
+            transform: translateY(1px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+
+        @keyframes glitchLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .glitch-bar {
+            animation: glitchLine 6s linear infinite;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden relative">
+
+    <!-- Ambient CRT Overlay -->
+    <div class="crt-scanlines fixed inset-0 z-50 pointer-events-none"></div>
+    <div class="glitch-bar fixed inset-x-0 h-16 bg-gradient-to-b from-transparent via-cyanCyan/5 to-transparent z-40 pointer-events-none"></div>
+
+    <header class="relative z-30 px-3 py-2 bg-black/80 border-b border-white/10 flex flex-wrap justify-between items-center gap-2">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyanCyan to-violetEra flex items-center justify-center font-bold text-black font-mono">
+                2in1
+            </div>
+            <div>
+                <h1 class="font-sans font-bold text-base md:text-lg text-white leading-none tracking-wider">
+                    PARALLEL NARRATIVE SUITE
+                </h1>
+                <p class="text-[10px] font-mono text-slate-400">CHOOSE AN INTERACTIVE ENGINE BELOW</p>
+            </div>
+        </div>
+
+        <!-- GAME TAB SWITCHER -->
+        <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-white/10 text-xs font-mono">
+            <button id="tabGame3" class="px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all bg-cyanCyan/20 text-cyanCyan font-bold border border-cyanCyan/40">
+                <i class="fa-solid fa-film"></i>
+                <span class="hidden sm:inline">GAME 3:</span>
+                <span>THE LAST EDIT</span>
+            </button>
+            <button id="tabGame4" class="px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-cube"></i>
+                <span class="hidden sm:inline">GAME 4:</span>
+                <span>THE OVERLAPPING ROOM</span>
+            </button>
+        </div>
+
+        <!-- GLOBAL AUDIO SYNTH CONTROLLER -->
+        <button id="btnAudioToggle" class="glass-card px-3 py-1.5 rounded-lg text-xs font-mono flex items-center space-x-2 border border-slate-700 hover:border-cyanCyan text-slate-300">
+            <i id="audioIcon" class="fa-solid fa-volume-xmark text-crimsonRed"></i>
+            <span id="audioLabel">SYNTH: OFF</span>
+        </button>
+    </header>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <div class="relative z-20 flex-1 overflow-hidden p-2 md:p-3 max-w-7xl mx-auto w-full">
+
+        <!-- ========================================================================= -->
+        <!-- GAME 3: THE LAST EDIT CONTAINER -->
+        <!-- ========================================================================= -->
+        <section id="viewGame3" class="h-full w-full flex flex-col space-y-2 overflow-hidden">
+
+            <!-- VIDEO MONITOR & PARADOX HUD TOP SECTION -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 flex-1 min-h-0 overflow-hidden">
+
+                <!-- MAIN VIDEO CANVAS PLAYER -->
+                <div class="lg:col-span-2 glass-card rounded-xl p-2.5 flex flex-col justify-between border border-cyanCyan/20 relative overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1.5">
+                        <span class="text-cyanCyan flex items-center gap-2">
+                            <i class="fa-solid fa-circle text-crimsonRed animate-pulse text-[8px]"></i> DOCUMENTARY RENDER MONITOR
+                        </span>
+                        <span id="g3Timecode" class="text-amberAmber font-code">00:00:00:00</span>
+                    </div>
+
+                    <!-- Canvas Screen -->
+                    <div class="relative flex-1 bg-black rounded-lg border border-slate-800 overflow-hidden my-2 flex items-center justify-center">
+                        <canvas id="g3VideoCanvas" class="w-full h-full object-contain"></canvas>
+                        <div id="g3Subtitles" class="absolute bottom-3 inset-x-4 bg-black/80 px-3 py-1.5 rounded border border-white/10 text-center font-mono text-xs text-cyanCyan">
+                            "Load clips onto the timeline to reconstruct Arthur's final documentary..."
+                        </div>
+                    </div>
+
+                    <!-- PLAYER CONTROLS -->
+                    <div class="flex justify-between items-center gap-2 pt-1 font-mono text-xs">
+                        <div class="flex items-center space-x-1.5">
+                            <button id="g3BtnPlay" class="btn-action bg-cyanCyan/20 border border-cyanCyan/40 text-cyanCyan px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+                                <i class="fa-solid fa-play"></i> PLAY CUT
+                            </button>
+                            <button id="g3BtnPause" class="btn-action bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg">
+                                <i class="fa-solid fa-pause"></i>
+                            </button>
+                            <button id="g3BtnReset" class="btn-action bg-slate-800 border border-slate-700 text-amberAmber px-3 py-1.5 rounded-lg">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 hidden sm:block">
+                            SEQUENCE STATE: <span id="g3TruthBadge" class="text-emeraldGreen font-bold">WHISTLEBLOWER ROUTE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR: CLIP BIN & REALITY LEDGER -->
+                <div class="glass-card rounded-xl p-3 flex flex-col justify-between space-y-2 border border-slate-800 overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1.5">
+                        <span class="text-slate-300 font-bold"><i class="fa-solid fa-box-archive mr-1"></i> ARCHIVAL FOOTAGE BIN</span>
+                        <span class="text-[10px] text-slate-500">CLICK TO ADD TO TRACK</span>
+                    </div>
+
+                    <!-- Clip Library -->
+                    <div id="g3ClipBin" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <!-- REALITY CONSEQUENCE PREVIEW -->
+                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/10 space-y-1 font-mono text-[11px]">
+                        <span class="text-amberAmber font-bold block"><i class="fa-solid fa-brain mr-1"></i> REALITY DIVERGENCE CALCULATOR:</span>
+                        <p id="g3ConsequenceText" class="text-slate-300 leading-tight">
+                            Current sequence frames Arthur Vance as an investigative journalist uncovering corporate money laundering.
+                        </p>
+                    </div>
+
+                    <button id="g3BtnRender" class="w-full btn-action bg-gradient-to-r from-cyanCyan to-emeraldGreen text-black font-bold font-sans py-2.5 rounded-xl uppercase tracking-wider text-xs">
+                        <i class="fa-solid fa-compact-disc mr-1"></i> RENDER FINAL DOCUMENTARY
+                    </button>
+                </div>
+            </div>
+
+            <!-- MULTI-TRACK TIMELINE EDITOR BOTTOM SECTION -->
+            <div class="glass-card rounded-xl p-3 border border-slate-800 space-y-2 h-44 flex flex-col justify-between">
+                <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1">
+                    <span class="text-cyanCyan font-bold"><i class="fa-solid fa-sliders mr-1"></i> TIMELINE MULTI-TRACK EDITOR</span>
+                    <span class="text-[10px] text-slate-400">ARRANGE CLIPS TO EDIT REALITY</span>
+                </div>
+
+                <div class="flex-1 space-y-1.5 overflow-y-auto pr-1 font-mono text-xs">
+                    <!-- TRACK 1: VIDEO A-ROLL -->
+                    <div class="flex items-center space-x-2">
+                        <span class="w-20 text-[10px] text-cyanCyan font-bold bg-cyanCyan/10 px-1.5 py-1 rounded border border-cyanCyan/20">TRK 1: A-ROLL</span>
+                        <div id="g3Track1" class="flex-1 h-9 bg-black/60 rounded border border-cyanCyan/30 flex items-center p-1 space-x-1.5 overflow-x-auto">
+                            <!-- Dropzone clips -->
+                        </div>
+                    </div>
+
+                    <!-- TRACK 2: OVERLAY B-ROLL -->
+                    <div class="flex items-center space-x-2">
+                        <span class="w-20 text-[10px] text-amberAmber font-bold bg-amberAmber/10 px-1.5 py-1 rounded border border-amberAmber/20">TRK 2: B-ROLL</span>
+                        <div id="g3Track2" class="flex-1 h-9 bg-black/60 rounded border border-amberAmber/30 flex items-center p-1 space-x-1.5 overflow-x-auto">
+                            <!-- Dropzone clips -->
+                        </div>
+                    </div>
+
+                    <!-- TRACK 3: WIRETAP AUDIO -->
+                    <div class="flex items-center space-x-2">
+                        <span class="w-20 text-[10px] text-crimsonRed font-bold bg-crimsonRed/10 px-1.5 py-1 rounded border border-crimsonRed/20">TRK 3: AUDIO</span>
+                        <div id="g3Track3" class="flex-1 h-9 bg-black/60 rounded border border-crimsonRed/30 flex items-center p-1 space-x-1.5 overflow-x-auto">
+                            <!-- Dropzone clips -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- GAME 4: THE OVERLAPPING ROOM CONTAINER -->
+        <!-- ========================================================================= -->
+        <section id="viewGame4" class="hidden h-full w-full flex flex-col space-y-2 overflow-hidden">
+
+            <!-- TOP ERA SELECTION DIAL -->
+            <div class="glass-card rounded-xl p-2.5 border border-violetEra/30 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-clock-rotate-left text-violetEra text-lg"></i>
+                    <div>
+                        <h2 class="font-serif font-bold text-white text-sm md:text-base leading-none">TEMPORAL SHIFT DIAL</h2>
+                        <p class="text-[10px] font-mono text-slate-400">ONE ROOM • FOUR CENTURIES</p>
+                    </div>
+                </div>
+
+                <!-- Century Buttons -->
+                <div class="flex items-center gap-1.5 font-mono text-xs">
+                    <button data-era="1680" class="era-btn btn-action px-3 py-1.5 rounded-lg border border-violetEra/40 bg-violetEra/20 text-violetEra font-bold">
+                        1680 <span class="text-[9px] block text-slate-300 font-sans">APOTHECARY</span>
+                    </button>
+                    <button data-era="1890" class="era-btn btn-action px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white">
+                        1890 <span class="text-[9px] block text-slate-400 font-sans">VICTORIAN</span>
+                    </button>
+                    <button data-era="1970" class="era-btn btn-action px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white">
+                        1970 <span class="text-[9px] block text-slate-400 font-sans">PIRATE RADIO</span>
+                    </button>
+                    <button data-era="2040" class="era-btn btn-action px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white">
+                        2040 <span class="text-[9px] block text-slate-400 font-sans">AI SERVER</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MAIN ROOM CANVAS & TEMPORAL INTERACTION MATRIX -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 flex-1 min-h-0 overflow-hidden">
+
+                <!-- ROOM ISOMETRIC CANVAS -->
+                <div class="lg:col-span-2 glass-card rounded-xl p-2.5 flex flex-col justify-between border border-violetEra/20 relative overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1.5">
+                        <span id="g4EraHeader" class="text-violetEra font-bold">ERA: 1680 AD — ALCHEMIST APOTHECARY</span>
+                        <span id="g4RippleBadge" class="text-emeraldGreen font-mono text-[11px]"><i class="fa-solid fa-wave-square"></i> TIMELINE STABLE</span>
+                    </div>
+
+                    <!-- Room Rendering Canvas -->
+                    <div class="relative flex-1 bg-black rounded-lg border border-slate-800 overflow-hidden my-2 flex items-center justify-center">
+                        <canvas id="g4RoomCanvas" class="w-full h-full object-contain"></canvas>
+                    </div>
+
+                    <!-- Interactive Item Controls -->
+                    <div id="g4ItemBar" class="flex flex-wrap gap-2 pt-1 font-mono text-xs">
+                        <!-- Injected via JS based on era -->
+                    </div>
+                </div>
+
+                <!-- SIDEBAR: TEMPORAL RESONANCE JOURNAL & VAULT PUZZLE -->
+                <div class="glass-card rounded-xl p-3 flex flex-col justify-between space-y-2 border border-slate-800 overflow-hidden">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1.5">
+                            <span class="text-violetEra font-bold"><i class="fa-solid fa-book-bookmark mr-1"></i> CROSS-ERA RESONANCE LOG</span>
+                        </div>
+
+                        <div id="g4LogBox" class="bg-black/60 p-2.5 rounded-lg border border-white/10 font-mono text-xs text-slate-300 h-36 overflow-y-auto leading-relaxed space-y-1.5">
+                            <p class="text-violetEra italic">[1680] Master Alchemist Nicholas leaves a beaker of acid near the north loose brickwork...</p>
+                        </div>
+                    </div>
+
+                    <!-- CROSS-GENERATIONAL VAULT PUZZLE -->
+                    <div class="p-3 rounded-xl bg-violetEra/10 border border-violetEra/30 space-y-2 font-mono text-xs">
+                        <span class="text-violetEra font-bold block flex justify-between items-center">
+                            <span><i class="fa-solid fa-vault mr-1"></i> CENTURY VAULT CODE:</span>
+                            <span id="g4VaultStatus" class="text-crimsonRed font-bold">LOCKED</span>
+                        </span>
+
+                        <div class="grid grid-cols-4 gap-1.5">
+                            <input id="g4Code1" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-cyanCyan font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="g4Code2" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-amberAmber font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="g4Code3" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-emeraldGreen font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="g4Code4" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-violetEra font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                        </div>
+
+                        <button id="g4BtnUnlock" class="w-full btn-action bg-violetEra text-black font-bold py-2 rounded-lg uppercase tracking-wider text-xs">
+                            UNLOCK CENTURY VAULT
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- RENDER / ENDING MODAL OVERLAY -->
+    <div id="modalOverlay" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-lg w-full p-6 rounded-2xl space-y-4 border border-cyanCyan shadow-2xl">
+            <div class="text-center space-y-1">
+                <span id="modalSub" class="text-[10px] font-mono text-amberAmber uppercase tracking-widest">DOCUMENTARY CUT RENDER COMPLETE</span>
+                <h2 id="modalTitle" class="font-sans font-bold text-2xl text-white">ENDING: THE WHISTLEBLOWER</h2>
+                <div class="w-16 h-0.5 bg-cyanCyan mx-auto"></div>
+            </div>
+
+            <p id="modalBody" class="font-mono text-xs text-slate-300 leading-relaxed bg-black/70 p-3 rounded-lg border border-white/10">
+                Your sequence cut frames Arthur Vance as an investigative journalist hero who exposed corrupt offshore accounts before disappearing...
+            </p>
+
+            <button id="modalClose" class="w-full btn-action bg-cyanCyan text-black font-bold font-mono py-2.5 rounded-xl uppercase tracking-wider text-xs">
+                CLOSE & CONTINUE EDITING
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio Synthesizer Engine
+        class WebSynthEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = false;
+                this.currentAmbience = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            toggle() {
+                if (!this.ctx) this.init();
+                this.enabled = !this.enabled;
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                return this.enabled;
+            }
+
+            playTone(freq, duration = 0.1, type = 'sine', gainVal = 0.05) {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+
+            playClick() { this.playTone(800, 0.05, 'square', 0.03); }
+            playRewind() { this.playTone(300, 0.15, 'sawtooth', 0.04); }
+            playSuccess() {
+                this.playTone(523.25, 0.1, 'sine', 0.05);
+                setTimeout(() => this.playTone(659.25, 0.15, 'sine', 0.05), 100);
+            }
+        }
+
+        const synth = new WebSynthEngine();
+
+        // MASTER TAB NAVIGATION LOGIC
+        document.getElementById('tabGame3').addEventListener('click', () => switchTab('g3'));
+        document.getElementById('tabGame4').addEventListener('click', () => switchTab('g4'));
+
+        function switchTab(target) {
+            synth.playClick();
+            const btn3 = document.getElementById('tabGame3');
+            const btn4 = document.getElementById('tabGame4');
+            const view3 = document.getElementById('viewGame3');
+            const view4 = document.getElementById('viewGame4');
+
+            if (target === 'g3') {
+                btn3.className = 'px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all bg-cyanCyan/20 text-cyanCyan font-bold border border-cyanCyan/40';
+                btn4.className = 'px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all text-slate-400 hover:text-white';
+                view3.classList.remove('hidden');
+                view4.classList.add('hidden');
+            } else {
+                btn4.className = 'px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all bg-violetEra/20 text-violetEra font-bold border border-violetEra/40';
+                btn3.className = 'px-3 py-1.5 rounded-lg flex items-center space-x-2 transition-all text-slate-400 hover:text-white';
+                view4.classList.remove('hidden');
+                view3.classList.add('hidden');
+            }
+        }
+
+        // Audio Toggle
+        document.getElementById('btnAudioToggle').addEventListener('click', () => {
+            const active = synth.toggle();
+            document.getElementById('audioLabel').innerText = active ? 'SYNTH: ON' : 'SYNTH: OFF';
+            document.getElementById('audioIcon').className = active ? 'fa-solid fa-volume-high text-emeraldGreen' : 'fa-solid fa-volume-xmark text-crimsonRed';
+        });
+
+        // =========================================================================
+        // GAME 3 LOGIC (THE LAST EDIT)
+        // =========================================================================
+        const G3_CLIPS = [
+            { id: 'c1', title: 'A-ROLL: Bribe Offer', track: 1, desc: 'Arthur secretly records CEO Vance accepting cash.', color: 'border-cyanCyan text-cyanCyan' },
+            { id: 'c2', title: 'A-ROLL: Press Conference', track: 1, desc: 'Arthur denies offshore account allegations.', color: 'border-cyanCyan text-cyanCyan' },
+            { id: 'c3', title: 'B-ROLL: Shredding Papers', track: 2, desc: 'Night footage of documents being destroyed.', color: 'border-amberAmber text-amberAmber' },
+            { id: 'c4', title: 'AUDIO: Wiretap Tape #4', track: 3, desc: '"If this film comes out, eliminate him."', color: 'border-crimsonRed text-crimsonRed' }
+        ];
+
+        let g3Timeline = { 1: [], 2: [], 3: [] };
+
+        function initGame3() {
+            renderClipBin();
+            bindGame3Events();
+            drawGame3Canvas('LOAD CLIPS TO BEGIN');
+        }
+
+        function renderClipBin() {
+            const bin = document.getElementById('g3ClipBin');
+            bin.innerHTML = '';
+            G3_CLIPS.forEach(clip => {
+                const item = document.createElement('div');
+                item.className = `p-2 rounded-lg bg-black/60 border ${clip.color} font-mono text-xs cursor-pointer hover:bg-white/5 flex justify-between items-center`;
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold block">${clip.title}</span>
+                        <span class="text-[10px] text-slate-400">${clip.desc}</span>
+                    </div>
+                    <i class="fa-solid fa-plus text-slate-500"></i>
+                `;
+                item.addEventListener('click', () => addClipToTrack(clip));
+                bin.appendChild(item);
+            });
+        }
+
+        function addClipToTrack(clip) {
+            synth.playClick();
+            if (g3Timeline[clip.track].length < 3) {
+                g3Timeline[clip.track].push(clip);
+                updateTimelineUI();
+                evaluateRealityDivergence();
+            }
+        }
+
+        function updateTimelineUI() {
+            [1, 2, 3].forEach(trk => {
+                const el = document.getElementById(`g3Track${trk}`);
+                el.innerHTML = '';
+                g3Timeline[trk].forEach((c, idx) => {
+                    const tag = document.createElement('div');
+                    tag.className = 'px-2 py-1 rounded bg-slate-800 border border-white/20 text-[10px] font-mono text-white flex items-center space-x-1 cursor-pointer';
+                    tag.innerHTML = `<span>${c.title.split(':')[1]}</span> <i class="fa-solid fa-xmark text-slate-400 text-[9px]"></i>`;
+                    tag.addEventListener('click', () => {
+                        synth.playRewind();
+                        g3Timeline[trk].splice(idx, 1);
+                        updateTimelineUI();
+                        evaluateRealityDivergence();
+                    });
+                    el.appendChild(tag);
+                });
+            });
+        }
+
+        function evaluateRealityDivergence() {
+            const trk1 = g3Timeline[1].map(c => c.id);
+            const badge = document.getElementById('g3TruthBadge');
+            const text = document.getElementById('g3ConsequenceText');
+
+            if (trk1.indexOf('c1') !== -1 && trk1.indexOf('c2') !== -1) {
+                if (trk1.indexOf('c1') < trk1.indexOf('c2')) {
+                    badge.innerText = 'CORRUPT EXECUTIVE ROUTE';
+                    badge.className = 'text-crimsonRed font-bold';
+                    text.innerText = 'Bribe played BEFORE conference: Proves Arthur was corrupt and accepted payoff before lying to media.';
+                } else {
+                    badge.innerText = 'WHISTLEBLOWER HERO ROUTE';
+                    badge.className = 'text-emeraldGreen font-bold';
+                    text.innerText = 'Conference played BEFORE bribe: Frames Arthur as an undercover investigator capturing extortion evidence.';
+                }
+            } else {
+                badge.innerText = 'INCOMPLETE CUT';
+                badge.className = 'text-amberAmber font-bold';
+                text.innerText = 'Sequence requires both A-Roll clips to form a cohesive reality branch.';
+            }
+        }
+
+        function drawGame3Canvas(label) {
+            const canvas = document.getElementById('g3VideoCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            ctx.fillStyle = '#05080c';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // VHS Grain & Visuals
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = '14px Share Tech Mono';
+            ctx.fillText(`PLAYHEAD: [${label}]`, 20, 30);
+
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+        }
+
+        function bindGame3Events() {
+            document.getElementById('g3BtnPlay').addEventListener('click', () => {
+                synth.playClick();
+                drawGame3Canvas('PLAYING TIMELINE SEQUENCE...');
+                document.getElementById('g3Timecode').innerText = '00:01:14:22';
+            });
+
+            document.getElementById('g3BtnPause').addEventListener('click', () => {
+                synth.playClick();
+                drawGame3Canvas('PAUSED');
+            });
+
+            document.getElementById('g3BtnReset').addEventListener('click', () => {
+                synth.playRewind();
+                g3Timeline = { 1: [], 2: [], 3: [] };
+                updateTimelineUI();
+                evaluateRealityDivergence();
+                drawGame3Canvas('TIMELINE CLEARED');
+            });
+
+            document.getElementById('g3BtnRender').addEventListener('click', () => {
+                synth.playSuccess();
+                const badge = document.getElementById('g3TruthBadge').innerText;
+                const modal = document.getElementById('modalOverlay');
+                document.getElementById('modalTitle').innerText = badge;
+                document.getElementById('modalBody').innerText = document.getElementById('g3ConsequenceText').innerText + " This cut permanently renders into official documentary archives.";
+                modal.classList.remove('hidden');
+            });
+
+            document.getElementById('modalClose').addEventListener('click', () => {
+                document.getElementById('modalOverlay').classList.add('hidden');
+            });
+        }
+
+        // =========================================================================
+        // GAME 4 LOGIC (THE OVERLAPPING ROOM)
+        // =========================================================================
+        let g4CurrentEra = '1680';
+        let g4State = {
+            acidSpilled: false,
+            brickHidden: false,
+            frequencySet: false,
+            vaultUnlocked: false
+        };
+
+        const ERA_DATA = {
+            '1680': {
+                name: '1680 AD — ALCHEMIST APOTHECARY',
+                desc: 'Alchemist Nicholas works by candle hearth.',
+                items: [
+                    { id: 'spillAcid', label: 'Spill Chemical Acid on Floorboard' }
+                ]
+            },
+            '1890': {
+                name: '1890 AD — VICTORIAN STUDY',
+                desc: 'Lord Pendelton keeps an ornate desk.',
+                items: [
+                    { id: 'hideBrick', label: 'Hide Ledger Key Behind Loose Brick' }
+                ]
+            },
+            '1970': {
+                name: '1970 AD — PIRATE RADIO STATION',
+                desc: 'DJ Vance broadcasts underground signals.',
+                items: [
+                    { id: 'tuneRadio', label: 'Broadcast Code Frequency 104.7 FM' }
+                ]
+            },
+            '2040': {
+                name: '2040 AD — AI SERVER VAULT',
+                desc: 'High-security quantum data terminal.',
+                items: [
+                    { id: 'checkVault', label: 'Inspect Corroded Floor Vault' }
+                ]
+            }
+        };
+
+        function initGame4() {
+            bindGame4Events();
+            updateGame4Era('1680');
+        }
+
+        function updateGame4Era(era) {
+            g4CurrentEra = era;
+            const data = ERA_DATA[era];
+            document.getElementById('g4EraHeader').innerText = `ERA: ${data.name}`;
+
+            // Render buttons
+            const bar = document.getElementById('g4ItemBar');
+            bar.innerHTML = '';
+            data.items.forEach(it => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-action bg-violetEra/20 border border-violetEra/40 text-violetEra px-3 py-1.5 rounded-lg text-xs font-mono font-bold';
+                btn.innerText = it.label;
+                btn.addEventListener('click', () => handleGame4Action(it.id));
+                bar.appendChild(btn);
+            });
+
+            drawRoomCanvas();
+        }
+
+        function handleGame4Action(actId) {
+            synth.playClick();
+            const log = document.getElementById('g4LogBox');
+
+            if (actId === 'spillAcid') {
+                g4State.acidSpilled = true;
+                log.innerHTML += `<p class="text-emeraldGreen">[1680] Acid dissolves wood! Structural defect created in future 2040 floor.</p>`;
+            } else if (actId === 'hideBrick') {
+                g4State.brickHidden = true;
+                log.innerHTML += `<p class="text-amberAmber">[1890] Brass key sealed in wall brickwork. Accessible in 1970.</p>`;
+            } else if (actId === 'tuneRadio') {
+                g4State.frequencySet = true;
+                log.innerHTML += `<p class="text-cyanCyan">[1970] Signal broadcast set to 104.7 FM. Digitized code transmitted to 2040 server.</p>`;
+            } else if (actId === 'checkVault') {
+                if (g4State.acidSpilled) {
+                    log.innerHTML += `<p class="text-violetEra">[2040] Corroded floorboard collapsed! Revealed Vault Code: [7 - 3 - 9 - 1]</p>`;
+                } else {
+                    log.innerHTML += `<p class="text-crimsonRed">[2040] Server floor is sealed tight. Cannot access floor vault.</p>`;
+                }
+            }
+            log.scrollTop = log.scrollHeight;
+            drawRoomCanvas();
+        }
+
+        function drawRoomCanvas() {
+            const canvas = document.getElementById('g4RoomCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            ctx.fillStyle = '#0a0812';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Isometric Room Box
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = 2;
+
+            // Room Outline
+            ctx.strokeRect(cx - 120, cy - 80, 240, 160);
+
+            ctx.fillStyle = '#a855f7';
+            ctx.font = '16px Cinzel';
+            ctx.textAlign = 'center';
+            ctx.fillText(ERA_DATA[g4CurrentEra].name.split('—')[1], cx, cy - 95);
+
+            // Draw ripple indicators
+            if (g4State.acidSpilled) {
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
+                ctx.fillRect(cx - 40, cy + 20, 30, 20);
+            }
+        }
+
+        function bindGame4Events() {
+            document.querySelectorAll('.era-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    synth.playClick();
+                    const era = e.currentTarget.dataset.era;
+
+                    document.querySelectorAll('.era-btn').forEach(b => {
+                        b.className = 'era-btn btn-action px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white';
+                    });
+                    e.currentTarget.className = 'era-btn btn-action px-3 py-1.5 rounded-lg border border-violetEra/40 bg-violetEra/20 text-violetEra font-bold';
+
+                    updateGame4Era(era);
+                });
+            });
+
+            document.getElementById('g4BtnUnlock').addEventListener('click', () => {
+                const c1 = document.getElementById('g4Code1').value;
+                const c2 = document.getElementById('g4Code2').value;
+                const c3 = document.getElementById('g4Code3').value;
+                const c4 = document.getElementById('g4Code4').value;
+
+                if (c1 === '7' && c2 === '3' && c3 === '9' && c4 === '1') {
+                    synth.playSuccess();
+                    document.getElementById('g4VaultStatus').innerText = 'UNLOCKED';
+                    document.getElementById('g4VaultStatus').className = 'text-emeraldGreen font-bold';
+
+                    const modal = document.getElementById('modalOverlay');
+                    document.getElementById('modalSub').innerText = 'CENTURY VAULT SOLVED';
+                    document.getElementById('modalTitle').innerText = 'THE OVERLAPPING CONSPIRACY EXPOSED';
+                    document.getElementById('modalBody').innerText = 'By bridging actions across 1680, 1890, 1970, and 2040, you unsealed the room vault revealing Nicholas Pendelton’s immortal legacy across four centuries.';
+                    modal.classList.remove('hidden');
+                } else {
+                    synth.playTone(150, 0.2, 'sawtooth', 0.08);
+                    alert('INVALID VAULT CODE. Inspect era ripples to discover the sequence.');
+                }
+            });
+        }
+
+        window.onload = function() {
+            initGame3();
+            initGame4();
+        };
+    </script>
+</body>
+</html>

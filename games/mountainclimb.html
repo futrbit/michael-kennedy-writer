@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Peak Conquest V2: High Altitude Extreme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-btn {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-btn:hover {
+            background: rgba(51, 65, 85, 0.85);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .glass-btn:active {
+            transform: translateY(1px) scale(0.97);
+        }
+        .vignette-layer {
+            box-shadow: inset 0 0 120px rgba(2, 6, 23, 0.85), inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        .frost-overlay {
+            pointer-events: none;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            background: radial-gradient(circle, transparent 40%, rgba(186, 230, 253, 0.25) 80%, rgba(224, 242, 254, 0.5) 100%);
+            border: 24px solid rgba(224, 242, 254, 0.35);
+            filter: blur(8px);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+        .pulse-warning {
+            animation: pulseGlow 1.2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative flex items-center justify-center select-none overflow-hidden">
+
+    <!-- AAA Graphics Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Visual Overlays -->
+    <div id="frostOverlay" class="absolute inset-0 frost-overlay opacity-0"></div>
+    <div class="absolute inset-0 vignette-layer pointer-events-none"></div>
+
+    <!-- HUD Container -->
+    <div id="hudContainer" class="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none z-10 transition-opacity duration-300 opacity-0">
+        <!-- Altitude & Summit Progress -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col gap-1 min-w-[150px]">
+            <div class="text-[10px] font-extrabold tracking-widest text-cyan-400 uppercase">Altitude</div>
+            <div class="text-3xl font-black tracking-tight text-white flex items-baseline gap-1">
+                <span id="heightDisplay">0</span>
+                <span class="text-xs font-bold text-slate-400">m</span>
+            </div>
+            <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-slate-700/50 mt-1">
+                <div id="summitProgress" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <div class="text-[9px] font-semibold text-slate-400 mt-0.5 flex justify-between">
+                <span>RECORD: <span id="recordDisplay">0</span>m</span>
+                <span id="targetSummitLabel">500m</span>
+            </div>
+        </div>
+
+        <!-- Dynamic Wind & Hazard Indicator -->
+        <div class="flex flex-col items-center gap-2">
+            <div id="windGauge" class="glass-panel rounded-full px-4 py-2 flex items-center gap-3 text-xs font-black text-amber-300 shadow-xl border-amber-500/20">
+                <span id="windCompass" class="text-base transition-transform duration-300 inline-block">💨</span>
+                <div class="flex flex-col items-center">
+                    <span id="windText" class="text-[10px] tracking-widest uppercase text-slate-300">CALM BREEZE</span>
+                    <div class="w-20 h-2 bg-slate-900/80 rounded-full overflow-hidden border border-slate-700/60 mt-0.5">
+                        <div id="windIntensity" class="h-full bg-gradient-to-r from-amber-400 to-red-500 w-10 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="blizzardBanner" class="hidden glass-panel bg-red-950/80 border-red-500/40 text-red-200 font-extrabold text-[11px] px-4 py-1.5 rounded-full pulse-warning flex items-center gap-2 shadow-2xl">
+                <span>❄️</span> WHITEOUT BLIZZARD ACTIVE!
+            </div>
+        </div>
+
+        <!-- Stamina & Coin Meter -->
+        <div class="glass-panel rounded-2xl p-4 flex flex-col items-end gap-1 min-w-[150px]">
+            <div class="flex items-center gap-2 font-black text-amber-400 text-base">
+                <span class="text-xs bg-amber-500/20 p-1 rounded-md">💎</span>
+                <span id="gemDisplay">0</span>
+            </div>
+            <div class="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase mt-1">Grip Stamina</div>
+            <div class="w-32 h-2.5 bg-slate-900/90 rounded-full overflow-hidden border border-slate-700/60 p-0.5">
+                <div id="staminaMeter" class="h-full bg-emerald-400 rounded-full w-full transition-all duration-150"></div>
+            </div>
+            <div id="chalkActiveBadge" class="text-[9px] font-black tracking-wider text-emerald-400 opacity-0 transition-opacity flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> CHALK GRIP ACTIVE
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Gear Control Bar -->
+    <div id="quickGearBar" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10 transition-all duration-300 opacity-0 translate-y-6">
+        <button id="btnUseChalk" class="glass-btn p-3 px-6 rounded-2xl flex flex-col items-center gap-1 border-emerald-500/30 text-white font-bold group pointer-events-auto">
+            <div class="text-2xl group-active:scale-90 transition-transform">🧹</div>
+            <div class="text-[10px] font-black tracking-wider text-emerald-400">CHALK [<span id="chalkQty">0</span>]</div>
+            <div class="text-[8px] text-slate-400 font-mono">[SPACE / C]</div>
+        </button>
+
+        <button id="btnUsePiton" class="glass-btn p-3 px-6 rounded-2xl flex flex-col items-center gap-1 border-amber-500/30 text-white font-bold group pointer-events-auto">
+            <div class="text-2xl group-active:scale-90 transition-transform">🪝</div>
+            <div class="text-[10px] font-black tracking-wider text-amber-400">ROPE PITON [<span id="pitonQty">0</span>]</div>
+            <div class="text-[8px] text-slate-400 font-mono">[R / E]</div>
+        </button>
+    </div>
+
+    <!-- Main Menu & Modal UI -->
+    <div id="menuOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 z-20 transition-all duration-500">
+        <!-- Main Splash -->
+        <div id="mainSplash" class="flex flex-col items-center max-w-md w-full text-center">
+            <div class="relative mb-3">
+                <div class="text-6xl drop-shadow-[0_0_25px_rgba(56,189,248,0.5)]">🏔️</div>
+            </div>
+            <h1 class="text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-200 to-amber-300">PEAK CONQUEST V2</h1>
+            <p class="text-xs font-semibold tracking-widest text-sky-400/80 mt-1 mb-6">HIGH ALTITUDE EXTREME</p>
+
+            <!-- Dynamic Stats Summary -->
+            <div class="w-full glass-panel rounded-2xl p-4 mb-6 text-left space-y-2.5 text-xs border-slate-700/50">
+                <div class="text-sky-300 font-extrabold tracking-wider border-b border-slate-800 pb-1.5 flex justify-between items-center">
+                    <span>🎮 CONTROLS & PHYSICS</span>
+                    <span class="text-[10px] text-slate-500">REALTIME RAGDOLL</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-slate-300 text-[11px]">
+                    <div>• <span class="text-white font-semibold">Left Drag:</span> Left Arm</div>
+                    <div>• <span class="text-white font-semibold">Right Drag:</span> Right Arm</div>
+                    <div>• <span class="text-white font-semibold">Touch Screens:</span> Multi-finger</div>
+                    <div>• <span class="text-white font-semibold">Space / C:</span> Apply Chalk</div>
+                    <div>• <span class="text-white font-semibold">R / E Key:</span> Safety Piton</div>
+                    <div>• <span class="text-white font-semibold">Dyno Holds:</span> Boost launch!</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 w-full">
+                <button onclick="startGame()" class="w-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-sky-500/25 transition-all transform active:scale-98 flex items-center justify-center gap-2 text-sm tracking-wider">
+                    <span>🚀</span> ASCEND PEAK
+                </button>
+                <button onclick="showShop()" class="w-full glass-btn text-amber-300 font-bold py-3.5 px-6 rounded-2xl border-amber-500/30 flex items-center justify-center gap-2 text-xs tracking-wider">
+                    <span>🛒</span> EXPEDITION GEAR SHOP
+                </button>
+            </div>
+        </div>
+
+        <!-- Gear Shop Modal -->
+        <div id="shopModal" class="hidden flex-col items-center max-w-lg w-full glass-panel rounded-3xl p-6 shadow-2xl border-slate-700/60">
+            <div class="flex justify-between items-center w-full mb-5 pb-3 border-b border-slate-800">
+                <div>
+                    <h2 class="text-xl font-black text-amber-400 flex items-center gap-2">🛒 ALPINIST SHOP</h2>
+                    <p class="text-[10px] text-slate-400 font-medium">Equip advanced gear to conquer extreme blizzard peaks.</p>
+                </div>
+                <div class="glass-panel px-3 py-1.5 rounded-xl text-xs font-black text-amber-300 flex items-center gap-1.5 border-amber-500/30">
+                    <span>💎</span> <span id="shopGems">0</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 w-full max-h-[55vh] overflow-y-auto pr-1">
+                <!-- Shop Item: Chalk -->
+                <div class="glass-panel rounded-2xl p-3.5 flex justify-between items-center border-slate-800/80 hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl p-2 bg-emerald-950/60 rounded-xl border border-emerald-500/30">🧹</div>
+                        <div>
+                            <div class="font-bold text-xs text-white">Refill Chalk Bag (x3)</div>
+                            <div class="text-[10px] text-slate-400 max-w-[210px]">Instantly prevents slipping on glacial ice & halts stamina loss for 10s.</div>
+                        </div>
+                    </div>
+                    <button onclick="purchaseItem('chalk')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs py-2.5 px-3.5 rounded-xl shadow-lg">
+                        💎 20
+                    </button>
+                </div>
+
+                <!-- Shop Item: Piton -->
+                <div class="glass-panel rounded-2xl p-3.5 flex justify-between items-center border-slate-800/80 hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl p-2 bg-amber-950/60 rounded-xl border border-amber-500/30">🪝</div>
+                        <div>
+                            <div class="font-bold text-xs text-white">Titanium Safety Piton (x1)</div>
+                            <div class="text-[10px] text-slate-400 max-w-[210px]">Anchors a high-tension rope checkpoint into rock face to catch falls.</div>
+                        </div>
+                    </div>
+                    <button onclick="purchaseItem('piton')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs py-2.5 px-3.5 rounded-xl shadow-lg">
+                        💎 35
+                    </button>
+                </div>
+
+                <!-- Shop Item: Crampons -->
+                <div class="glass-panel rounded-2xl p-3.5 flex justify-between items-center border-slate-800/80 hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl p-2 bg-cyan-950/60 rounded-xl border border-cyan-500/30">⛏️</div>
+                        <div>
+                            <div class="font-bold text-xs text-white" id="cramponTitle">Glacial Crampons</div>
+                            <div class="text-[10px] text-slate-400 max-w-[210px]">Permanent spike upgrades for maximum friction on slick ice holds.</div>
+                        </div>
+                    </div>
+                    <button id="btnBuyCrampons" onclick="purchaseItem('crampons')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs py-2.5 px-3.5 rounded-xl shadow-lg">
+                        💎 100
+                    </button>
+                </div>
+
+                <!-- Shop Item: Thermal Suit -->
+                <div class="glass-panel rounded-2xl p-3.5 flex justify-between items-center border-slate-800/80 hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl p-2 bg-red-950/60 rounded-xl border border-red-500/30">🧥</div>
+                        <div>
+                            <div class="font-bold text-xs text-white" id="thermalTitle">High-Altitude Thermal Suit</div>
+                            <div class="text-[10px] text-slate-400 max-w-[210px]">Insulates climber body, reducing blizzard freezing stamina drain by 50%.</div>
+                        </div>
+                    </div>
+                    <button id="btnBuyThermal" onclick="purchaseItem('thermal')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs py-2.5 px-3.5 rounded-xl shadow-lg">
+                        💎 120
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="hideShop()" class="mt-5 w-full glass-btn text-slate-300 font-extrabold py-3 rounded-xl text-xs tracking-wider">
+                RETURN TO EXPEDITION
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* AAA CANVAS ENGINE & GAME CONTROLLER */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI Element References
+        const hudContainer = document.getElementById('hudContainer');
+        const quickGearBar = document.getElementById('quickGearBar');
+        const heightDisplay = document.getElementById('heightDisplay');
+        const recordDisplay = document.getElementById('recordDisplay');
+        const summitProgress = document.getElementById('summitProgress');
+        const gemDisplay = document.getElementById('gemDisplay');
+        const staminaMeter = document.getElementById('staminaMeter');
+        const windGauge = document.getElementById('windGauge');
+        const windText = document.getElementById('windText');
+        const windCompass = document.getElementById('windCompass');
+        const windIntensity = document.getElementById('windIntensity');
+        const blizzardBanner = document.getElementById('blizzardBanner');
+        const frostOverlay = document.getElementById('frostOverlay');
+        const chalkQty = document.getElementById('chalkQty');
+        const pitonQty = document.getElementById('pitonQty');
+        const chalkActiveBadge = document.getElementById('chalkActiveBadge');
+
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mainSplash = document.getElementById('mainSplash');
+        const shopModal = document.getElementById('shopModal');
+        const shopGems = document.getElementById('shopGems');
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Saved State
+        let gameActive = false;
+        let gems = parseInt(localStorage.getItem('pk2_gems') || '30');
+        let highScore = parseFloat(localStorage.getItem('pk2_record') || '0');
+        let inventory = {
+            chalk: parseInt(localStorage.getItem('pk2_chalk') || '3'),
+            pitons: parseInt(localStorage.getItem('pk2_pitons') || '2'),
+            crampons: localStorage.getItem('pk2_crampons') === 'true',
+            thermal: localStorage.getItem('pk2_thermal') === 'true'
+        };
+
+        recordDisplay.textContent = Math.floor(highScore);
+        gemDisplay.textContent = gems;
+
+        // Constants
+        const GRAVITY = 0.42;
+        const ARM_MAX_LENGTH = 100;
+        const TARGET_SUMMIT_ALTITUDE = 500; // 500 meters target
+
+        // Climber Ragdoll Physics Model
+        let climber = {
+            body: { x: width / 2, y: height - 140, vx: 0, vy: 0, radius: 18 },
+            head: { x: width / 2, y: height - 168 },
+            leftElbow: { x: width / 2 - 25, y: height - 160 },
+            rightElbow: { x: width / 2 + 25, y: height - 160 },
+            leftHand: { x: width / 2 - 40, y: height - 190, grabbed: null, dragging: false, slipTimer: 0 },
+            rightHand: { x: width / 2 + 40, y: height - 190, grabbed: null, dragging: false, slipTimer: 0 },
+            stamina: 100,
+            maxStamina: 100
+        };
+
+        // Safety Rope Checkpoint
+        let ropeAnchor = null; // { x, y, length }
+
+        // Environment Data
+        let holds = [];
+        let gemPickups = [];
+        let particles = [];
+        let snowFlakes = [];
+        let windVectors = [];
+        let starField = [];
+
+        // Weather Hazards
+        let windForce = 0;
+        let windTarget = 0;
+        let windChangeTimer = 0;
+        let isBlizzard = false;
+        let blizzardTimer = 0;
+        let chalkBuffTimer = 0;
+        let currentAltitude = 0;
+
+        let cameraY = 0;
+        let targetCameraY = 0;
+
+        function initWorld() {
+            holds = [];
+            gemPickups = [];
+            particles = [];
+            snowFlakes = [];
+            windVectors = [];
+            starField = [];
+            ropeAnchor = null;
+
+            climber.body = { x: width / 2, y: height - 140, vx: 0, vy: 0, radius: 18 };
+            climber.stamina = 100;
+            chalkBuffTimer = 0;
+            currentAltitude = 0;
+            cameraY = 0;
+            targetCameraY = 0;
+
+            // Generate Starfield
+            for (let i = 0; i < 120; i++) {
+                starField.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height * 2 - height,
+                    size: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.8 + 0.2
+                });
+            }
+
+            // Generate Snow Particles
+            for (let i = 0; i < 110; i++) {
+                snowFlakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.2 + 0.8,
+                    speedY: Math.random() * 2 + 1,
+                    speedX: Math.random() * 1 - 0.5,
+                    alpha: Math.random() * 0.7 + 0.3
+                });
+            }
+
+            // Create Starter Base Holds
+            const baseY = height - 130;
+            holds.push({ id: 1, x: width / 2 - 40, y: baseY - 60, type: 'granite', size: 14, health: 100 });
+            holds.push({ id: 2, x: width / 2 + 40, y: baseY - 60, type: 'granite', size: 14, health: 100 });
+            holds.push({ id: 3, x: width / 2 - 25, y: baseY - 130, type: 'granite', size: 14, health: 100 });
+            holds.push({ id: 4, x: width / 2 + 25, y: baseY - 130, type: 'granite', size: 14, health: 100 });
+
+            climber.leftHand.x = holds[2].x;
+            climber.leftHand.y = holds[2].y;
+            climber.leftHand.grabbed = holds[2];
+
+            climber.rightHand.x = holds[3].x;
+            climber.rightHand.y = holds[3].y;
+            climber.rightHand.grabbed = holds[3];
+
+            generateLevelProcedural(-3000);
+            updateUI();
+        }
+
+        function generateLevelProcedural(targetY) {
+            let currentY = holds.length > 0 ? Math.min(...holds.map(h => h.y)) - 50 : height - 250;
+
+            while (currentY > targetY) {
+                const rowCount = Math.floor(Math.random() * 3) + 2;
+                const altitudeProgress = Math.abs(currentY) / 5000;
+
+                for (let i = 0; i < rowCount; i++) {
+                    const rx = Math.random() * (width - 140) + 70;
+                    let rand = Math.random();
+                    let type = 'granite';
+
+                    if (rand < 0.28 + altitudeProgress * 0.15) type = 'ice';
+                    else if (rand < 0.50 + altitudeProgress * 0.1) type = 'sandstone';
+                    else if (rand < 0.62) type = 'dyno';
+
+                    holds.push({
+                        id: Math.random(),
+                        x: rx,
+                        y: currentY + (Math.random() * 24 - 12),
+                        type: type,
+                        size: type === 'dyno' ? 16 : Math.random() * 4 + 12,
+                        health: 100,
+                        glowPhase: Math.random() * Math.PI * 2
+                    });
+
+                    // Random Gem Spawn
+                    if (Math.random() < 0.22) {
+                        gemPickups.push({
+                            id: Math.random(),
+                            x: rx + (Math.random() * 34 - 17),
+                            y: currentY - 28,
+                            collected: false,
+                            floatOffset: Math.random() * Math.PI * 2
+                        });
+                    }
+                }
+                currentY -= Math.random() * 40 + 40;
+            }
+        }
+
+        // Mouse & Touch Input Listeners
+        let activeTouches = {};
+
+        window.addEventListener('mousedown', (e) => {
+            if (!gameActive) return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top + cameraY;
+
+            if (e.button === 0) { // Left Hand
+                climber.leftHand.dragging = true;
+                climber.leftHand.grabbed = null;
+            } else if (e.button === 2) { // Right Hand
+                climber.rightHand.dragging = true;
+                climber.rightHand.grabbed = null;
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top + cameraY;
+
+            if (climber.leftHand.dragging) {
+                climber.leftHand.x = mx;
+                climber.leftHand.y = my;
+            }
+            if (climber.rightHand.dragging) {
+                climber.rightHand.x = mx;
+                climber.rightHand.y = my;
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!gameActive) return;
+            if (e.button === 0 && climber.leftHand.dragging) {
+                climber.leftHand.dragging = false;
+                tryAttachHand(climber.leftHand);
+            } else if (e.button === 2 && climber.rightHand.dragging) {
+                climber.rightHand.dragging = false;
+                tryAttachHand(climber.rightHand);
+            }
+        });
+
+        window.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Multi-touch controls
+        window.addEventListener('touchstart', (e) => {
+            if (!gameActive) return;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                const mx = t.clientX;
+                const my = t.clientY + cameraY;
+
+                const dLeft = Math.hypot(mx - climber.leftHand.x, my - climber.leftHand.y);
+                const dRight = Math.hypot(mx - climber.rightHand.x, my - climber.rightHand.y);
+
+                let hand = dLeft < dRight ? climber.leftHand : climber.rightHand;
+                hand.dragging = true;
+                hand.grabbed = null;
+                activeTouches[t.identifier] = hand;
+            }
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                const hand = activeTouches[t.identifier];
+                if (hand && hand.dragging) {
+                    hand.x = t.clientX;
+                    hand.y = t.clientY + cameraY;
+                }
+            }
+        });
+
+        window.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                const hand = activeTouches[t.identifier];
+                if (hand) {
+                    hand.dragging = false;
+                    tryAttachHand(hand);
+                    delete activeTouches[t.identifier];
+                }
+            }
+        });
+
+        // Keyboard hotkeys
+        window.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+            if (e.code === 'Space' || e.code === 'KeyC') {
+                e.preventDefault();
+                useChalk();
+            } else if (e.code === 'KeyR' || e.code === 'KeyE') {
+                e.preventDefault();
+                usePiton();
+            }
+        });
+
+        function tryAttachHand(hand) {
+            let nearest = null;
+            let minDist = 32;
+            for (let h of holds) {
+                let d = Math.hypot(hand.x - h.x, hand.y - h.y);
+                if (d < minDist) {
+                    minDist = d;
+                    nearest = h;
+                }
+            }
+
+            if (nearest) {
+                hand.grabbed = nearest;
+                hand.x = nearest.x;
+                hand.y = nearest.y;
+
+                // Dyno Boost Hold mechanic
+                if (nearest.type === 'dyno') {
+                    climber.body.vy = -12; // Launch upwards!
+                    spawnParticles(hand.x, hand.y, '#fbbf24', 20);
+                } else {
+                    spawnParticles(hand.x, hand.y, chalkBuffTimer > 0 ? '#10b981' : '#f8fafc', 8);
+                }
+            }
+        }
+
+        function useChalk() {
+            if (inventory.chalk > 0 && chalkBuffTimer <= 0) {
+                inventory.chalk--;
+                chalkBuffTimer = 10;
+                saveData();
+                updateUI();
+                spawnParticles(climber.body.x, climber.body.y, '#34d399', 30);
+            }
+        }
+
+        function usePiton() {
+            if (inventory.pitons > 0) {
+                inventory.pitons--;
+                ropeAnchor = {
+                    x: climber.body.x,
+                    y: climber.body.y,
+                    length: 180
+                };
+                saveData();
+                updateUI();
+                spawnParticles(climber.body.x, climber.body.y, '#fbbf24', 20);
+            }
+        }
+
+        document.getElementById('btnUseChalk').onclick = useChalk;
+        document.getElementById('btnUsePiton').onclick = usePiton;
+
+        function saveData() {
+            localStorage.setItem('pk2_chalk', inventory.chalk);
+            localStorage.setItem('pk2_pitons', inventory.pitons);
+            localStorage.setItem('pk2_crampons', inventory.crampons);
+            localStorage.setItem('pk2_thermal', inventory.thermal);
+            localStorage.setItem('pk2_gems', gems);
+        }
+
+        function updateUI() {
+            chalkQty.textContent = inventory.chalk;
+            pitonQty.textContent = inventory.pitons;
+            gemDisplay.textContent = gems;
+            shopGems.textContent = gems;
+
+            const cramponBtn = document.getElementById('btnBuyCrampons');
+            if (inventory.crampons) {
+                cramponBtn.innerText = "OWNED";
+                cramponBtn.disabled = true;
+                cramponBtn.className = "bg-slate-800 text-slate-500 font-bold text-xs py-2.5 px-3.5 rounded-xl cursor-not-allowed";
+            }
+            const thermalBtn = document.getElementById('btnBuyThermal');
+            if (inventory.thermal) {
+                thermalBtn.innerText = "OWNED";
+                thermalBtn.disabled = true;
+                thermalBtn.className = "bg-slate-800 text-slate-500 font-bold text-xs py-2.5 px-3.5 rounded-xl cursor-not-allowed";
+            }
+        }
+
+        function purchaseItem(item) {
+            if (item === 'chalk' && gems >= 20) {
+                gems -= 20;
+                inventory.chalk += 3;
+            } else if (item === 'piton' && gems >= 35) {
+                gems -= 35;
+                inventory.pitons += 1;
+            } else if (item === 'crampons' && gems >= 100 && !inventory.crampons) {
+                gems -= 100;
+                inventory.crampons = true;
+            } else if (item === 'thermal' && gems >= 120 && !inventory.thermal) {
+                gems -= 120;
+                inventory.thermal = true;
+            }
+            saveData();
+            updateUI();
+        }
+
+        function showShop() {
+            mainSplash.classList.add('hidden');
+            shopModal.classList.remove('hidden');
+            shopModal.classList.add('flex');
+            updateUI();
+        }
+
+        function hideShop() {
+            shopModal.classList.add('hidden');
+            shopModal.classList.remove('flex');
+            mainSplash.classList.remove('hidden');
+        }
+
+        function updatePhysics(dt) {
+            // Weather wind gusts
+            windChangeTimer -= dt;
+            if (windChangeTimer <= 0) {
+                windTarget = (Math.random() * 2.2 - 1.1) * (1 + currentAltitude / 250);
+                windChangeTimer = Math.random() * 4 + 2.5;
+            }
+            windForce += (windTarget - windForce) * 0.04;
+
+            // Blizzard whiteout system
+            blizzardTimer -= dt;
+            if (blizzardTimer <= 0) {
+                isBlizzard = !isBlizzard;
+                blizzardTimer = isBlizzard ? 9 : 16;
+                blizzardBanner.classList.toggle('hidden', !isBlizzard);
+                frostOverlay.style.opacity = isBlizzard ? '1' : '0';
+            }
+
+            // Chalk Buff Timer
+            if (chalkBuffTimer > 0) {
+                chalkBuffTimer -= dt;
+                chalkActiveBadge.style.opacity = '1';
+            } else {
+                chalkActiveBadge.style.opacity = '0';
+            }
+
+            // Apply body environmental physics forces
+            climber.body.vy += GRAVITY;
+            climber.body.vx += windForce * 0.22;
+
+            climber.body.x += climber.body.vx;
+            climber.body.y += climber.body.vy;
+            climber.body.vx *= 0.93;
+            climber.body.vy *= 0.97;
+
+            // Smooth Multi-joint elbows/head tracking
+            climber.head.x = climber.body.x;
+            climber.head.y = climber.body.y - 28;
+
+            // Compute Inverse Kinematic Elbow Joint positions
+            climber.leftElbow.x = (climber.body.x + climber.leftHand.x) / 2 - 12;
+            climber.leftElbow.y = (climber.body.y + climber.leftHand.y) / 2 + 6;
+            climber.rightElbow.x = (climber.body.x + climber.rightHand.x) / 2 + 12;
+            climber.rightElbow.y = (climber.body.y + climber.rightHand.y) / 2 + 6;
+
+            // Arm physics constraints
+            const leftDist = Math.hypot(climber.body.x - climber.leftHand.x, climber.body.y - climber.leftHand.y);
+            const rightDist = Math.hypot(climber.body.x - climber.rightHand.x, climber.body.y - climber.rightHand.y);
+
+            [ { hand: climber.leftHand, dist: leftDist }, { hand: climber.rightHand, dist: rightDist } ].forEach(({ hand, dist }) => {
+                if (hand.grabbed) {
+                    if (dist > ARM_MAX_LENGTH) {
+                        const angle = Math.atan2(hand.y - climber.body.y, hand.x - climber.body.x);
+                        climber.body.x = hand.x - Math.cos(angle) * ARM_MAX_LENGTH;
+                        climber.body.y = hand.y - Math.sin(angle) * ARM_MAX_LENGTH;
+                        climber.body.vx *= 0.75;
+                        climber.body.vy *= 0.75;
+                    }
+
+                    // Glacial Ice slip mechanics
+                    if (hand.grabbed.type === 'ice' && !inventory.crampons && chalkBuffTimer <= 0) {
+                        hand.slipTimer += dt;
+                        if (hand.slipTimer > 1.0 || isBlizzard) {
+                            hand.grabbed = null;
+                            hand.slipTimer = 0;
+                            spawnParticles(hand.x, hand.y, '#38bdf8', 12);
+                        }
+                    }
+
+                    // Sandstone Crumble crumbling
+                    if (hand.grabbed.type === 'sandstone') {
+                        hand.grabbed.health -= 1.4;
+                        spawnParticles(hand.grabbed.x, hand.grabbed.y, '#f97316', 3);
+                        if (hand.grabbed.health <= 0) {
+                            holds = holds.filter(h => h.id !== hand.grabbed.id);
+                            hand.grabbed = null;
+                        }
+                    }
+                }
+            });
+
+            // Safety Rope constraint pull
+            if (ropeAnchor) {
+                const rDist = Math.hypot(climber.body.x - ropeAnchor.x, climber.body.y - ropeAnchor.y);
+                if (rDist > ropeAnchor.length) {
+                    const angle = Math.atan2(ropeAnchor.y - climber.body.y, ropeAnchor.x - climber.body.x);
+                    climber.body.x = ropeAnchor.x - Math.cos(angle) * ropeAnchor.length;
+                    climber.body.y = ropeAnchor.y - Math.sin(angle) * ropeAnchor.length;
+                    climber.body.vy *= -0.25;
+                    spawnParticles(climber.body.x, climber.body.y, '#fbbf24', 10);
+                }
+            }
+
+            // Dynamic Stamina Drain & Thermal Protection
+            let holdsCount = 0;
+            if (climber.leftHand.grabbed) holdsCount++;
+            if (climber.rightHand.grabbed) holdsCount++;
+
+            let drainFactor = 1.0;
+            if (inventory.thermal) drainFactor *= 0.5;
+            if (isBlizzard) drainFactor *= 2.0;
+            if (chalkBuffTimer > 0) drainFactor = 0;
+
+            if (holdsCount === 0) {
+                climber.stamina = Math.max(0, climber.stamina - 0.45);
+            } else if (holdsCount === 1) {
+                climber.stamina = Math.max(0, climber.stamina - 0.14 * drainFactor);
+            } else {
+                climber.stamina = Math.min(climber.maxStamina, climber.stamina + 0.3);
+            }
+
+            // Stamina Exhaustion slip
+            if (climber.stamina <= 0) {
+                climber.leftHand.grabbed = null;
+                climber.rightHand.grabbed = null;
+            }
+
+            // Collect Gems
+            gemPickups.forEach(g => {
+                if (!g.collected && Math.hypot(climber.body.x - g.x, climber.body.y - g.y) < 28) {
+                    g.collected = true;
+                    gems += 5;
+                    gemDisplay.textContent = gems;
+                    saveData();
+                    spawnParticles(g.x, g.y, '#38bdf8', 16);
+                }
+            });
+
+            // Altitude Record & Camera tracking
+            const altitude = Math.max(0, (height - 140 - climber.body.y) / 10);
+            if (altitude > currentAltitude) {
+                currentAltitude = altitude;
+                heightDisplay.textContent = Math.floor(currentAltitude);
+                summitProgress.style.width = `${Math.min(100, (currentAltitude / TARGET_SUMMIT_ALTITUDE) * 100)}%`;
+            }
+
+            targetCameraY = climber.body.y - height / 2;
+            cameraY += (targetCameraY - cameraY) * 0.08;
+
+            if (cameraY < Math.min(...holds.map(h => h.y)) + 500) {
+                generateLevelProcedural(cameraY - 700);
+            }
+
+            // Fall Defeat check
+            if (climber.body.y - cameraY > height + 160) {
+                triggerGameOver();
+            }
+
+            // Update Particle physics
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.025;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+
+            // Snow Particles
+            snowFlakes.forEach(p => {
+                p.y += p.speedY + (isBlizzard ? 4 : 0);
+                p.x += p.speedX + windForce * 2.5;
+                if (p.y > cameraY + height) p.y = cameraY - 20;
+                if (p.x > width) p.x = 0;
+                if (p.x < 0) p.x = width;
+            });
+
+            // Update Wind GUI
+            const absWind = Math.abs(windForce);
+            windIntensity.style.width = `${Math.min(100, absWind * 65)}%`;
+            windText.textContent = absWind > 0.9 ? 'EXTREME GALE' : (absWind > 0.4 ? 'WIND GUSTS' : 'CALM BREEZE');
+            windCompass.style.transform = `rotate(${windForce > 0 ? 0 : 180}deg)`;
+
+            staminaMeter.style.width = `${climber.stamina}%`;
+            staminaMeter.className = `h-full rounded-full transition-all duration-150 ${climber.stamina < 30 ? 'bg-red-500' : (climber.stamina < 60 ? 'bg-amber-400' : 'bg-emerald-400')}`;
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    color: color,
+                    alpha: 1.0,
+                    size: Math.random() * 3.5 + 2
+                });
+            }
+        }
+
+        function renderAAA() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Volumetric Parallax Sky Gradient (Twilight to Deep Aurora Space)
+            const skyProgress = Math.min(1, currentAltitude / TARGET_SUMMIT_ALTITUDE);
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+            
+            if (skyProgress < 0.5) {
+                skyGrad.addColorStop(0, '#020617');
+                skyGrad.addColorStop(0.5, '#0f172a');
+                skyGrad.addColorStop(1, '#1e1b4b');
+            } else {
+                skyGrad.addColorStop(0, '#000000');
+                skyGrad.addColorStop(0.5, '#020617');
+                skyGrad.addColorStop(1, '#0c1427');
+            }
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Render Starfield with depth camera shift
+            ctx.fillStyle = '#ffffff';
+            starField.forEach(s => {
+                ctx.globalAlpha = s.alpha * (0.4 + skyProgress * 0.6);
+                ctx.fillRect(s.x, (s.y - cameraY * 0.1) % (height * 2), s.size, s.size);
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Distant Mountain Silhouette Parallax
+            ctx.fillStyle = '#090d16';
+            ctx.beginPath();
+            const mountainCamY = cameraY * 0.15;
+            ctx.moveTo(0, height);
+            for (let x = 0; x <= width; x += 80) {
+                const py = height - 220 - Math.sin(x * 0.005 + 1) * 80 - mountainCamY % 300;
+                ctx.lineTo(x, py);
+            }
+            ctx.lineTo(width, height);
+            ctx.fill();
+
+            ctx.save();
+            ctx.translate(0, -cameraY);
+
+            // Mountain Rock Wall Cracks & Textures
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1.5;
+            for (let y = Math.floor(cameraY / 80) * 80; y < cameraY + height + 80; y += 80) {
+                ctx.beginPath();
+                ctx.moveTo(0, y + Math.sin(y) * 10);
+                ctx.lineTo(width, y + Math.cos(y) * 15);
+                ctx.stroke();
+            }
+
+            // Draw Safety Rope
+            if (ropeAnchor) {
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath();
+                ctx.moveTo(ropeAnchor.x, ropeAnchor.y);
+                // Catenary curve
+                const midX = (ropeAnchor.x + climber.body.x) / 2;
+                const midY = (ropeAnchor.y + climber.body.y) / 2 + 25;
+                ctx.quadraticCurveTo(midX, midY, climber.body.x, climber.body.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Anchor Spike
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.arc(ropeAnchor.x, ropeAnchor.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw Dynamic Rock Holds
+            holds.forEach(h => {
+                ctx.save();
+                ctx.translate(h.x, h.y);
+
+                // Hold Base Shape
+                ctx.beginPath();
+                ctx.arc(0, 0, h.size, 0, Math.PI * 2);
+
+                if (h.type === 'granite') {
+                    ctx.fillStyle = '#475569';
+                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                    ctx.shadowBlur = 8;
+                } else if (h.type === 'ice') {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#0284c7';
+                    ctx.shadowBlur = 12;
+                } else if (h.type === 'sandstone') {
+                    ctx.fillStyle = `rgba(249, 115, 22, ${h.health / 100})`;
+                    ctx.shadowColor = '#c2410c';
+                    ctx.shadowBlur = 6;
+                } else if (h.type === 'dyno') {
+                    h.glowPhase += 0.05;
+                    const glow = Math.sin(h.glowPhase) * 0.3 + 0.7;
+                    ctx.fillStyle = `rgba(251, 191, 36, ${glow})`;
+                    ctx.shadowColor = '#f59e0b';
+                    ctx.shadowBlur = 18;
+                }
+
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#0f172a';
+                ctx.stroke();
+
+                // Specular Ice / Metal Highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(-h.size * 0.3, -h.size * 0.3, h.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            });
+
+            // Draw Gem Pickups
+            const nowTime = performance.now() * 0.003;
+            gemPickups.forEach(g => {
+                if (!g.collected) {
+                    const offsetY = Math.sin(nowTime + g.floatOffset) * 4;
+                    ctx.save();
+                    ctx.translate(g.x, g.y + offsetY);
+
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 15;
+
+                    // Gem Diamond Shape
+                    ctx.beginPath();
+                    ctx.moveTo(0, -9);
+                    ctx.lineTo(7, 0);
+                    ctx.lineTo(0, 9);
+                    ctx.lineTo(-7, 0);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+            });
+
+            // Draw Climber Headlamp Cone Light
+            const headlampGrad = ctx.createRadialGradient(
+                climber.head.x, climber.head.y, 5,
+                climber.head.x, climber.head.y - 120, 160
+            );
+            headlampGrad.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
+            headlampGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+            
+            ctx.fillStyle = headlampGrad;
+            ctx.beginPath();
+            ctx.moveTo(climber.head.x, climber.head.y);
+            ctx.lineTo(climber.head.x - 120, climber.head.y - 200);
+            ctx.lineTo(climber.head.x + 120, climber.head.y - 200);
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw Climber Ragdoll Limbs
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#0284c7';
+
+            // Left Arm Joints
+            ctx.beginPath();
+            ctx.moveTo(climber.body.x - 10, climber.body.y - 8);
+            ctx.lineTo(climber.leftElbow.x, climber.leftElbow.y);
+            ctx.lineTo(climber.leftHand.x, climber.leftHand.y);
+            ctx.stroke();
+
+            // Right Arm Joints
+            ctx.beginPath();
+            ctx.moveTo(climber.body.x + 10, climber.body.y - 8);
+            ctx.lineTo(climber.rightElbow.x, climber.rightElbow.y);
+            ctx.lineTo(climber.rightHand.x, climber.rightHand.y);
+            ctx.stroke();
+
+            // Torso Body Outfit
+            ctx.fillStyle = inventory.thermal ? '#ef4444' : '#0284c7';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(climber.body.x, climber.body.y, climber.body.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Chalk Bag on Hip
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.arc(climber.body.x + 12, climber.body.y + 12, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Head & Helmet
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(climber.head.x, climber.head.y, 11, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Headlamp Lens
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(climber.head.x, climber.head.y - 6, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hands Grip Status
+            [climber.leftHand, climber.rightHand].forEach(hand => {
+                ctx.fillStyle = hand.grabbed ? (chalkBuffTimer > 0 ? '#10b981' : '#f43f5e') : '#94a3b8';
+                ctx.shadowColor = hand.grabbed ? '#10b981' : 'transparent';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(hand.x, hand.y, 7.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Particles Rendering
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Dense Snow Particles
+            ctx.fillStyle = 'rgba(240, 249, 255, 0.85)';
+            snowFlakes.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        let lastFrameTime = performance.now();
+
+        function renderLoop(now) {
+            const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+            lastFrameTime = now;
+
+            if (gameActive) {
+                updatePhysics(dt);
+            }
+            renderAAA();
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        function startGame() {
+            initWorld();
+            gameActive = true;
+            menuOverlay.classList.add('opacity-0', 'pointer-events-none');
+            hudContainer.classList.remove('opacity-0');
+            quickGearBar.classList.remove('opacity-0', 'translate-y-6');
+        }
+
+        function triggerGameOver() {
+            gameActive = false;
+            hudContainer.classList.add('opacity-0');
+            quickGearBar.classList.add('opacity-0', 'translate-y-6');
+
+            if (currentAltitude > highScore) {
+                highScore = currentAltitude;
+                localStorage.setItem('pk2_record', highScore);
+                recordDisplay.textContent = Math.floor(highScore);
+            }
+
+            mainSplash.querySelector('h1').textContent = "EXPEDITION FALLEN!";
+            mainSplash.querySelector('p').textContent = `FINAL ALTITUDE REACHED: ${Math.floor(currentAltitude)}m`;
+            menuOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+</html>

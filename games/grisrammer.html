@@ -1,0 +1,1072 @@
+@'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f4f4f0">
+<title>GRID RAMMER // Michael Kennedy</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    min-height:100%;
+}
+
+body{
+    background:#f4f4f0;
+    color:#121212;
+    font-family:Arial,Helvetica,sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:16px;
+    overflow-x:hidden;
+    touch-action:manipulation;
+}
+
+#game{
+    width:min(720px,100%);
+    background:#fff;
+    border:4px solid #121212;
+    box-shadow:10px 10px 0 #121212;
+}
+
+header{
+    background:#121212;
+    color:#fff;
+    padding:18px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:15px;
+}
+
+h1{
+    margin:0;
+    font-size:clamp(36px,9vw,64px);
+    line-height:.82;
+    letter-spacing:-4px;
+    font-weight:900;
+}
+
+.header-meta{
+    text-align:right;
+    font-size:10px;
+    line-height:1.5;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+#stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border-bottom:4px solid #121212;
+}
+
+.stat{
+    padding:10px;
+    text-align:center;
+    border-right:3px solid #121212;
+}
+
+.stat:last-child{
+    border-right:0;
+}
+
+.stat small{
+    display:block;
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:1px;
+    margin-bottom:3px;
+}
+
+.stat strong{
+    font-size:21px;
+}
+
+#boardArea{
+    background:#e5e5e0;
+    padding:clamp(12px,4vw,28px);
+}
+
+#board{
+    width:min(520px,100%);
+    aspect-ratio:1;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    grid-template-rows:repeat(8,1fr);
+    background:#121212;
+    border:5px solid #121212;
+    overflow:hidden;
+}
+
+.cell{
+    position:relative;
+    border:1px solid #454545;
+    background:#292929;
+}
+
+.loot{
+    background:#3349a8;
+}
+
+.player{
+    background:#00ffff;
+    z-index:3;
+}
+
+.player:after{
+    content:"";
+    position:absolute;
+    inset:18%;
+    border:3px solid #121212;
+}
+
+.good{
+    background:#00ed4f;
+    z-index:2;
+}
+
+.good:after{
+    content:"+";
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:clamp(15px,4vw,28px);
+    font-weight:900;
+    color:#121212;
+}
+
+.bad{
+    background:#e63946;
+    z-index:2;
+}
+
+.bad:after{
+    content:"!";
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:clamp(15px,4vw,28px);
+    font-weight:900;
+    color:#fff;
+}
+
+#message{
+    margin:14px auto 0;
+    max-width:520px;
+    padding:11px;
+    border:3px solid #121212;
+    background:#ffb703;
+    text-align:center;
+    font-size:11px;
+    line-height:1.4;
+    font-weight:900;
+    text-transform:uppercase;
+}
+
+#controls{
+    padding:18px;
+    border-top:4px solid #121212;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+}
+
+.control-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+}
+
+.control{
+    width:68px;
+    height:58px;
+    border:3px solid #121212;
+    background:#fff;
+    box-shadow:4px 4px 0 #121212;
+    font-size:24px;
+    font-weight:900;
+    cursor:pointer;
+    user-select:none;
+    touch-action:manipulation;
+}
+
+.control:active{
+    transform:translate(3px,3px);
+    box-shadow:1px 1px 0 #121212;
+    background:#ffb703;
+}
+
+#restart{
+    margin-top:6px;
+    width:144px;
+    height:48px;
+    border:3px solid #121212;
+    background:#e63946;
+    color:#fff;
+    box-shadow:4px 4px 0 #121212;
+    font-size:12px;
+    font-weight:900;
+    cursor:pointer;
+}
+
+#restart:active{
+    transform:translate(3px,3px);
+    box-shadow:1px 1px 0 #121212;
+}
+
+#instructions{
+    border-top:3px solid #121212;
+    padding:14px 18px 18px;
+    text-align:center;
+    font-size:10px;
+    line-height:1.6;
+    font-weight:900;
+}
+
+@media(min-width:700px){
+
+    #controls{
+        flex-direction:row;
+        justify-content:center;
+    }
+
+    #restart{
+        margin-top:0;
+        margin-left:15px;
+    }
+}
+
+@media(max-width:420px){
+
+    body{
+        padding:8px;
+    }
+
+    #game{
+        border-width:3px;
+        box-shadow:6px 6px 0 #121212;
+    }
+
+    header{
+        padding:14px;
+    }
+
+    .header-meta{
+        font-size:8px;
+    }
+
+    .stat{
+        padding:8px 4px;
+    }
+
+    .stat strong{
+        font-size:17px;
+    }
+
+    #boardArea{
+        padding:9px;
+    }
+
+    #board{
+        border-width:4px;
+    }
+
+    .control{
+        width:62px;
+        height:56px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<header>
+
+    <h1>GRID<br>RAMMER</h1>
+
+    <div class="header-meta">
+        GRID SURVIVAL<br>
+        SYSTEM 001<br>
+        8 × 8
+    </div>
+
+</header>
+
+
+<div id="stats">
+
+    <div class="stat">
+        <small>SCORE</small>
+        <strong id="score">0</strong>
+    </div>
+
+    <div class="stat">
+        <small>LIVES</small>
+        <strong id="lives">1</strong>
+    </div>
+
+    <div class="stat">
+        <small>DROP</small>
+        <strong id="drop">1.0s</strong>
+    </div>
+
+</div>
+
+
+<div id="boardArea">
+
+    <div id="board"></div>
+
+    <div id="message">
+        COLLECT GREEN · AVOID RED
+    </div>
+
+</div>
+
+
+<div id="controls">
+
+    <div class="control-row">
+
+        <button class="control" data-dir="up" aria-label="Move up">
+            ▲
+        </button>
+
+    </div>
+
+    <div class="control-row">
+
+        <button class="control" data-dir="left" aria-label="Move left">
+            ◀
+        </button>
+
+        <button class="control" data-dir="down" aria-label="Move down">
+            ▼
+        </button>
+
+        <button class="control" data-dir="right" aria-label="Move right">
+            ▶
+        </button>
+
+    </div>
+
+    <button id="restart">
+        RESTART
+    </button>
+
+</div>
+
+
+<div id="instructions">
+    DESKTOP: ARROW KEYS / WASD &nbsp; · &nbsp;
+    MOBILE: USE THE CONTROLS
+</div>
+
+</div>
+
+
+<script>
+
+/*
+==================================================
+GRID RAMMER
+Browser version of the supplied Godot mechanics
+==================================================
+*/
+
+
+const GRID_WIDTH = 8;
+const GRID_HEIGHT = 8;
+
+
+/*
+PLAYER
+Original:
+Vector2i(3, 6)
+*/
+
+let playerPos = {
+    x:3,
+    y:6
+};
+
+
+/*
+FALLING BLOCKS
+*/
+
+let fallingBlocks = [];
+
+
+/*
+GAME STATE
+*/
+
+let score = 0;
+let lives = 1;
+let isGameOver = false;
+
+
+/*
+ORIGINAL GODOT:
+block_drop_interval = 1.0
+*/
+
+let blockDropInterval = 1.0;
+
+let dropTimer = 0.0;
+let speedupTimer = 0.0;
+
+
+/*
+TIME
+*/
+
+let lastTime = performance.now();
+
+
+/*
+DOM
+*/
+
+const board =
+    document.getElementById("board");
+
+const scoreElement =
+    document.getElementById("score");
+
+const livesElement =
+    document.getElementById("lives");
+
+const dropElement =
+    document.getElementById("drop");
+
+const messageElement =
+    document.getElementById("message");
+
+
+/*
+==================================================
+RANDOM
+==================================================
+*/
+
+function randomInt(min,max){
+
+    return Math.floor(
+        Math.random() *
+        (max - min + 1)
+    ) + min;
+
+}
+
+
+/*
+==================================================
+DRAW BOARD
+==================================================
+*/
+
+function draw(){
+
+    board.innerHTML = "";
+
+
+    for(
+        let y = 0;
+        y < GRID_HEIGHT;
+        y++
+    ){
+
+        for(
+            let x = 0;
+            x < GRID_WIDTH;
+            x++
+        ){
+
+            const cell =
+                document.createElement("div");
+
+
+            cell.className = "cell";
+
+
+            /*
+            Original Godot:
+            Draw Loot Zones
+            x = 0 and x = 7
+            */
+
+            if(
+                x === 0 ||
+                x === 7
+            ){
+
+                cell.classList.add("loot");
+
+            }
+
+
+            /*
+            PLAYER
+            */
+
+            if(
+                x === playerPos.x &&
+                y === playerPos.y
+            ){
+
+                cell.classList.remove("loot");
+
+                cell.classList.add("player");
+
+            }
+
+
+            /*
+            FALLING BLOCKS
+            */
+
+            for(
+                const block of fallingBlocks
+            ){
+
+                if(
+                    Math.floor(block.x) === x &&
+                    Math.floor(block.y) === y
+                ){
+
+                    cell.classList.remove("loot");
+
+
+                    if(
+                        block.type === "good"
+                    ){
+
+                        cell.classList.add("good");
+
+                    }
+
+                    else{
+
+                        cell.classList.add("bad");
+
+                    }
+
+                }
+
+            }
+
+
+            board.appendChild(cell);
+
+        }
+
+    }
+
+
+    scoreElement.textContent =
+        score;
+
+    livesElement.textContent =
+        lives;
+
+    dropElement.textContent =
+        blockDropInterval.toFixed(1) + "s";
+
+}
+
+
+/*
+==================================================
+MOVE PLAYER
+==================================================
+Original:
+new_x >= 2
+new_x <= 5
+new_y >= 0
+new_y < GRID_HEIGHT
+==================================================
+*/
+
+function movePlayer(dx,dy){
+
+    if(isGameOver){
+
+        return;
+
+    }
+
+
+    const newX =
+        playerPos.x + dx;
+
+    const newY =
+        playerPos.y + dy;
+
+
+    if(
+        newX >= 2 &&
+        newX <= 5 &&
+        newY >= 0 &&
+        newY < GRID_HEIGHT
+    ){
+
+        playerPos.x = newX;
+
+        playerPos.y = newY;
+
+        checkCollisions();
+
+        draw();
+
+    }
+
+}
+
+
+/*
+==================================================
+SPAWN BLOCK
+==================================================
+Original:
+side = randi() % 2
+
+left side:
+0..2
+
+right side:
+5..7
+
+70% good
+30% bad
+==================================================
+*/
+
+function spawnBlock(){
+
+    const side =
+        Math.floor(Math.random() * 2);
+
+
+    const spawnX =
+        side === 0
+            ? randomInt(0,2)
+            : randomInt(5,7);
+
+
+    const blockType =
+        Math.random() < 0.7
+            ? "good"
+            : "bad";
+
+
+    fallingBlocks.push({
+
+        x:spawnX,
+
+        y:0.0,
+
+        type:blockType
+
+    });
+
+}
+
+
+/*
+==================================================
+COLLISIONS
+==================================================
+*/
+
+function checkCollisions(){
+
+    for(
+        let i = fallingBlocks.length - 1;
+        i >= 0;
+        i--
+    ){
+
+        const block =
+            fallingBlocks[i];
+
+
+        /*
+        Original:
+        int(b.x) == player_pos.x
+        int(b.y) == player_pos.y
+        */
+
+        if(
+            Math.floor(block.x) === playerPos.x &&
+            Math.floor(block.y) === playerPos.y
+        ){
+
+            if(
+                block.type === "bad"
+            ){
+
+                lives -= 1;
+
+                isGameOver = true;
+
+                messageElement.textContent =
+                    "GAME OVER — RED BLOCK HIT.";
+
+            }
+
+            else{
+
+                score += 10;
+
+                fallingBlocks.splice(
+                    i,
+                    1
+                );
+
+                messageElement.textContent =
+                    "+10 — KEEP GOING.";
+
+            }
+
+        }
+
+
+        /*
+        Original:
+        elif int(b.y) >= GRID_HEIGHT
+        */
+
+        else if(
+            Math.floor(block.y) >= GRID_HEIGHT
+        ){
+
+            fallingBlocks.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+}
+
+
+/*
+==================================================
+GAME LOOP
+==================================================
+*/
+
+function gameLoop(now){
+
+    const delta =
+        (now - lastTime) / 1000;
+
+
+    lastTime = now;
+
+
+    if(!isGameOver){
+
+        /*
+        SPEEDUP LOOP EVERY 10 SECONDS
+        Original:
+        max(0.2, interval - 0.1)
+        */
+
+        speedupTimer += delta;
+
+
+        if(
+            speedupTimer >= 10.0
+        ){
+
+            blockDropInterval =
+                Math.max(
+                    0.2,
+                    blockDropInterval - 0.1
+                );
+
+
+            speedupTimer = 0.0;
+
+        }
+
+
+        /*
+        BLOCK DROP LOOP
+        */
+
+        dropTimer += delta;
+
+
+        if(
+            dropTimer >= blockDropInterval
+        ){
+
+            spawnBlock();
+
+            dropTimer = 0.0;
+
+        }
+
+
+        /*
+        ORIGINAL:
+        block.y += 1.0 * delta
+        */
+
+        for(
+            const block of fallingBlocks
+        ){
+
+            block.y +=
+                1.0 * delta;
+
+        }
+
+
+        checkCollisions();
+
+        draw();
+
+    }
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+/*
+==================================================
+RESTART
+==================================================
+*/
+
+function restartGame(){
+
+    playerPos = {
+        x:3,
+        y:6
+    };
+
+
+    fallingBlocks = [];
+
+
+    score = 0;
+
+    lives = 1;
+
+    isGameOver = false;
+
+
+    blockDropInterval = 1.0;
+
+    dropTimer = 0.0;
+
+    speedupTimer = 0.0;
+
+
+    messageElement.textContent =
+        "COLLECT GREEN · AVOID RED";
+
+
+    lastTime =
+        performance.now();
+
+
+    draw();
+
+}
+
+
+/*
+==================================================
+KEYBOARD
+==================================================
+*/
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        const key =
+            event.key.toLowerCase();
+
+
+        if(
+            key === "arrowup" ||
+            key === "w"
+        ){
+
+            event.preventDefault();
+
+            movePlayer(0,-1);
+
+        }
+
+
+        else if(
+            key === "arrowdown" ||
+            key === "s"
+        ){
+
+            event.preventDefault();
+
+            movePlayer(0,1);
+
+        }
+
+
+        else if(
+            key === "arrowleft" ||
+            key === "a"
+        ){
+
+            event.preventDefault();
+
+            movePlayer(-1,0);
+
+        }
+
+
+        else if(
+            key === "arrowright" ||
+            key === "d"
+        ){
+
+            event.preventDefault();
+
+            movePlayer(1,0);
+
+        }
+
+
+        else if(
+            key === "r"
+        ){
+
+            restartGame();
+
+        }
+
+    }
+);
+
+
+/*
+==================================================
+MOBILE TOUCH CONTROLS
+==================================================
+*/
+
+document
+    .querySelectorAll(".control")
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "pointerdown",
+                function(event){
+
+                    event.preventDefault();
+
+
+                    const direction =
+                        button.dataset.dir;
+
+
+                    if(
+                        direction === "up"
+                    ){
+
+                        movePlayer(0,-1);
+
+                    }
+
+                    else if(
+                        direction === "down"
+                    ){
+
+                        movePlayer(0,1);
+
+                    }
+
+                    else if(
+                        direction === "left"
+                    ){
+
+                        movePlayer(-1,0);
+
+                    }
+
+                    else if(
+                        direction === "right"
+                    ){
+
+                        movePlayer(1,0);
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/*
+==================================================
+RESTART BUTTON
+==================================================
+*/
+
+document
+    .getElementById("restart")
+    .addEventListener(
+        "click",
+        restartGame
+    );
+
+
+/*
+==================================================
+START
+==================================================
+*/
+
+draw();
+
+requestAnimationFrame(
+    gameLoop
+);
+
+</script>
+
+</body>
+</html>
+'@ | Set-Content -Encoding UTF8 ".\games\gridrammer.html"

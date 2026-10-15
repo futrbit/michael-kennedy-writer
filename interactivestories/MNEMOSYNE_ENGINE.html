@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">MNEMOSYNE ENGINE
+
+$0
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=devicewidth, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE MNEMOSYNE ENGINE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=IM+Fell+English:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-charcoal: #0c0c0e;
+            --paper-light: #e3dfd7;
+            --paper-dark: #16161a;
+            --accent-red: #c93b3b;
+            --accent-gold: #b89343;
+            --text-dim: #8e8a83;
+            --border-subtle: rgba(227, 223, 215, 0.12);
+        }
+
+        body {
+            background-color: var(--bg-charcoal);
+            color: var(--paper-light);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-serif-story {
+            font-family: 'IM Fell English', serif;
+        }
+
+        .font-mono-meta {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Paper aesthetic container */
+        .archive-paper {
+            background-color: #121215;
+            background-image: 
+                radial-gradient(rgba(227, 223, 215, 0.03) 1px, transparent 0),
+                linear-gradient(to bottom, rgba(12, 12, 14, 0.8), rgba(12, 12, 14, 0.95));
+            background-size: 16px 16px, 100% 100%;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* CRT/Archive Subtle Scanline Effect */
+        .scanline-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.15) 50%,
+                rgba(0, 0, 0, 0.15)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 40;
+            opacity: 0.6;
+        }
+
+        /* Button Compression and Tactile Feedback */
+        .tactile-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            outline: none;
+        }
+
+        .tactile-btn:active {
+            transform: scale(0.98) translateY(1px);
+        }
+
+        .tactile-btn-red {
+            border: 1px solid rgba(201, 59, 59, 0.4);
+            background: rgba(201, 59, 59, 0.08);
+            color: #f2a8a8;
+        }
+
+        .tactile-btn-red:hover {
+            background: rgba(201, 59, 59, 0.18);
+            border-color: rgba(201, 59, 59, 0.8);
+        }
+
+        .tactile-btn-gold {
+            border: 1px solid rgba(184, 147, 67, 0.4);
+            background: rgba(184, 147, 67, 0.08);
+            color: #ebd197;
+        }
+
+        .tactile-btn-gold:hover {
+            background: rgba(184, 147, 67, 0.18);
+            border-color: rgba(184, 147, 67, 0.8);
+        }
+
+        /* Pulse and Glitch Animations */
+        @keyframes memoryPulse {
+            0% { border-color: rgba(184, 147, 67, 0.2); box-shadow: 0 0 0 0 rgba(184, 147, 67, 0.4); }
+            50% { border-color: rgba(184, 147, 67, 0.8); box-shadow: 0 0 15px 2px rgba(184, 147, 67, 0.3); }
+            100% { border-color: rgba(184, 147, 67, 0.2); box-shadow: 0 0 0 0 rgba(184, 147, 67, 0); }
+        }
+
+        .pulse-memory {
+            animation: memoryPulse 2s infinite;
+        }
+
+        @keyframes glitchFlash {
+            0% { opacity: 1; transform: translate(0, 0); }
+            20% { opacity: 0.8; transform: translate(-2px, 1px); }
+            40% { opacity: 1; transform: translate(2px, -1px); }
+            60% { opacity: 0.9; transform: translate(-1px, -1px); }
+            80% { opacity: 1; transform: translate(1px, 1px); }
+            100% { opacity: 1; transform: translate(0, 0); }
+        }
+
+        .glitch-anim {
+            animation: glitchFlash 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(12, 12, 14, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(227, 223, 215, 0.2);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(201, 59, 59, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-red-900 selection:text-white">
+
+    <!-- Scanline Overlay -->
+    <div class="scanline-overlay"></div>
+
+    <!-- Notification Toast Overlay -->
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md pointer-events-none space-y-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="w-full max-w-2xl mx-auto px-4 pt-4 pb-2 flex items-center justify-between border-b border-white/10 z-30">
+        <div class="flex items-center space-x-2">
+            <!-- Secret UI Symbol embedded in Header -->
+            <button id="ui-meta-symbol" class="text-xs font-mono-meta text-amber-600/70 hover:text-amber-400 transition-colors p-1 rounded" title="Archive Sigil">
+                ⟁
+            </button>
+            <span class="text-xs font-mono-meta tracking-widest text-neutral-400 uppercase">MNEMOSYNE // SYS_v4.1</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Audio Toggle Button -->
+            <button id="btn-sound-toggle" class="text-xs font-mono-meta px-2 py-1 rounded bg-neutral-900 border border-neutral-700 hover:border-neutral-500 text-neutral-300 transition-all flex items-center gap-1">
+                <span id="sound-icon">🔊</span> <span id="sound-text">SOUND ON</span>
+            </button>
+
+            <!-- Reset Confirmation Trigger -->
+            <button id="btn-reset-modal" class="text-xs font-mono-meta px-2 py-1 rounded bg-neutral-900 border border-red-900/50 hover:border-red-600 text-red-400 transition-all">
+                RESET
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Navigation Tabs -->
+    <nav class="w-full max-w-2xl mx-auto px-4 my-2 flex border-b border-white/5 z-30 text-xs font-mono-meta">
+        <button id="tab-story" class="flex-1 py-2 text-center border-b-2 border-red-500 text-white font-semibold transition-all">
+            CHAMBER
+        </button>
+        <button id="tab-archive" class="flex-1 py-2 text-center border-b-2 border-transparent text-neutral-500 hover:text-neutral-300 transition-all">
+            ARCHIVE (<span id="archive-pct">0%</span>)
+        </button>
+        <button id="tab-daily" class="flex-1 py-2 text-center border-b-2 border-transparent text-neutral-500 hover:text-neutral-300 transition-all">
+            DAILY CHAMBER
+        </button>
+    </nav>
+
+    <!-- Main Content Containers -->
+    <main class="w-full max-w-2xl mx-auto px-4 flex-1 flex flex-col justify-center my-2 relative z-20">
+
+        <!-- VIEW 1: STORY & PUZZLE CHAMBER -->
+        <section id="view-story" class="w-full flex-1 flex flex-col">
+            <!-- Chamber Metadata Banner -->
+            <div id="chamber-meta-bar" class="flex items-center justify-between text-xs font-mono-meta text-neutral-500 mb-2 px-1">
+                <span id="chamber-id-text">CHAMBER 00 :: THRESHOLD</span>
+                <span id="memory-integrity-text" class="text-amber-500/80">MEMORY INTEGRITY: 100%</span>
+            </div>
+
+            <!-- Paper Archive Panel -->
+            <div class="archive-paper rounded-lg p-5 md:p-6 flex-1 flex flex-col justify-between relative min-h-[380px]">
+                
+                <!-- Timed Visual Test Overlay Container (Hidden by default) -->
+                <div id="visual-memory-overlay" class="hidden absolute inset-0 bg-neutral-950/95 rounded-lg z-30 flex flex-col items-center justify-center p-6 text-center">
+                    <span class="text-xs font-mono-meta text-amber-500 mb-4 tracking-wider">OBSERVE CAREFULLY (4 SECONDS)</span>
+                    <div id="visual-memory-symbols" class="flex space-x-4 text-3xl md:text-4xl tracking-widest my-4 text-neutral-200">
+                        <!-- Flash items injected via JS -->
+                    </div>
+                    <div class="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden mt-4">
+                        <div id="visual-memory-bar" class="h-full bg-amber-500 transition-all ease-linear"></div>
+                    </div>
+                </div>
+
+                <!-- Story Text Box -->
+                <div id="story-content" class="space-y-4 mb-6">
+                    <p class="font-serif-story text-lg md:text-xl text-neutral-200 leading-relaxed">
+                        Initializing the Engine...
+                    </p>
+                </div>
+
+                <!-- Special Challenge Narrator Action Button (Conditional) -->
+                <div id="challenge-narrator-container" class="hidden mb-4">
+                    <button id="btn-challenge-narrator" class="w-full py-2.5 px-4 rounded text-xs font-mono-meta tactile-btn tactile-btn-red flex items-center justify-center space-x-2">
+                        <span>⚠️️</span>
+                        <span>CHALLENGE THE RECORD (SPOT NARRATOR LIE)</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Interactive Choices / Puzzle Entry Container -->
+                <div id="choices-container" class="space-y-3 pt-2 border-t border-white/5">
+                    <!-- Dynamic Choices JS Injected Here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: THE ARCHIVE & STATS -->
+        <section id="view-archive" class="w-full flex-1 hidden flex-col">
+            <div class="archive-paper rounded-lg p-5 md:p-6 space-y-6">
+                <div>
+                    <h2 class="text-sm font-mono-meta text-amber-500 tracking-wider uppercase mb-1">ARCHIVAL PROGRESS RECORD</h2>
+                    <p class="text-xs text-neutral-400">The record persists across runs. The engine tracks every decision made.</p>
+                </div>
+
+                <!-- Archetype Badge Container -->
+                <div class="p-4 rounded border border-neutral-800 bg-neutral-950/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-mono-meta text-neutral-500 block">CURRENT ARCHETYPE</span>
+                        <span id="archetype-title" class="text-base font-mono-meta font-bold text-amber-400">THE UNINITIATED</span>
+                    </div>
+                    <div id="archetype-desc" class="text-xs text-neutral-400 max-w-xs">
+                        Your choices have not yet revealed your underlying mindset.
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="p-3 bg-neutral-900/60 rounded border border-white/5">
+                        <span class="text-2xl font-mono-meta font-bold text-neutral-200 block" id="stat-attempts">1</span>
+                        <span class="text-[10px] font-mono-meta text-neutral-500 uppercase">RUN ATTEMPTS</span>
+                    </div>
+                    <div class="p-3 bg-neutral-900/60 rounded border border-white/5">
+                        <span class="text-2xl font-mono-meta font-bold text-amber-500 block" id="stat-endings">0 / 4</span>
+                        <span class="text-[10px] font-mono-meta text-neutral-500 uppercase">ENDINGS SEEN</span>
+                    </div>
+                    <div class="p-3 bg-neutral-900/60 rounded border border-white/5">
+                        <span class="text-2xl font-mono-meta font-bold text-red-400 block" id="stat-rooms">1 / 8</span>
+                        <span class="text-[10px] font-mono-meta text-neutral-500 uppercase">ROOMS DISCOVERED</span>
+                    </div>
+                    <div class="p-3 bg-neutral-900/60 rounded border border-white/5">
+                        <span class="text-2xl font-mono-meta font-bold text-neutral-200 block" id="stat-memories">0</span>
+                        <span class="text-[10px] font-mono-meta text-neutral-500 uppercase">MEMORIES STORED</span>
+                    </div>
+                </div>
+
+                <!-- Endings Discovered Checklist -->
+                <div>
+                    <h3 class="text-xs font-mono-meta text-neutral-400 uppercase tracking-wider mb-2">DISCOVERED ENDINGS</h3>
+                    <div id="endings-list" class="space-y-2">
+                        <!-- JS injected list -->
+                    </div>
+                </div>
+
+                <!-- Active Stored Memories Inventory -->
+                <div>
+                    <h3 class="text-xs font-mono-meta text-neutral-400 uppercase tracking-wider mb-2">STORED RECORD MEMORIES</h3>
+                    <div id="memories-tags" class="flex flex-wrap gap-2">
+                        <span class="text-xs font-mono-meta text-neutral-600 italic">No static memories stored yet...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: DAILY CHAMBER MODE -->
+        <section id="view-daily" class="w-full flex-1 hidden flex-col">
+            <div class="archive-paper rounded-lg p-5 md:p-6 space-y-5">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <div>
+                        <span id="daily-date-tag" class="text-xs font-mono-meta text-amber-500 block">DAILY CHAMBER :: SEED 2026-10-01</span>
+                        <h2 class="text-base font-semibold text-neutral-200">The Synchronized Vault</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-mono-meta text-neutral-500 block">STREAK</span>
+                        <span id="daily-streak-count" class="text-lg font-mono-meta font-bold text-amber-400">0 DAYS</span>
+                    </div>
+                </div>
+
+                <div id="daily-chamber-body" class="space-y-4">
+                    <!-- Daily Chamber JS dynamic insertion -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Tagline and Meta UI Hint -->
+    <footer class="w-full max-w-2xl mx-auto px-4 py-3 border-t border-white/5 text-center z-30">
+        <p class="text-[11px] font-mono-meta text-neutral-600">
+            "A story that tests whether you are actually paying attention."
+        </p>
+    </footer>
+
+    <!-- RESET CONFIRMATION MODAL -->
+    <div id="modal-reset" class="hidden fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="archive-paper rounded-lg p-6 max-w-sm w-full space-y-4 text-center border border-red-900/40">
+            <h3 class="text-sm font-mono-meta font-bold text-red-400 tracking-wider">PURGE ARCHIVE DATA?</h3>
+            <p class="text-xs text-neutral-300 leading-relaxed">
+                This action will completely wipe all discovered endings, stored memories, daily streaks, and progress records from your local archive.
+            </p>
+            <div class="flex space-x-3 pt-2">
+                <button id="btn-cancel-reset" class="flex-1 py-2 text-xs font-mono-meta rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">
+                    CANCEL
+                </button>
+                <button id="btn-confirm-reset" class="flex-1 py-2 text-xs font-mono-meta rounded bg-red-900/80 hover:bg-red-800 text-white font-semibold">
+                    PURGE ALL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT ENGINE -->
+    <script>
+        // =========================================================================
+        // 1. PROCEDURAL WEB AUDIO SYNTHESIZER
+        // =========================================================================
+        class AudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playClick() {
+                if (this.muted || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playSuccess() {
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc1.type = 'triangle';
+                osc2.type = 'sine';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                osc1.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc2.frequency.setValueAtTime(783.99, now + 0.2); // G5
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc1.start(now);
+                osc2.start(now + 0.1);
+                osc1.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+            }
+
+            playDissonance() {
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(150, now);
+                osc2.frequency.setValueAtTime(156, now); // Low minor 2nd beat dissonance
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc1.start(now);
+                osc2.start(now + 0.4);
+                osc1.stop(now + 0.4);
+                osc2.stop(now + 0.4);
+            }
+
+            playMemoryRecorded() {
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now); // A5
+                osc.frequency.exponentialRampToValueAtTime(1760, now + 0.15); // A6
+
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+
+            triggerHaptic() {
+                if (navigator.vibrate) {
+                    navigator.vibrate(15);
+                }
+            }
+        }
+
+        const soundEngine = new AudioEngine();
+
+        // =========================================================================
+        // 2. STATE MANAGER & LOCAL STORAGE PERSISTENCE
+        // =========================================================================
+        const LOCAL_STORAGE_KEY = 'MNEMOSYNE_ENGINE_PERSISTENCE_v1';
+
+        const defaultPersistentData = {
+            attempts: 1,
+            discoveredEndings: [],
+            discoveredRooms: ['chamber_00'],
+            completedDailyDates: [],
+            dailyStreak: 0,
+            metaSymbolFound: false
+        };
+
+        let persistentData = loadPersistentData();
+
+        let gameState = {
+            currentChamberId: 'chamber_00',
+            memories: {}, // e.g., { 'clock_time': '11:17', 'chosen_door': 'square' }
+            psychology: {
+                attention: 5,
+                curiosity: 5,
+                trust: 5,
+                courage: 5,
+                memoryIntegrity: 100
+            },
+            narratorChallenged: false,
+            narratorLiesCaught: 0,
+            visualMemorySequence: ['CLOCK', 'KEY', 'FEATHER', 'COIN', 'MASK'],
+            visualMemoryTestPassed: null
+        };
+
+        function loadPersistentData() {
+            try {
+                const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : { ...defaultPersistentData };
+            } catch (e) {
+                return { ...defaultPersistentData };
+            }
+        }
+
+        function savePersistentData() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(persistentData));
+            } catch (e) {
+                console.error("Storage save error", e);
+            }
+        }
+
+        function recordMemory(key, value, description) {
+            if (!gameState.memories[key]) {
+                gameState.memories[key] = value;
+                soundEngine.playMemoryRecorded();
+                showToast(`MEMORY RECORDED: ${description || key}`);
+                updateArchiveUI();
+            }
+        }
+
+        function adjustPsychology(prop, delta) {
+            if (gameState.psychology[prop] !== undefined) {
+                gameState.psychology[prop] = Math.max(0, Math.min(10, gameState.psychology[prop] + delta));
+            }
+            if (prop === 'memoryIntegrity') {
+                gameState.psychology.memoryIntegrity = Math.max(0, Math.min(100, gameState.psychology.memoryIntegrity + delta));
+                const textEl = document.getElementById('memory-integrity-text');
+                if (textEl) {
+                    textEl.textContent = `MEMORY INTEGRITY: ${gameState.psychology.memoryIntegrity}%`;
+                }
+            }
+        }
+
+        // =========================================================================
+        // 3. STORY GRAPH & PUZZLE CHAMBERS DATA STRUCTURE
+        // =========================================================================
+        const ENDINGS_DATA = [
+            {
+                id: 'ENDING_01',
+                title: 'THE ARCHIVIST',
+                desc: 'You submitted obediently to the Narrator\'s testimony and preserved the archive intact without question.'
+            },
+            {
+                id: 'ENDING_02',
+                title: 'THE WITNESS',
+                desc: 'You caught the Narrator in their deception and forced the archive to reveal its true record.'
+            },
+            {
+                id: 'ENDING_03',
+                title: 'THE FORGETTING',
+                desc: 'Your memory fractured beneath contradicting clues, locking you into a loop of perpetual return.'
+            },
+            {
+                id: 'ENDING_04',
+                title: 'THE SECRET EXIT',
+                desc: 'You bypassed the written choices entirely by discovering the meta-sigil encoded within the archive system.'
+            }
+        ];
+
+        const CHAMBERS_DATA = {
+            'chamber_00': {
+                title: 'CHAMBER 00 :: THRESHOLD',
+                getText: () => `
+                    <p class="font-serif-story text-lg md:text-xl text-neutral-200 leading-relaxed">
+                        This archive has one rule.
+                    </p>
+                    <p class="font-serif-story text-lg md:text-xl text-amber-500 font-semibold italic my-2">
+                        "It remembers."
+                    </p>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        You stand before a dark brass threshold. Etched above the lintel is an unyielding axiom: 
+                        <span class="text-neutral-100 font-semibold">"Nothing in this archive appears only once."</span>
+                        A cold whisper echo through the chamber walls. The record is listening.
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "Step through the threshold.",
+                        action: () => {
+                            recordMemory('rule_seen', true, 'Archive Rule: "Nothing appears only once"');
+                            goToChamber('chamber_01');
+                        }
+                    },
+                    {
+                        text: "Inspect the brass frame closely before entering.",
+                        action: () => {
+                            adjustPsychology('curiosity', 2);
+                            recordMemory('inspected_threshold', true, 'Noticed brass geometric carvings');
+                            recordMemory('rule_seen', true, 'Archive Rule: "Nothing appears only once"');
+                            goToChamber('chamber_01');
+                        }
+                    }
+                ]
+            },
+
+            'chamber_01': {
+                title: 'CHAMBER 01 :: HALL OF DOORS',
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        Three archways face you in the dim charcoal hall:
+                    </p>
+                    <ul class="font-serif-story text-base space-y-2 my-3 pl-4 border-l-2 border-amber-600/50 text-neutral-200">
+                        <li>• <strong class="text-neutral-100">Door A:</strong> Marked with a <span class="text-neutral-400">Black Circle</span>.</li>
+                        <li>• <strong class="text-neutral-100">Door B:</strong> Marked with a <span class="text-neutral-100">White Square</span>.</li>
+                        <li>• <strong class="text-neutral-100">Door C:</strong> Marked with a <span class="text-red-400">Red Triangle</span>.</li>
+                    </ul>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        The Narrator's voice resonates softly: <em>"Only one of these doors has ever been opened."</em>
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "Open Door A (Black Circle)",
+                        action: () => {
+                            recordMemory('door_chosen', 'circle', 'Chosen Circle Door');
+                            goToChamber('chamber_02');
+                        }
+                    },
+                    {
+                        text: "Open Door B (White Square)",
+                        action: () => {
+                            recordMemory('door_chosen', 'square', 'Chosen Square Door');
+                            goToChamber('chamber_02');
+                        }
+                    },
+                    {
+                        text: "Open Door C (Red Triangle)",
+                        action: () => {
+                            recordMemory('door_chosen', 'triangle', 'Chosen Triangle Door');
+                            goToChamber('chamber_02');
+                        }
+                    }
+                ]
+            },
+
+            'chamber_02': {
+                title: 'CHAMBER 02 :: THE CLOCK ROOM',
+                onEnter: () => {
+                    // Trigger delayed visual memory test
+                    triggerVisualMemoryTest();
+                },
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        In the center of this room rests a massive brass clock mechanism suspended in glass. 
+                        Its hands are motionless.
+                    </p>
+                    <p class="font-serif-story text-lg font-mono-meta text-amber-400 my-3 text-center tracking-widest bg-neutral-900/80 py-2 border border-amber-900/30 rounded">
+                        11:17
+                    </p>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        The Narrator notes: <em>"Pay close attention. Every artifact logged in this chamber carries weight for what lies ahead."</em>
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "Memorize the time (11:17) and move forward.",
+                        action: () => {
+                            recordMemory('clock_time', '11:17', 'Clock always stops at 11:17');
+                            goToChamber('chamber_03');
+                        }
+                    },
+                    {
+                        text: "Examine the clock mechanism gears.",
+                        action: () => {
+                            recordMemory('clock_time', '11:17', 'Clock always stops at 11:17');
+                            recordMemory('gears_inspected', true, 'Noticed 5 brass teeth on main gear');
+                            adjustPsychology('attention', 2);
+                            goToChamber('chamber_03');
+                        }
+                    }
+                ]
+            },
+
+            'chamber_03': {
+                title: 'CHAMBER 03 :: LIBRARY WITHOUT BOOKS',
+                hasNarratorLie: true,
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        Enormous stone shelves tower to the ceiling, entirely devoid of books. Instead, glowing inscriptions cover the walls.
+                    </p>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed mt-2">
+                        The Narrator states firmly:
+                        <span class="text-red-300 italic">"As you know, you opened the Red Triangle door earlier to reach this library, leaving the other two untouched."</span>
+                    </p>
+                    <p class="font-serif-story text-xs text-neutral-400 mt-2 italic">
+                        (Does this statement match the record of what actually occurred?)
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "Accept the statement and proceed down the corridor.",
+                        action: () => {
+                            adjustPsychology('trust', 2);
+                            adjustPsychology('memoryIntegrity', -15);
+                            goToChamber('chamber_04');
+                        }
+                    },
+                    {
+                        text: "Doubt quietly, but continue without speaking.",
+                        action: () => {
+                            adjustPsychology('attention', 1);
+                            goToChamber('chamber_04');
+                        }
+                    }
+                ],
+                // Special check for Narrator Lie
+                challengeCorrect: () => {
+                    const door = gameState.memories['door_chosen'];
+                    // The narrator lied if door wasn't triangle OR if triangle wasn't the only door statement
+                    return door !== 'triangle';
+                },
+                challengeSuccess: () => {
+                    gameState.narratorLiesCaught++;
+                    adjustPsychology('attention', 3);
+                    adjustPsychology('trust', -2);
+                    showToast('CONTRADICTION PROVEN! THE ARCHIVE REVEALS HIDDEN TRUTH.');
+                    recordMemory('caught_narrator_lie_1', true, 'Proved Narrator Door Lie');
+                    goToChamber('chamber_04');
+                },
+                challengeFailure: () => {
+                    adjustPsychology('memoryIntegrity', -20);
+                    showToast('FALSE CHALLENGE: The record stands unbroken.');
+                    goToChamber('chamber_04');
+                }
+            },
+
+            'chamber_04': {
+                title: 'CHAMBER 04 :: CHAMBER OF ECHOES',
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        A locked iron vault stands at the center of this echoing room. Above the lock sits a dial requiring a four-digit numeric entry.
+                    </p>
+                    <p class="font-serif-story text-base text-amber-300/90 italic my-2">
+                        A riddle is engraved into the dial frame:
+                        "I am the hour the archive froze in silence. Enter the exact time recorded in the clock chamber (HH:MM format as 4 numbers)."
+                    </p>
+                `,
+                puzzleType: 'code_input',
+                correctCode: '1117',
+                onSolve: (success) => {
+                    if (success) {
+                        recordMemory('vault_unlocked', true, 'Unlocked Clock Vault');
+                        adjustPsychology('memoryIntegrity', 10);
+                        goToChamber('chamber_05');
+                    } else {
+                        adjustPsychology('memoryIntegrity', -15);
+                        showToast('WRONG CODE! The archive records your hesitation.');
+                        goToChamber('chamber_05');
+                    }
+                }
+            },
+
+            'chamber_05': {
+                title: 'CHAMBER 05 :: THE MIRROR CORRIDOR',
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        Polished silver obsidian lines both sides of this long hallway. You see your reflection—or rather, a version of yourself holding five distinct artifacts.
+                    </p>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed mt-2">
+                        A voice demands from the dark:
+                        <span class="text-amber-400">"In the clock room, a flash of symbols passed before your eyes. Which of the following items was NEVER in that sequence?"</span>
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "A) MASK",
+                        action: () => checkVisualTestChoice('MASK')
+                    },
+                    {
+                        text: "B) DAGGER",
+                        action: () => checkVisualTestChoice('DAGGER')
+                    },
+                    {
+                        text: "C) FEATHER",
+                        action: () => checkVisualTestChoice('FEATHER')
+                    },
+                    {
+                        text: "D) COIN",
+                        action: () => checkVisualTestChoice('COIN')
+                    }
+                ]
+            },
+
+            'chamber_06': {
+                title: 'CHAMBER 06 :: THE FORGOTTEN FLOOR',
+                getText: () => {
+                    const caughtLies = gameState.narratorLiesCaught > 0;
+                    const metaSigil = persistentData.metaSymbolFound;
+
+                    if (metaSigil) {
+                        return `
+                            <p class="font-serif-story text-base text-emerald-300 font-semibold leading-relaxed">
+                                [META-SIGIL DETECTED IN INTERFACE]
+                            </p>
+                            <p class="font-serif-story text-base text-neutral-300 leading-relaxed mt-1">
+                                By touching the hidden sigil in the system header, you have unlocked an external path beyond the Narrator's construct.
+                            </p>
+                        `;
+                    } else if (caughtLies) {
+                        return `
+                            <p class="font-serif-story text-base text-amber-300 font-semibold leading-relaxed">
+                                The Narrator's voice sounds fractured and distorted:
+                            </p>
+                            <p class="font-serif-story text-base text-neutral-300 leading-relaxed mt-1">
+                                "You doubted my words... you challenged the official record in Chamber 03 and proved my contradiction. The false walls are crumbling."
+                            </p>
+                        `;
+                    } else {
+                        return `
+                            <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                                The chamber is quiet. You have followed the path obediently, accepting every record provided without dissent.
+                            </p>
+                        `;
+                    }
+                },
+                choices: [
+                    {
+                        text: "Proceed toward the final nexus threshold.",
+                        action: () => goToChamber('chamber_07')
+                    }
+                ]
+            },
+
+            'chamber_07': {
+                title: 'CHAMBER 07 :: THE FINAL ROOM',
+                getText: () => `
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                        You stand at the heart of the Mnemosyne Engine. Columns of light and dark ink float in static suspension.
+                    </p>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed mt-2">
+                        The engine gathers your accumulated state: choices, memory integrity, narrator challenges, and secrets uncovered.
+                    </p>
+                `,
+                choices: [
+                    {
+                        text: "CONCLUDE THE RECORD & RECEIVE JUDGMENT",
+                        action: () => finalizeEnding()
+                    }
+                ]
+            }
+        };
+
+        // =========================================================================
+        // 4. CORE ENGINE NAVIGATION & UI RENDERING
+        // =========================================================================
+
+        function initApp() {
+            setupEventListeners();
+            updateArchiveUI();
+            renderChamber(gameState.currentChamberId);
+        }
+
+        function setupEventListeners() {
+            // Audio engine initialization on first touch
+            document.body.addEventListener('click', () => soundEngine.init(), { once: true });
+
+            // Tab Switching
+            document.getElementById('tab-story').addEventListener('click', () => switchTab('story'));
+            document.getElementById('tab-archive').addEventListener('click', () => switchTab('archive'));
+            document.getElementById('tab-daily').addEventListener('click', () => switchTab('daily'));
+
+            // Sound Toggle
+            document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+                soundEngine.muted = !soundEngine.muted;
+                document.getElementById('sound-text').textContent = soundEngine.muted ? 'SOUND OFF' : 'SOUND ON';
+                document.getElementById('sound-icon').textContent = soundEngine.muted ? '🔇' : '🔊';
+                soundEngine.playClick();
+            });
+
+            // Reset Confirmation Modal
+            document.getElementById('btn-reset-modal').addEventListener('click', () => {
+                soundEngine.playClick();
+                document.getElementById('modal-reset').classList.remove('hidden');
+            });
+
+            document.getElementById('btn-cancel-reset').addEventListener('click', () => {
+                soundEngine.playClick();
+                document.getElementById('modal-reset').classList.add('hidden');
+            });
+
+            document.getElementById('btn-confirm-reset').addEventListener('click', () => {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                persistentData = { ...defaultPersistentData };
+                savePersistentData();
+                location.reload();
+            });
+
+            // Meta UI Puzzle Symbol in Header
+            document.getElementById('ui-meta-symbol').addEventListener('click', () => {
+                soundEngine.playSuccess();
+                persistentData.metaSymbolFound = true;
+                savePersistentData();
+                showToast('META SIGIL DISCOVERED! System record altered.');
+                updateArchiveUI();
+            });
+
+            // Narrator Challenge Button
+            document.getElementById('btn-challenge-narrator').addEventListener('click', () => {
+                soundEngine.playClick();
+                handleNarratorChallenge();
+            });
+        }
+
+        function switchTab(tabName) {
+            soundEngine.playClick();
+            
+            const viewStory = document.getElementById('view-story');
+            const viewArchive = document.getElementById('view-archive');
+            const viewDaily = document.getElementById('view-daily');
+
+            const tabStory = document.getElementById('tab-story');
+            const tabArchive = document.getElementById('tab-archive');
+            const tabDaily = document.getElementById('tab-daily');
+
+            // Hide all views
+            viewStory.classList.add('hidden');
+            viewArchive.classList.add('hidden');
+            viewDaily.classList.add('hidden');
+
+            // Reset tab styles
+            [tabStory, tabArchive, tabDaily].forEach(t => {
+                t.classList.remove('border-red-500', 'text-white', 'font-semibold');
+                t.classList.add('border-transparent', 'text-neutral-500');
+            });
+
+            if (tabName === 'story') {
+                viewStory.classList.remove('hidden');
+                tabStory.classList.add('border-red-500', 'text-white', 'font-semibold');
+            } else if (tabName === 'archive') {
+                viewArchive.classList.remove('hidden');
+                tabArchive.classList.add('border-red-500', 'text-white', 'font-semibold');
+                updateArchiveUI();
+            } else if (tabName === 'daily') {
+                viewDaily.classList.remove('hidden');
+                tabDaily.classList.add('border-red-500', 'text-white', 'font-semibold');
+                renderDailyChamber();
+            }
+        }
+
+        function goToChamber(chamberId) {
+            soundEngine.playClick();
+            gameState.currentChamberId = chamberId;
+
+            if (!persistentData.discoveredRooms.includes(chamberId)) {
+                persistentData.discoveredRooms.push(chamberId);
+                savePersistentData();
+                updateArchiveUI();
+            }
+
+            renderChamber(chamberId);
+        }
+
+        function renderChamber(chamberId) {
+            const chamber = CHAMBERS_DATA[chamberId];
+            if (!chamber) return;
+
+            // Trigger chamber onEnter hook if present
+            if (chamber.onEnter) {
+                chamber.onEnter();
+            }
+
+            // Update Metadata Bar
+            document.getElementById('chamber-id-text').textContent = chamber.title;
+
+            // Render Story HTML content
+            const contentBox = document.getElementById('story-content');
+            contentBox.innerHTML = chamber.getText();
+
+            // Toggle Narrator Challenge Button
+            const challengeContainer = document.getElementById('challenge-narrator-container');
+            if (chamber.hasNarratorLie && !gameState.narratorChallenged) {
+                challengeContainer.classList.remove('hidden');
+            } else {
+                challengeContainer.classList.add('hidden');
+            }
+
+            // Render Choices or Code Input
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+
+            if (chamber.puzzleType === 'code_input') {
+                const formHTML = `
+                    <div class="space-y-3">
+                        <input type="text" id="code-puzzle-input" maxlength="6" placeholder="ENTER CODE..." 
+                            class="w-full bg-neutral-900 border border-amber-900/60 rounded px-3 py-2 text-center font-mono-meta text-lg text-amber-400 focus:outline-none focus:border-amber-500">
+                        <button id="btn-submit-code" class="w-full py-2 px-4 rounded text-xs font-mono-meta tactile-btn tactile-btn-gold">
+                            SUBMIT CODE
+                        </button>
+                    </div>
+                `;
+                choicesContainer.innerHTML = formHTML;
+
+                document.getElementById('btn-submit-code').addEventListener('click', () => {
+                    const inputVal = document.getElementById('code-puzzle-input').value.trim();
+                    const isCorrect = (inputVal === chamber.correctCode);
+                    if (isCorrect) soundEngine.playSuccess();
+                    else soundEngine.playDissonance();
+                    chamber.onSolve(isCorrect);
+                });
+            } else if (chamber.choices) {
+                chamber.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left py-2.5 px-4 rounded text-xs font-mono-meta tactile-btn tactile-btn-gold flex items-center justify-between group";
+                    btn.innerHTML = `
+                        <span>${choice.text}</span>
+                        <span class="text-amber-500/50 group-hover:text-amber-400 transition-colors">➔</span>
+                    `;
+                    btn.addEventListener('click', () => {
+                        soundEngine.triggerHaptic();
+                        choice.action();
+                    });
+                    choicesContainer.appendChild(btn);
+                });
+            }
+        }
+
+        // =========================================================================
+        // 5. TIMED MEMORY TEST & NARRATOR LIE ENGINE
+        // =========================================================================
+
+        function triggerVisualMemoryTest() {
+            const overlay = document.getElementById('visual-memory-overlay');
+            const symbolsBox = document.getElementById('visual-memory-symbols');
+            const progressBar = document.getElementById('visual-memory-bar');
+
+            symbolsBox.innerHTML = '';
+            gameState.visualMemorySequence.forEach(item => {
+                const span = document.createElement('span');
+                span.textContent = item;
+                span.className = 'text-xs md:text-sm font-mono-meta border border-amber-800/60 bg-amber-950/40 px-2 py-1 rounded text-amber-300';
+                symbolsBox.appendChild(span);
+            });
+
+            overlay.classList.remove('hidden');
+            progressBar.style.width = '100%';
+
+            setTimeout(() => {
+                progressBar.style.transition = 'width 4s linear';
+                progressBar.style.width = '0%';
+            }, 50);
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                recordMemory('seen_visual_sequence', true, 'Observed 5 Symbol Sequence');
+            }, 4050);
+        }
+
+        function checkVisualTestChoice(selectedItem) {
+            // DAGGER was NEVER in ['CLOCK', 'KEY', 'FEATHER', 'COIN', 'MASK']
+            const correctNeverItem = 'DAGGER';
+            if (selectedItem === correctNeverItem) {
+                soundEngine.playSuccess();
+                gameState.visualMemoryTestPassed = true;
+                adjustPsychology('memoryIntegrity', 15);
+                showToast('RECALL ACCURATE! Memory record verified.');
+            } else {
+                soundEngine.playDissonance();
+                gameState.visualMemoryTestPassed = false;
+                adjustPsychology('memoryIntegrity', -15);
+                showToast('RECALL FAILED! DAGGER was never present.');
+            }
+            goToChamber('chamber_06');
+        }
+
+        function handleNarratorChallenge() {
+            gameState.narratorChallenged = true;
+            document.getElementById('challenge-narrator-container').classList.add('hidden');
+
+            const currentChamber = CHAMBERS_DATA[gameState.currentChamberId];
+            if (currentChamber && currentChamber.challengeCorrect) {
+                if (currentChamber.challengeCorrect()) {
+                    soundEngine.playSuccess();
+                    currentChamber.challengeSuccess();
+                } else {
+                    soundEngine.playDissonance();
+                    currentChamber.challengeFailure();
+                }
+            }
+        }
+
+        // =========================================================================
+        // 6. DAILY CHAMBER GENERATOR (DETERMINISTIC SEED)
+        // =========================================================================
+
+        function getTodayDateString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function renderDailyChamber() {
+            const dateStr = getTodayDateString();
+            document.getElementById('daily-date-tag').textContent = `DAILY CHAMBER :: SEED ${dateStr}`;
+            document.getElementById('daily-streak-count').textContent = `${persistentData.dailyStreak} DAYS`;
+
+            const container = document.getElementById('daily-chamber-body');
+            const completed = persistentData.completedDailyDates.includes(dateStr);
+
+            if (completed) {
+                container.innerHTML = `
+                    <div class="text-center py-8 space-y-3">
+                        <div class="text-3xl">✓</div>
+                        <h3 class="text-base font-mono-meta font-semibold text-emerald-400">DAILY RECORD COMPLETED</h3>
+                        <p class="text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                            You have resolved today's archive anomaly. Return tomorrow for the next synchronized daily chamber.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Simple deterministic daily puzzle based on date sum
+            const charSum = dateStr.split('').reduce((acc, c) => acc + (c.charCodeAt(0) || 0), 0);
+            const targetCode = String((charSum * 7) % 9000 + 1000);
+
+            container.innerHTML = `
+                <p class="font-serif-story text-base text-neutral-300 leading-relaxed">
+                    Every day, the Mnemosyne Engine generates a synchronized chamber shared by all observers across time.
+                </p>
+                <div class="bg-neutral-900/80 p-4 rounded border border-white/5 space-y-2">
+                    <span class="text-xs font-mono-meta text-amber-500 block uppercase">DAILY LOGIC CHALLENGE</span>
+                    <p class="text-xs text-neutral-300">
+                        Today's archive checksum requires solving the date cipher offset for <strong class="text-amber-400">${dateStr}</strong>.
+                    </p>
+                    <p class="text-xs text-neutral-400 italic">
+                        Hint: Target Checksum Code is <span class="font-mono-meta text-amber-300">${targetCode}</span>.
+                    </p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <input type="text" id="daily-input" placeholder="ENTER 4-DIGIT CHECKSUM..." maxlength="4"
+                        class="w-full bg-neutral-900 border border-amber-900/60 rounded px-3 py-2 text-center font-mono-meta text-lg text-amber-400 focus:outline-none focus:border-amber-500">
+                    <button id="btn-submit-daily" class="w-full py-2.5 px-4 rounded text-xs font-mono-meta tactile-btn tactile-btn-gold">
+                        VERIFY DAILY CHECKSUM
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('btn-submit-daily').addEventListener('click', () => {
+                const val = document.getElementById('daily-input').value.trim();
+                if (val === targetCode) {
+                    soundEngine.playSuccess();
+                    persistentData.completedDailyDates.push(dateStr);
+                    persistentData.dailyStreak++;
+                    savePersistentData();
+                    showToast('DAILY CHAMBER RESOLVED!');
+                    renderDailyChamber();
+                } else {
+                    soundEngine.playDissonance();
+                    showToast('INCORRECT CHECKSUM');
+                }
+            });
+        }
+
+        // =========================================================================
+        // 7. ENDING RESOLUTION & ARCHETYPE CALCULATION
+        // =========================================================================
+
+        function finalizeEnding() {
+            let endingId = 'ENDING_01'; // Default: Archivist
+
+            if (persistentData.metaSymbolFound) {
+                endingId = 'ENDING_04'; // Secret Exit via UI meta sigil
+            } else if (gameState.narratorLiesCaught > 0) {
+                endingId = 'ENDING_02'; // The Witness
+            } else if (gameState.psychology.memoryIntegrity < 50) {
+                endingId = 'ENDING_03'; // The Forgetting
+            }
+
+            if (!persistentData.discoveredEndings.includes(endingId)) {
+                persistentData.discoveredEndings.push(endingId);
+            }
+            persistentData.attempts++;
+            savePersistentData();
+
+            const endingObj = ENDINGS_DATA.find(e => e.id === endingId) || ENDINGS_DATA[0];
+
+            // Render Final Outcome Screen
+            const contentBox = document.getElementById('story-content');
+            contentBox.innerHTML = `
+                <div class="text-center space-y-4 py-4">
+                    <span class="text-xs font-mono-meta text-amber-500 uppercase tracking-widest block">RECORD CONCLUDED</span>
+                    <h2 class="text-xl font-serif-story font-bold text-neutral-100">${endingObj.title}</h2>
+                    <p class="font-serif-story text-base text-neutral-300 leading-relaxed max-w-md mx-auto">
+                        ${endingObj.desc}
+                    </p>
+                    <div class="p-3 bg-neutral-900/80 rounded border border-amber-900/30 text-xs font-mono-meta text-amber-400">
+                        FINAL MEMORY INTEGRITY: ${gameState.psychology.memoryIntegrity}%
+                    </div>
+                </div>
+            `;
+
+            // Render Replay / Loop Button
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = `
+                <button id="btn-replay-loop" class="w-full py-3 px-4 rounded text-xs font-mono-meta tactile-btn tactile-btn-red font-semibold text-center">
+                    RESTART ENGINE (LOOP RECORD)
+                </button>
+            `;
+
+            document.getElementById('btn-replay-loop').addEventListener('click', () => {
+                resetRunState();
+            });
+
+            updateArchiveUI();
+        }
+
+        function resetRunState() {
+            gameState = {
+                currentChamberId: 'chamber_00',
+                memories: {},
+                psychology: {
+                    attention: 5,
+                    curiosity: 5,
+                    trust: 5,
+                    courage: 5,
+                    memoryIntegrity: 100
+                },
+                narratorChallenged: false,
+                narratorLiesCaught: 0,
+                visualMemorySequence: ['CLOCK', 'KEY', 'FEATHER', 'COIN', 'MASK'],
+                visualMemoryTestPassed: null
+            };
+            goToChamber('chamber_00');
+        }
+
+        function calculateArchetype() {
+            if (persistentData.discoveredEndings.includes('ENDING_04')) {
+                return { title: 'THE QUESTIONER', desc: 'You look beyond the prescribed interface to find hidden meta truths.' };
+            } else if (persistentData.discoveredEndings.includes('ENDING_02')) {
+                return { title: 'THE WITNESS', desc: 'You refuse to accept false records and actively challenge deception.' };
+            } else if (persistentData.discoveredEndings.includes('ENDING_01')) {
+                return { title: 'THE ARCHIVIST', desc: 'You preserve order and structure through diligent, obedient tracking.' };
+            } else {
+                return { title: 'THE SEEKER', desc: 'Your journey through the archive is still revealing your true disposition.' };
+            }
+        }
+
+        // =========================================================================
+        // 8. ARCHIVE UI RENDERING & TOAST MESSAGING
+        // =========================================================================
+
+        function updateArchiveUI() {
+            // Stats updates
+            document.getElementById('stat-attempts').textContent = persistentData.attempts;
+            document.getElementById('stat-endings').textContent = `${persistentData.discoveredEndings.length} / ${ENDINGS_DATA.length}`;
+            document.getElementById('stat-rooms').textContent = `${persistentData.discoveredRooms.length} / ${Object.keys(CHAMBERS_DATA).length}`;
+            document.getElementById('stat-memories').textContent = Object.keys(gameState.memories).length;
+
+            // Total Exploration Percentage
+            const totalRooms = Object.keys(CHAMBERS_DATA).length;
+            const totalEndings = ENDINGS_DATA.length;
+            const pct = Math.round(((persistentData.discoveredRooms.length / totalRooms) * 0.6 + (persistentData.discoveredEndings.length / totalEndings) * 0.4) * 100);
+            document.getElementById('archive-pct').textContent = `${pct}%`;
+
+            // Archetype update
+            const archetype = calculateArchetype();
+            document.getElementById('archetype-title').textContent = archetype.title;
+            document.getElementById('archetype-desc').textContent = archetype.desc;
+
+            // Render Discovered Endings List
+            const endingsContainer = document.getElementById('endings-list');
+            endingsContainer.innerHTML = '';
+            ENDINGS_DATA.forEach(e => {
+                const unlocked = persistentData.discoveredEndings.includes(e.id);
+                const div = document.createElement('div');
+                div.className = `p-3 rounded border text-xs font-mono-meta flex items-center justify-between ${
+                    unlocked ? 'border-amber-900/50 bg-amber-950/20 text-amber-300' : 'border-neutral-800/40 bg-neutral-900/30 text-neutral-600'
+                }`;
+                div.innerHTML = `
+                    <span>${unlocked ? e.title : '??? [LOCKED ENDING]'}</span>
+                    <span>${unlocked ? 'DISCOVERED' : 'LOCKED'}</span>
+                `;
+                endingsContainer.appendChild(div);
+            });
+
+            // Render Active Stored Memory Tags
+            const memoriesContainer = document.getElementById('memories-tags');
+            memoriesContainer.innerHTML = '';
+            const memoryKeys = Object.keys(gameState.memories);
+            if (memoryKeys.length === 0) {
+                memoriesContainer.innerHTML = `<span class="text-xs font-mono-meta text-neutral-600 italic">No static memories stored yet...</span>`;
+            } else {
+                memoryKeys.forEach(k => {
+                    const tag = document.createElement('span');
+                    tag.className = 'text-[11px] font-mono-meta bg-amber-950/60 border border-amber-800/40 text-amber-300 px-2 py-1 rounded';
+                    tag.textContent = `${k}: ${gameState.memories[k]}`;
+                    memoriesContainer.appendChild(tag);
+                });
+            }
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-neutral-900 border border-amber-500/60 text-amber-300 text-xs font-mono-meta px-4 py-2.5 rounded shadow-lg flex items-center space-x-2 glitch-anim';
+            toast.innerHTML = `<span>⟁</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.4s ease';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Initialize application on load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>

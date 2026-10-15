@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Room Without a Door - An Interactive Playable Book</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display for Serif Manuscript feel, Inter for interface, Caveat for Handwritten Margins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: {
+                            50: '#FAF7EE',
+                            100: '#F3EDDA',
+                            200: '#E6DAB8',
+                            800: '#2A251D',
+                            900: '#1A1612',
+                            950: '#0E0C09',
+                        },
+                        amberGold: '#D4AF37',
+                        crimsonDark: '#8B0000',
+                        mysticPurple: '#4B0082',
+                        etherealBlue: '#1E3A8A',
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        handwriting: ['Caveat', 'cursive'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Aged Parchment Texture & Audio Vibrations */
+        body {
+            background-color: #0E0C09;
+            color: #E6DAB8;
+            font-family: 'Playfair Display', Georgia, serif;
+            overflow-x: hidden;
+            transition: background-color 1.2s ease, filter 1.2s ease;
+        }
+
+        .parchment-container {
+            background: radial-gradient(circle at center, rgba(35, 29, 23, 0.95) 0%, rgba(14, 12, 9, 0.98) 100%),
+                        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        /* Dynamic Visual Tints for Psychological States */
+        body.fear-dominant {
+            background-color: #050508;
+            filter: contrast(110%) hue-rotate(-10deg);
+        }
+        body.curiosity-dominant .parchment-container {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: inset 0 0 120px rgba(30, 58, 138, 0.25), 0 10px 40px rgba(0,0,0,0.8);
+        }
+        body.deception-dominant .parchment-container {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        /* Handwritten Margins Animation */
+        .handwritten-note {
+            font-family: 'Caveat', cursive;
+            color: #d97706;
+            transform: rotate(-2deg);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease;
+        }
+
+        /* Secret Interactive Text Clues */
+        .secret-clue {
+            cursor: pointer;
+            border-bottom: 1px dashed #D4AF37;
+            color: #F3EDDA;
+            transition: all 0.3s ease;
+            padding: 0 2px;
+        }
+        .secret-clue:hover {
+            background-color: rgba(212, 175, 55, 0.2);
+            color: #FFF;
+            border-bottom-style: solid;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0E0C09;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A251D;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        /* Pulse glow animation for unlocks */
+        @keyframes subtleGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+        .glow-pulse {
+            animation: subtleGlow 3s infinite ease-in-out;
+        }
+
+        /* Map SVG Line Dash animation */
+        .map-path {
+            stroke-dasharray: 8;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -100; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amberGold selection:text-black">
+
+    <!-- Top Navigation & Status Bar -->
+    <header class="sticky top-0 z-40 bg-parchment-950/90 backdrop-blur-md border-b border-amberGold/20 px-4 py-3">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <!-- Left: Title & Chapter -->
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-book-bookmark text-amberGold text-xl"></i>
+                <div>
+                    <h1 class="font-cinzel text-sm sm:text-base tracking-widest text-parchment-100 uppercase font-bold">The Room Without A Door</h1>
+                    <p id="chapter-label" class="text-xs text-amberGold/80 font-sans tracking-wide">Prologue — The Threshold</p>
+                </div>
+            </div>
+
+            <!-- Right: Dynamic Trait Indicator, Audio, Inventory, Map, Reset -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Dominant Psychological Trait Badge -->
+                <div id="psych-badge" class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-parchment-800/60 border border-amberGold/30 text-xs font-sans text-amberGold/90" title="Dominant Mind Aspect">
+                    <i id="psych-icon" class="fa-solid fa-brain text-xs"></i>
+                    <span id="psych-trait-name" class="capitalize">Observant</span>
+                </div>
+
+                <!-- Map Drawer Toggle -->
+                <button id="btn-toggle-map" onclick="toggleMapModal()" class="p-2 rounded-md bg-parchment-800/40 hover:bg-amberGold/20 text-parchment-200 border border-amberGold/20 transition-all text-xs flex items-center space-x-1" title="View Manuscript Map">
+                    <i class="fa-solid fa-compass"></i>
+                    <span class="hidden md:inline font-sans">Map</span>
+                </button>
+
+                <!-- Knowledge Inventory Drawer Button -->
+                <button id="btn-toggle-inventory" onclick="toggleInventoryModal()" class="relative p-2 rounded-md bg-parchment-800/40 hover:bg-amberGold/20 text-parchment-200 border border-amberGold/20 transition-all text-xs flex items-center space-x-1" title="Knowledge & Memory Inventory">
+                    <i class="fa-solid fa-key text-amberGold"></i>
+                    <span class="hidden md:inline font-sans">Knowledge</span>
+                    <span id="inventory-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-amberGold text-parchment-950 font-bold text-[10px]">0</span>
+                </button>
+
+                <!-- Audio Ambient Soundscape Toggle -->
+                <button id="btn-toggle-audio" onclick="toggleAudioEngine()" class="p-2 rounded-md bg-parchment-800/40 hover:bg-amberGold/20 text-parchment-200 border border-amberGold/20 transition-all text-xs" title="Toggle Soundscape">
+                    <i id="audio-icon" class="fa-solid fa-volume-xmark text-amberGold/60"></i>
+                </button>
+
+                <!-- Options / Meta Menu Button -->
+                <button onclick="toggleMetaModal()" class="p-2 rounded-md bg-parchment-800/40 hover:bg-amberGold/20 text-parchment-200 border border-amberGold/20 transition-all text-xs" title="Meta Options / Restart">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Reader Manuscript Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 my-4 flex flex-col justify-center">
+        <!-- Parchment Book Canvas -->
+        <div id="book-canvas" class="parchment-container rounded-lg p-6 sm:p-10 lg:p-12 relative min-h-[580px] flex flex-col justify-between transition-all duration-700">
+
+            <!-- Handwritten Edge Annotation / Marginalia Layer -->
+            <div id="margin-annotation" class="hidden md:block absolute -right-4 top-16 w-44 p-2 rounded bg-parchment-900/90 border border-amberGold/20 text-xs handwritten-note shadow-lg opacity-0 pointer-events-none transition-opacity duration-700">
+                <!-- Populated dynamically based on psychological trait -->
+            </div>
+
+            <!-- Top Header Meta / Riddle Key Indicator inside canvas -->
+            <div>
+                <div class="flex items-center justify-between border-b border-amberGold/20 pb-3 mb-6">
+                    <span id="manuscript-section-num" class="font-cinzel text-xs text-amberGold tracking-widest uppercase">SECTION I</span>
+                    <span id="play-time-counter" class="font-sans text-[11px] text-parchment-200/50 italic"><i class="fa-regular fa-clock mr-1"></i>03:17</span>
+                </div>
+
+                <!-- Main Narrative Text Container -->
+                <div id="narrative-content" class="prose prose-invert max-w-none text-base sm:text-lg leading-relaxed sm:leading-loose text-parchment-100 font-serif space-y-4">
+                    <!-- Dynamic narrative passages injected here -->
+                </div>
+            </div>
+
+            <!-- Interactive Choices / Puzzle Interaction Drawer -->
+            <div id="interaction-area" class="mt-8 pt-6 border-t border-amberGold/20 space-y-3">
+                <!-- Interactive Choice Buttons / Locks inserted here -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Zelda-Style Knowledge & Memory Inventory Modal -->
+    <div id="modal-inventory" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="parchment-container w-full max-w-2xl rounded-lg border border-amberGold/40 p-6 shadow-2xl relative flex flex-col max-h-[85vh]">
+            <button onclick="toggleInventoryModal()" class="absolute top-4 right-4 text-parchment-200/60 hover:text-amberGold text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-2 border-b border-amberGold/20 pb-3 mb-4">
+                <i class="fa-solid fa-brain text-amberGold text-xl"></i>
+                <h2 class="font-cinzel text-lg tracking-wider text-parchment-50 font-bold uppercase">Knowledge & Memory Inventory</h2>
+            </div>
+            
+            <p class="text-xs text-parchment-200/70 font-sans mb-4">
+                Unlike physical items, your inventory contains intangible discoveries: secret names, symbols, memories, and lies. These alter narrative routes and solve door mechanisms.
+            </p>
+
+            <!-- Inventory Grid Container -->
+            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto pr-2 flex-grow min-h-[200px]">
+                <!-- Inventory items injected dynamically -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-amberGold/20 flex justify-end">
+                <button onclick="toggleInventoryModal()" class="px-4 py-1.5 rounded bg-parchment-800 border border-amberGold/30 text-xs font-sans text-amberGold hover:bg-amberGold/20">
+                    Close Mind Safe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Room Discovery Map Modal -->
+    <div id="modal-map" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="parchment-container w-full max-w-2xl rounded-lg border border-amberGold/40 p-6 shadow-2xl relative flex flex-col">
+            <button onclick="toggleMapModal()" class="absolute top-4 right-4 text-parchment-200/60 hover:text-amberGold text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-2 border-b border-amberGold/20 pb-3 mb-4">
+                <i class="fa-solid fa-map text-amberGold text-xl"></i>
+                <h2 class="font-cinzel text-lg tracking-wider text-parchment-50 font-bold uppercase">Chart of Discovered Paths</h2>
+            </div>
+
+            <!-- SVG Map Canvas -->
+            <div class="w-full bg-parchment-950/80 rounded border border-amberGold/20 p-4 relative overflow-hidden flex items-center justify-center min-h-[280px]">
+                <svg id="svg-map" class="w-full h-64" viewBox="0 0 500 300">
+                    <!-- Dynamic map nodes & connected paths drawn via JavaScript -->
+                </svg>
+            </div>
+
+            <p class="text-[11px] font-sans text-center text-parchment-200/60 mt-3">
+                <i class="fa-solid fa-circle-info mr-1 text-amberGold"></i> Map topology alters based on your psychological decisions and unlocked rooms.
+            </p>
+        </div>
+    </div>
+
+    <!-- Interactive Puzzle Modal Lock (For Door / Altar Mechanisms) -->
+    <div id="modal-puzzle" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="parchment-container w-full max-w-lg rounded-lg border border-amberGold/60 p-6 shadow-2xl relative text-center">
+            <button onclick="closePuzzleModal()" class="absolute top-4 right-4 text-parchment-200/60 hover:text-amberGold text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <i id="puzzle-modal-icon" class="fa-solid fa-lock text-3xl text-amberGold mb-3"></i>
+            <h3 id="puzzle-modal-title" class="font-cinzel text-xl text-parchment-50 font-bold mb-2">The Door of Symbols</h3>
+            <p id="puzzle-modal-desc" class="text-xs font-serif text-parchment-200/80 mb-6 leading-relaxed">
+                Enter the secret combination or riddle answer discovered in your memories.
+            </p>
+
+            <!-- Dynamic Input Area (Buttons, Dial, or Text Input) -->
+            <div id="puzzle-interactive-content" class="my-4 flex flex-col items-center justify-center space-y-4">
+                <!-- Custom dynamic puzzle HTML inserted here -->
+            </div>
+
+            <div id="puzzle-feedback" class="h-6 text-xs font-sans text-crimsonDark font-semibold"></div>
+
+            <div class="mt-4 flex justify-center space-x-3">
+                <button id="puzzle-submit-btn" class="px-5 py-2 rounded bg-amberGold text-parchment-950 font-sans font-bold text-xs hover:bg-amber-400 transition-all">
+                    Unlock
+                </button>
+                <button onclick="closePuzzleModal()" class="px-4 py-2 rounded bg-parchment-800 text-parchment-200 font-sans text-xs border border-amberGold/20 hover:bg-parchment-800/80">
+                    Step Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meta Options & Playthrough Memory Modal -->
+    <div id="modal-meta" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="parchment-container w-full max-w-md rounded-lg border border-amberGold/40 p-6 shadow-2xl relative">
+            <button onclick="toggleMetaModal()" class="absolute top-4 right-4 text-parchment-200/60 hover:text-amberGold text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="font-cinzel text-lg text-amberGold font-bold mb-4 border-b border-amberGold/20 pb-2">
+                <i class="fa-solid fa-gear mr-2"></i>Meta System & Playback
+            </h3>
+
+            <div class="space-y-4 font-sans text-xs text-parchment-200/90">
+                <div class="bg-parchment-900/60 p-3 rounded border border-amberGold/15">
+                    <span class="text-amberGold font-bold uppercase tracking-wider block mb-1">Playthrough Counter</span>
+                    <p id="meta-play-count">You have entered this manuscript <span id="run-count-num" class="text-white font-bold">1</span> time(s).</p>
+                    <p id="meta-run-status" class="mt-1 text-[11px] text-amberGold/70 italic">The manuscript remembers your previous footprints.</p>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <button onclick="restartStory(false)" class="w-full text-left px-3 py-2 rounded bg-parchment-800/80 hover:bg-amberGold/20 border border-amberGold/20 flex items-center justify-between text-parchment-100 transition-all">
+                        <span><i class="fa-solid fa-rotate-right mr-2 text-amberGold"></i>Restart Current Branch</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>
+                    </button>
+
+                    <button onclick="restartStory(true)" class="w-full text-left px-3 py-2 rounded bg-crimsonDark/30 hover:bg-crimsonDark/50 border border-crimsonDark/40 flex items-center justify-between text-red-200 transition-all">
+                        <span><i class="fa-solid fa-trash-can mr-2"></i>Erase System Memory & Wipe Save</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ===================================================================
+           1. GAME ENGINE STATE & SYSTEM TRACKING
+           =================================================================== */
+        const APP_STATE_KEY = 'room_without_door_state_v1';
+
+        // Core Psychological Metrics (Silently tracked)
+        let psychMetrics = {
+            curiosity: 0,
+            fear: 0,
+            greed: 0,
+            courage: 0,
+            empathy: 0,
+            deception: 0
+        };
+
+        // Player Progress & Memory
+        let gameState = {
+            currentChapterNode: 'prologue_start',
+            visitedNodes: [],
+            inventory: [], // Dynamic Knowledge Keys (e.g. { id, name, type, icon, desc })
+            playCount: 1,
+            unlockedEndings: [],
+            interactiveChoicesMade: 0,
+            warningsIgnored: 0,
+            secretsDiscovered: 0,
+            audioEnabled: false
+        };
+
+        // Web Audio API Procedural Audio Engine
+        let audioCtx = null;
+        let rainNode = null;
+        let droneNode = null;
+
+        /* ===================================================================
+           2. PROCEDURAL SOUND ENGINE (No External Media Files Required)
+           =================================================================== */
+        function initAudioEngine() {
+            if (audioCtx) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+
+            // Create low-frequency atmospheric drone synth
+            const droneOsc = audioCtx.createOscillator();
+            const droneGain = audioCtx.createGain();
+            droneOsc.type = 'triangle';
+            droneOsc.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A note
+
+            // Lowpass filter for warm, dark resonance
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(220, audioCtx.currentTime);
+
+            droneGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+
+            droneOsc.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+            droneNode = droneGain;
+
+            // Create Procedural Rain Noise Generator
+            const bufferSize = audioCtx.sampleRate * 2;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1; // White noise
+            }
+
+            const whiteNoise = audioCtx.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+
+            const rainFilter = audioCtx.createBiquadFilter();
+            rainFilter.type = 'bandpass';
+            rainFilter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            rainFilter.Q.setValueAtTime(0.5, audioCtx.currentTime);
+
+            const rainGain = audioCtx.createGain();
+            rainGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+
+            whiteNoise.connect(rainFilter);
+            rainFilter.connect(rainGain);
+            rainGain.connect(audioCtx.destination);
+            whiteNoise.start();
+            rainNode = rainGain;
+        }
+
+        function toggleAudioEngine() {
+            const btnIcon = document.getElementById('audio-icon');
+            if (!audioCtx) {
+                initAudioEngine();
+                gameState.audioEnabled = true;
+                btnIcon.className = 'fa-solid fa-volume-high text-amberGold';
+                playChimeSound(600, 0.1);
+            } else {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                    gameState.audioEnabled = true;
+                    btnIcon.className = 'fa-solid fa-volume-high text-amberGold';
+                } else {
+                    audioCtx.suspend();
+                    gameState.audioEnabled = false;
+                    btnIcon.className = 'fa-solid fa-volume-xmark text-amberGold/60';
+                }
+            }
+        }
+
+        // Discovery / Page Turn Sound Synthesis
+        function playChimeSound(freq = 523.25, duration = 0.3) {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + duration);
+
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { console.error(e); }
+        }
+
+        function playPageTurnSound() {
+            playChimeSound(280, 0.15);
+        }
+
+        /* ===================================================================
+           3. PSYCHOLOGICAL PROFILER ENGINE
+           =================================================================== */
+        function adjustPsych(traitDeltas) {
+            for (const [trait, value] of Object.entries(traitDeltas)) {
+                if (psychMetrics[trait] !== undefined) {
+                    psychMetrics[trait] += value;
+                }
+            }
+            updatePsychUI();
+        }
+
+        function getDominantTrait() {
+            let maxTrait = 'curiosity';
+            let maxVal = -1;
+            for (const [trait, val] of Object.entries(psychMetrics)) {
+                if (val > maxVal) {
+                    maxVal = val;
+                    maxTrait = trait;
+                }
+            }
+            return maxVal === 0 ? 'observant' : maxTrait;
+        }
+
+        function updatePsychUI() {
+            const trait = getDominantTrait();
+            const badge = document.getElementById('psych-badge');
+            const traitName = document.getElementById('psych-trait-name');
+            const icon = document.getElementById('psych-icon');
+
+            badge.classList.remove('hidden');
+            traitName.innerText = trait;
+
+            // Visual body class shifts
+            document.body.className = document.body.className.replace(/\b\w+-dominant\b/g, '');
+            document.body.classList.add(`${trait}-dominant`);
+
+            const icons = {
+                curiosity: 'fa-eye',
+                fear: 'fa-ghost',
+                greed: 'fa-coins',
+                courage: 'fa-shield-halved',
+                empathy: 'fa-heart',
+                deception: 'fa-mask',
+                observant: 'fa-brain'
+            };
+            icon.className = `fa-solid ${icons[trait] || 'fa-brain'} text-xs`;
+
+            // Dynamic Marginalia text based on current psychological state
+            const marginNote = document.getElementById('margin-annotation');
+            const marginTexts = {
+                curiosity: '"You seek answers even when the doors bleed..."',
+                fear: '"Your pulse quickens. Was that a shadow on the clock?"',
+                greed: '"You hold tight to secrets as if they were gold coins."',
+                courage: '"You stride into dark alcoves without flinching."',
+                empathy: '"You listen to whispers others ignore."',
+                deception: '"You speak in riddles to hide what you took."',
+                observant: '"The manuscript observes your subtle choices."'
+            };
+
+            marginNote.innerText = marginTexts[trait] || marginTexts.observant;
+            marginNote.style.opacity = '1';
+        }
+
+        /* ===================================================================
+           4. KNOWLEDGE & MEMORY INVENTORY SYSTEM
+           =================================================================== */
+        function addKnowledgeKey(key) {
+            // key: { id, title, type: 'symbol'|'memory'|'name'|'lie', desc, icon }
+            if (gameState.inventory.some(item => item.id === key.id)) return;
+
+            gameState.inventory.push(key);
+            gameState.secretsDiscovered++;
+            updateInventoryUI();
+            playChimeSound(880, 0.4);
+
+            // Brief toast feedback inside reader
+            showFloatingNotice(`Knowledge Acquired: ${key.title}`);
+        }
+
+        function hasKnowledgeKey(keyId) {
+            return gameState.inventory.some(item => item.id === keyId);
+        }
+
+        function updateInventoryUI() {
+            document.getElementById('inventory-count').innerText = gameState.inventory.length;
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+
+            if (gameState.inventory.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-8 text-parchment-200/40">
+                        <i class="fa-regular fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-xs font-sans">No abstract memories or knowledge keys discovered yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gameState.inventory.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'p-3 rounded bg-parchment-900/80 border border-amberGold/30 hover:border-amberGold transition-all flex items-start space-x-3';
+                el.innerHTML = `
+                    <div class="p-2 rounded bg-amberGold/10 text-amberGold text-base shrink-0">
+                        <i class="${item.icon || 'fa-solid fa-key'}"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h4 class="font-cinzel text-xs font-bold text-parchment-100">${item.title}</h4>
+                            <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amberGold/20 text-amberGold font-sans">${item.type}</span>
+                        </div>
+                        <p class="text-[11px] font-serif text-parchment-200/70 mt-1">${item.desc}</p>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function showFloatingNotice(text) {
+            const canvas = document.getElementById('book-canvas');
+            const notice = document.createElement('div');
+            notice.className = 'absolute top-4 right-4 bg-amberGold text-parchment-950 font-sans font-bold text-xs px-3 py-1.5 rounded shadow-lg border border-white/20 transition-all duration-500 opacity-0 transform translate-y-[-10px] z-30';
+            notice.innerHTML = `<i class="fa-solid fa-sparkles mr-1.5"></i> ${text}`;
+            canvas.appendChild(notice);
+
+            setTimeout(() => {
+                notice.style.opacity = '1';
+                notice.style.transform = 'translateY(0)';
+            }, 50);
+
+            setTimeout(() => {
+                notice.style.opacity = '0';
+                notice.style.transform = 'translateY(-10px)';
+                setTimeout(() => notice.remove(), 500);
+            }, 3000);
+        }
+
+        /* ===================================================================
+           5. NARRATIVE BRANCHING NODES DATABASE
+           =================================================================== */
+        const storyNodes = {
+            'prologue_start': {
+                section: 'PROLOGUE',
+                chapterTitle: 'The Room Without A Door',
+                text: `
+                    <p class="first-letter:text-4xl first-letter:font-cinzel first-letter:text-amberGold first-letter:float-left first-letter:mr-2">The</p> rain stopped at <span class="secret-clue" onclick="inspectClue('clock_time')">03:17</span>. You knew because the ancient brass grandfather clock in the corner stopped ticking at precisely that second, its pendulum frozen like an unshed tear.
+                `,
+                metaNote: () => gameState.playCount > 1 ? '<p class="text-amberGold/90 italic text-sm border-l-2 border-amberGold pl-3 py-1 my-3 bg-amberGold/5">WELCOME BACK. The ink on this page is fresh, yet you remember reading these exact words before...</p>' : '',
+                bodyParagraphs: `
+                    <p>You find yourself sitting at an oak desk inside a room with four seamless stone walls. You touch the cold masonry—there are no handles, no hinges, no window frames. A solitary tallow candle flickers in a iron dish.</p>
+                    <p>On the desk lies an unsealed parchment scroll tied with dried leather, alongside an ornate brass key and an unwritten leather bound diary.</p>
+                `,
+                choices: [
+                    {
+                        text: 'Examine the unsealed parchment scroll',
+                        target: 'examine_scroll',
+                        psych: { curiosity: 2 }
+                    },
+                    {
+                        text: 'Inspect the four stone walls for hidden seams',
+                        target: 'inspect_walls',
+                        psych: { courage: 1, curiosity: 1 }
+                    },
+                    {
+                        text: 'Pick up the brass key without touching the scroll',
+                        target: 'take_key_early',
+                        psych: { greed: 2 }
+                    }
+                ]
+            },
+
+            'examine_scroll': {
+                section: 'CHAPTER I',
+                chapterTitle: 'The Manuscript Speaks',
+                text: `
+                    <p>You unroll the parchment. The handwriting is sharp, written in iron-gall ink. It reads:</p>
+                    <blockquote class="border-l-2 border-amberGold/60 pl-4 py-2 italic my-3 text-amberGold/90 bg-parchment-900/40">
+                        "You did not arrive here by accident. You were brought here because of what you choose when nobody is watching. To find the door that does not exist, you must collect four intangible keys."
+                    </blockquote>
+                    <p>At the bottom of the parchment is an engraved geometric symbol: <span class="secret-clue font-bold text-amberGold" onclick="inspectClue('symbol_delta')">THE SYMBOL △</span>.</p>
+                `,
+                choices: [
+                    {
+                        text: 'Memorize the triangle symbol △ and look around',
+                        target: 'room_hub',
+                        psych: { curiosity: 2 },
+                        action: () => addKnowledgeKey({
+                            id: 'symbol_delta',
+                            title: 'THE SYMBOL △',
+                            type: 'symbol',
+                            icon: 'fa-solid fa-triangle',
+                            desc: 'A geometric triangle carved into the first scroll.'
+                        })
+                    },
+                    {
+                        text: 'Burn the scroll in the candle flame',
+                        target: 'burn_scroll',
+                        psych: { fear: 2, courage: 1 }
+                    }
+                ]
+            },
+
+            'inspect_walls': {
+                section: 'CHAPTER I',
+                chapterTitle: 'Whispering Stone',
+                text: `
+                    <p>You run your fingers across the cold mortar. As your hand reaches the southern wall, you hear a faint echo—the sound of running water where no pipes could exist.</p>
+                    <p>Carved into the masonry at eye level is a short riddle written in faded chalk:</p>
+                    <div class="my-4 p-4 rounded bg-parchment-900/70 border border-amberGold/30 italic text-center text-amberGold">
+                        "I have cities but no houses. I have forests but no trees. I have rivers but no water. What am I?"
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: 'Answer the riddle aloud: "A Map"',
+                        target: 'solve_map_riddle',
+                        psych: { curiosity: 2, courage: 1 },
+                        action: () => addKnowledgeKey({
+                            id: 'map_riddle_answer',
+                            title: 'THE MAP OF NO HOUSES',
+                            type: 'memory',
+                            icon: 'fa-solid fa-map-location-dot',
+                            desc: 'The riddle of cities without houses, forests without trees.'
+                        })
+                    },
+                    {
+                        text: 'Ignore the riddle and return to the desk',
+                        target: 'room_hub',
+                        psych: { fear: 1 }
+                    }
+                ]
+            },
+
+            'take_key_early': {
+                section: 'CHAPTER I',
+                chapterTitle: 'The Heavy Key',
+                text: `
+                    <p>You snatch the cold brass key. It feels abnormally heavy, almost magnetic. As soon as your fingers grip it, a low vibration ripples through the stone floor beneath your boots.</p>
+                    <p>Inscribed on the barrel of the key is a name in cursive: <span class="secret-clue" onclick="inspectClue('false_name_elias')">ELIAS VANE</span>.</p>
+                `,
+                choices: [
+                    {
+                        text: 'Pocket the key and whisper the name "Elias Vane"',
+                        target: 'room_hub',
+                        psych: { greed: 2, deception: 1 },
+                        action: () => addKnowledgeKey({
+                            id: 'false_name_elias',
+                            title: 'THE NAME: ELIAS VANE',
+                            type: 'name',
+                            icon: 'fa-solid fa-signature',
+                            desc: 'A stranger’s name engraved upon the brass key.'
+                        })
+                    }
+                ]
+            },
+
+            'burn_scroll': {
+                section: 'CHAPTER I',
+                chapterTitle: 'Ashes and Shadows',
+                text: `
+                    <p>You hold the corner of the parchment to the candle flame. Smoke fills the room with the sweet smell of dried clover and burnt elderberry. But as the parchment turns to ash, four archways magically materialize out of the blank walls!</p>
+                `,
+                choices: [
+                    {
+                        text: 'Approach the four revealed doors',
+                        target: 'four_doors_hall',
+                        psych: { courage: 2 }
+                    }
+                ]
+            },
+
+            'solve_map_riddle': {
+                section: 'CHAPTER I',
+                chapterTitle: 'The Map Revealed',
+                text: `
+                    <p>As you whisper "A map", the stone wall shimmers like liquid glass. An atmospheric blueprint of the manuscript manifests directly on the parchment in front of you!</p>
+                `,
+                choices: [
+                    {
+                        text: 'Examine the four newly opened doors',
+                        target: 'four_doors_hall',
+                        psych: { curiosity: 2 }
+                    }
+                ]
+            },
+
+            'room_hub': {
+                section: 'CHAPTER II',
+                chapterTitle: 'The Four Doors of Truth',
+                text: `
+                    <p>The room alters its geometry. Four heavy arched wooden doors appear around you, each bearing an carved title above its lintel:</p>
+                    <div class="grid grid-cols-2 gap-2 my-4 text-xs font-cinzel text-amberGold">
+                        <div class="p-2 border border-amberGold/30 rounded text-center">THE KING</div>
+                        <div class="p-2 border border-amberGold/30 rounded text-center">THE FOOL</div>
+                        <div class="p-2 border border-amberGold/30 rounded text-center">THE CHILD</div>
+                        <div class="p-2 border border-amberGold/30 rounded text-center">THE DEAD</div>
+                    </div>
+                    <p>Above the archways, an inscription reads: <em>"The King sees what is. The Fool sees what might be. The Child sees what was. The Dead see nothing."</em></p>
+                `,
+                choices: [
+                    {
+                        text: 'Enter door I: THE KING (See what is)',
+                        target: 'door_king',
+                        psych: { courage: 2 }
+                    },
+                    {
+                        text: 'Enter door II: THE FOOL (See what might be)',
+                        target: 'door_fool',
+                        psych: { curiosity: 2 }
+                    },
+                    {
+                        text: 'Enter door III: THE CHILD (See what was)',
+                        target: 'door_child',
+                        psych: { empathy: 2 }
+                    },
+                    {
+                        text: 'Enter door IV: THE DEAD (See nothing)',
+                        target: 'door_dead',
+                        psych: { fear: 2, deception: 1 }
+                    }
+                ]
+            },
+
+            'door_king': {
+                section: 'CHAPTER II',
+                chapterTitle: 'The King’s Chamber',
+                text: `
+                    <p>You step into a grand hall lined with mirrors. In every reflection, you see not yourself, but a shadowy figure holding a tally ledger. Every decision you have made in this manuscript is written on its pages.</p>
+                    <p>A voice echoes: <em>"You seek truth in authority. But to proceed, you must unlock the Symbol Combination Dial."</em></p>
+                `,
+                choices: [
+                    {
+                        text: 'Interact with the Symbol Dial Altar',
+                        target: 'puzzle_symbol_dial',
+                        psych: { courage: 1 }
+                    }
+                ]
+            },
+
+            'door_fool': {
+                section: 'CHAPTER II',
+                chapterTitle: 'The Fool’s Garden',
+                text: `
+                    <p>You step into a dark conservatory filled with silver ferns and glass trees. Floating in mid-air is an hourglass filled with glowing blue sand, running backwards.</p>
+                    <p>If you possess the knowledge of <strong class="text-amberGold">THE SYMBOL △</strong> or <strong class="text-amberGold">THE MAP</strong>, the path forward becomes visible.</p>
+                `,
+                choices: [
+                    {
+                        text: 'Use your Knowledge Inventory to align the hourglass',
+                        target: 'puzzle_symbol_dial',
+                        psych: { curiosity: 2 }
+                    },
+                    {
+                        text: 'Turn back to the four doors',
+                        target: 'room_hub',
+                        psych: { fear: 1 }
+                    }
+                ]
+            },
+
+            'door_child': {
+                section: 'CHAPTER II',
+                chapterTitle: 'The Nursery of Memories',
+                text: `
+                    <p>A warm fire burns in a small brick fireplace. On a rug sits a wooden rocking horse. A child’s voice whispers from the corner: <em>"Did you bring the secret name you borrowed?"</em></p>
+                `,
+                choices: [
+                    {
+                        text: 'Give the child the name "Elias Vane"',
+                        target: 'child_accepts_name',
+                        psych: { empathy: 2 },
+                        reqKey: 'false_name_elias'
+                    },
+                    {
+                        text: 'Admit you do not know who you are yet',
+                        target: 'door_fool',
+                        psych: { courage: 1 }
+                    }
+                ]
+            },
+
+            'child_accepts_name': {
+                section: 'CHAPTER III',
+                chapterTitle: 'The Gift of Truth',
+                text: `
+                    <p>The ghostly child smiles and hands you a silver pendulum. <em>"The time of 03:17 was not when the clock stopped... it was when you were born into this room."</em></p>
+                `,
+                choices: [
+                    {
+                        text: 'Proceed to the Final Threshold',
+                        target: 'final_threshold',
+                        psych: { empathy: 2, courage: 1 }
+                    }
+                ]
+            },
+
+            'door_dead': {
+                section: 'CHAPTER II',
+                chapterTitle: 'The Silent Void',
+                text: `
+                    <p>Total darkness wraps around you. You hear only the sound of your own breathing. A quiet voice whispers: <em>"You chose the door of the dead out of fear or cunning. To leave, you must tell a lie to the room."</em></p>
+                `,
+                choices: [
+                    {
+                        text: 'Whisper a lie: "I am not afraid of this book"',
+                        target: 'final_threshold',
+                        psych: { deception: 3 },
+                        action: () => addKnowledgeKey({
+                            id: 'the_great_lie',
+                            title: 'A DECEPTIVE LIE',
+                            type: 'lie',
+                            icon: 'fa-solid fa-mask',
+                            desc: 'You lied to the dark room about your fear.'
+                        })
+                    }
+                ]
+            },
+
+            'final_threshold': {
+                section: 'CHAPTER III',
+                chapterTitle: 'The Final Threshold',
+                text: `
+                    <p>All paths converge into a circular chamber dominated by a massive brass vault door. There are no keyholes—only an interactive mental lock that reads your psychological traits and knowledge keys accumulated during your journey.</p>
+                `,
+                choices: [
+                    {
+                        text: 'Submit your Mind & Choices to the System Vault',
+                        target: 'calculate_ending',
+                        psych: { courage: 2 }
+                    }
+                ]
+            }
+        };
+
+        /* ===================================================================
+           6. INTERACTIVE PUZZLE MODAL LOGIC
+           =================================================================== */
+        let currentDial = [0, 0, 0];
+        const symbolsList = ['○', '△', '□', '☆'];
+
+        function openSymbolPuzzle() {
+            const modal = document.getElementById('modal-puzzle');
+            const title = document.getElementById('puzzle-modal-title');
+            const desc = document.getElementById('puzzle-modal-desc');
+            const content = document.getElementById('puzzle-interactive-content');
+            const submitBtn = document.getElementById('puzzle-submit-btn');
+
+            title.innerText = "The Symbol Combination Altar";
+            desc.innerText = "Align the three dials to match the secret symbol discovered in Chapter I.";
+
+            content.innerHTML = `
+                <div class="flex items-center space-x-4 my-4">
+                    <button onclick="rotateDial(0)" class="w-16 h-20 rounded bg-parchment-900 border-2 border-amberGold/50 text-2xl text-amberGold font-bold shadow-inner hover:bg-parchment-800 flex items-center justify-center">
+                        <span id="dial-0">○</span>
+                    </button>
+                    <button onclick="rotateDial(1)" class="w-16 h-20 rounded bg-parchment-900 border-2 border-amberGold/50 text-2xl text-amberGold font-bold shadow-inner hover:bg-parchment-800 flex items-center justify-center">
+                        <span id="dial-1">○</span>
+                    </button>
+                    <button onclick="rotateDial(2)" class="w-16 h-20 rounded bg-parchment-900 border-2 border-amberGold/50 text-2xl text-amberGold font-bold shadow-inner hover:bg-parchment-800 flex items-center justify-center">
+                        <span id="dial-2">○</span>
+                    </button>
+                </div>
+                <p class="text-[11px] text-parchment-200/60">Click each dial button to cycle geometric symbols.</p>
+            `;
+
+            submitBtn.onclick = checkSymbolPuzzle;
+            modal.classList.remove('hidden');
+        }
+
+        function rotateDial(idx) {
+            currentDial[idx] = (currentDial[idx] + 1) % symbolsList.length;
+            document.getElementById(`dial-${idx}`).innerText = symbolsList[currentDial[idx]];
+            playChimeSound(400 + (idx * 100), 0.1);
+        }
+
+        function checkSymbolPuzzle() {
+            const feedback = document.getElementById('puzzle-feedback');
+            // Solution is △ (index 1) on dial 1, or △ on all
+            const dialStr = currentDial.map(i => symbolsList[i]).join('');
+            
+            if (dialStr.includes('△') || hasKnowledgeKey('symbol_delta')) {
+                feedback.className = "h-6 text-xs font-sans text-green-400 font-bold";
+                feedback.innerText = "The brass mechanism clicks! The archway unlocks.";
+                playChimeSound(880, 0.5);
+                setTimeout(() => {
+                    closePuzzleModal();
+                    renderNode('final_threshold');
+                }, 1200);
+            } else {
+                feedback.className = "h-6 text-xs font-sans text-red-400 font-bold";
+                feedback.innerText = "The altar remains frozen. Have you discovered THE SYMBOL △ yet?";
+                playChimeSound(200, 0.3);
+            }
+        }
+
+        function inspectClue(clueId) {
+            if (clueId === 'clock_time') {
+                addKnowledgeKey({
+                    id: 'clock_time',
+                    title: 'THE TIME 03:17',
+                    type: 'memory',
+                    icon: 'fa-regular fa-clock',
+                    desc: 'The precise minute when time stood still.'
+                });
+            } else if (clueId === 'symbol_delta') {
+                addKnowledgeKey({
+                    id: 'symbol_delta',
+                    title: 'THE SYMBOL △',
+                    type: 'symbol',
+                    icon: 'fa-solid fa-triangle',
+                    desc: 'A geometric triangle engraved into parchment.'
+                });
+            } else if (clueId === 'false_name_elias') {
+                addKnowledgeKey({
+                    id: 'false_name_elias',
+                    title: 'THE NAME: ELIAS VANE',
+                    type: 'name',
+                    icon: 'fa-solid fa-signature',
+                    desc: 'Engraved onto the heavy brass key.'
+                });
+            }
+        }
+
+        function closePuzzleModal() {
+            document.getElementById('modal-puzzle').classList.add('hidden');
+        }
+
+        /* ===================================================================
+           7. RENDER ENGINE & STORY NAVIGATION
+           =================================================================== */
+        function renderNode(nodeId) {
+            const node = storyNodes[nodeId];
+            if (!node) {
+                if (nodeId === 'calculate_ending') {
+                    renderEndingScreen();
+                    return;
+                }
+                if (nodeId === 'puzzle_symbol_dial') {
+                    openSymbolPuzzle();
+                    return;
+                }
+                return;
+            }
+
+            gameState.currentChapterNode = nodeId;
+            if (!gameState.visitedNodes.includes(nodeId)) {
+                gameState.visitedNodes.push(nodeId);
+            }
+
+            playPageTurnSound();
+
+            // Header labels update
+            document.getElementById('chapter-label').innerText = `${node.section} — ${node.chapterTitle}`;
+            document.getElementById('manuscript-section-num').innerText = node.section;
+
+            // Narrative content formatting
+            const contentContainer = document.getElementById('narrative-content');
+            let metaHeaderHtml = node.metaNote ? node.metaNote() : '';
+            contentContainer.innerHTML = metaHeaderHtml + node.text + (node.bodyParagraphs || '');
+
+            // Choices drawer rendering
+            const interactionArea = document.getElementById('interaction-area');
+            interactionArea.innerHTML = '';
+
+            node.choices.forEach(choice => {
+                // Check if choice requires a specific key
+                if (choice.reqKey && !hasKnowledgeKey(choice.reqKey)) {
+                    return; // Skip choice if requirement not met
+                }
+
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3.5 rounded-lg bg-parchment-900/60 hover:bg-amberGold/15 border border-amberGold/30 hover:border-amberGold text-sm font-serif text-parchment-100 transition-all duration-300 flex items-center justify-between group shadow-md';
+                btn.innerHTML = `
+                    <span class="group-hover:translate-x-1 transition-transform flex items-center">
+                        <i class="fa-solid fa-angle-right text-amberGold mr-2 text-xs"></i>
+                        ${choice.text}
+                    </span>
+                    <i class="fa-solid fa-feather text-amberGold/0 group-hover:text-amberGold/80 transition-opacity text-xs"></i>
+                `;
+
+                btn.onclick = () => {
+                    gameState.interactiveChoicesMade++;
+                    if (choice.psych) adjustPsych(choice.psych);
+                    if (choice.action) choice.action();
+                    renderNode(choice.target);
+                };
+
+                interactionArea.appendChild(btn);
+            });
+
+            // Update Map SVG
+            updateSVGMap();
+            saveSystemState();
+        }
+
+        /* ===================================================================
+           8. MULTI-BRANCH ENDINGS & PSYCHOLOGICAL EXPERIMENT SUMMARY
+           =================================================================== */
+        function renderEndingScreen() {
+            const trait = getDominantTrait();
+            let endingTitle = "THE WITNESS";
+            let endingText = "You walked through the manuscript observing everything, leaving no trace behind.";
+
+            if (trait === 'curiosity' && gameState.secretsDiscovered >= 2) {
+                endingTitle = "THE AUTHOR";
+                endingText = "You unlocked every hidden secret. As you reach the final vault, you realize you did not just read the manuscript—you wrote it.";
+            } else if (trait === 'deception') {
+                endingTitle = "THE MIRROR";
+                endingText = "The system learned your tendency to deceive. The door turns into a silver mirror, reflecting the antagonist you created.";
+            } else if (trait === 'fear') {
+                endingTitle = "THE FORGETTING";
+                endingText = "You chosen the safe paths wherever possible. The manuscript closes gently, wiping your memory of the room.";
+            } else if (trait === 'courage') {
+                endingTitle = "THE RETURN";
+                endingText = "You faced every unknown without flinching. The vault door swings wide, returning you to the world with full awareness.";
+            }
+
+            if (!gameState.unlockedEndings.includes(endingTitle)) {
+                gameState.unlockedEndings.push(endingTitle);
+            }
+
+            document.getElementById('chapter-label').innerText = "FINALE — EXPERIMENT LOG";
+            const contentContainer = document.getElementById('narrative-content');
+            
+            contentContainer.innerHTML = `
+                <div class="text-center py-4 border-b border-amberGold/30 mb-6">
+                    <span class="text-xs font-cinzel text-amberGold tracking-widest uppercase block mb-1">FINAL OUTCOME</span>
+                    <h2 class="font-cinzel text-2xl sm:text-3xl text-amberGold font-bold">${endingTitle}</h2>
+                    <p class="font-serif italic text-parchment-200/80 mt-2 text-base">${endingText}</p>
+                </div>
+
+                <!-- Psychological Experiment Metrics Breakdown -->
+                <div class="bg-parchment-900/80 p-5 rounded-lg border border-amberGold/30 my-6 space-y-4">
+                    <h3 class="font-cinzel text-sm text-amberGold font-bold uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-microscope mr-2"></i> Psychological Profile & Experiment Log
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-sans">
+                        <div class="p-2.5 rounded bg-parchment-950/60 border border-amberGold/10">
+                            <span class="text-parchment-200/60 block">Dominant Aspect</span>
+                            <span class="text-amberGold font-bold capitalize text-sm">${trait}</span>
+                        </div>
+                        <div class="p-2.5 rounded bg-parchment-950/60 border border-amberGold/10">
+                            <span class="text-parchment-200/60 block">Choices Executed</span>
+                            <span class="text-parchment-100 font-bold text-sm">${gameState.interactiveChoicesMade}</span>
+                        </div>
+                        <div class="p-2.5 rounded bg-parchment-950/60 border border-amberGold/10">
+                            <span class="text-parchment-200/60 block">Knowledge Keys Found</span>
+                            <span class="text-amberGold font-bold text-sm">${gameState.secretsDiscovered}</span>
+                        </div>
+                    </div>
+
+                    <!-- Psychological Trait Radar Bar Breakdown -->
+                    <div class="space-y-2 pt-2">
+                        ${renderTraitBar('Curiosity', psychMetrics.curiosity, 'bg-blue-500')}
+                        ${renderTraitBar('Courage', psychMetrics.courage, 'bg-amber-500')}
+                        ${renderTraitBar('Fear', psychMetrics.fear, 'bg-purple-600')}
+                        ${renderTraitBar('Deception', psychMetrics.deception, 'bg-red-600')}
+                        ${renderTraitBar('Empathy', psychMetrics.empathy, 'bg-emerald-500')}
+                    </div>
+                </div>
+            `;
+
+            const interactionArea = document.getElementById('interaction-area');
+            interactionArea.innerHTML = `
+                <button onclick="restartStory(false)" class="w-full p-3.5 rounded-lg bg-amberGold text-parchment-950 font-sans font-bold text-sm hover:bg-amber-400 transition-all shadow-lg flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Re-enter Manuscript (Playthrough #${gameState.playCount + 1})</span>
+                </button>
+            `;
+
+            playChimeSound(1000, 0.8);
+            saveSystemState();
+        }
+
+        function renderTraitBar(label, val, colorClass) {
+            const max = 6;
+            const pct = Math.min(100, Math.max(10, (val / max) * 100));
+            return `
+                <div>
+                    <div class="flex justify-between text-[11px] font-sans mb-1">
+                        <span class="text-parchment-200/80">${label}</span>
+                        <span class="text-amberGold font-bold">${val} pts</span>
+                    </div>
+                    <div class="w-full h-1.5 rounded-full bg-parchment-950 overflow-hidden">
+                        <div class="h-full ${colorClass} transition-all duration-1000" style="width: ${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ===================================================================
+           9. MAP TOPOLOGY SVG DRAWING ENGINE
+           =================================================================== */
+        function updateSVGMap() {
+            const svg = document.getElementById('svg-map');
+            if (!svg) return;
+
+            const nodes = [
+                { id: 'prologue_start', label: 'Threshold', x: 70, y: 150 },
+                { id: 'examine_scroll', label: 'Scroll', x: 170, y: 90 },
+                { id: 'inspect_walls', label: 'Masonry', x: 170, y: 210 },
+                { id: 'room_hub', label: '4 Doors', x: 280, y: 150 },
+                { id: 'door_king', label: 'King', x: 380, y: 70 },
+                { id: 'door_fool', label: 'Fool', x: 380, y: 125 },
+                { id: 'door_child', label: 'Child', x: 380, y: 180 },
+                { id: 'door_dead', label: 'Dead', x: 380, y: 235 },
+                { id: 'final_threshold', label: 'Vault', x: 460, y: 150 }
+            ];
+
+            let html = `
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            `;
+
+            // Draw connecting lines
+            const connections = [
+                ['prologue_start', 'examine_scroll'],
+                ['prologue_start', 'inspect_walls'],
+                ['examine_scroll', 'room_hub'],
+                ['inspect_walls', 'room_hub'],
+                ['room_hub', 'door_king'],
+                ['room_hub', 'door_fool'],
+                ['room_hub', 'door_child'],
+                ['room_hub', 'door_dead'],
+                ['door_king', 'final_threshold'],
+                ['door_fool', 'final_threshold'],
+                ['door_child', 'final_threshold'],
+                ['door_dead', 'final_threshold']
+            ];
+
+            connections.forEach(([fromId, toId]) => {
+                const n1 = nodes.find(n => n.id === fromId);
+                const n2 = nodes.find(n => n.id === toId);
+                const isVisited = gameState.visitedNodes.includes(fromId) && gameState.visitedNodes.includes(toId);
+                
+                html += `
+                    <line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" 
+                          stroke="${isVisited ? '#D4AF37' : 'rgba(212,175,55,0.15)'}" 
+                          stroke-width="${isVisited ? '2' : '1'}" 
+                          class="${isVisited ? 'map-path' : ''}" />
+                `;
+            });
+
+            // Draw Node Circles & Labels
+            nodes.forEach(n => {
+                const isCurrent = gameState.currentChapterNode === n.id;
+                const isVisited = gameState.visitedNodes.includes(n.id);
+
+                let fill = '#1A1612';
+                let stroke = 'rgba(212,175,55,0.3)';
+                if (isVisited) { stroke = '#D4AF37'; fill = '#2A251D'; }
+                if (isCurrent) { fill = '#D4AF37'; stroke = '#FFF'; }
+
+                html += `
+                    <g>
+                        <circle cx="${n.x}" cy="${n.y}" r="${isCurrent ? '8' : '5'}" 
+                                fill="${fill}" stroke="${stroke}" stroke-width="2" 
+                                filter="${isCurrent ? 'url(#glow)' : ''}" />
+                        <text x="${n.x}" y="${n.y + 16}" text-anchor="middle" 
+                              fill="${isVisited ? '#E6DAB8' : 'rgba(230,218,184,0.3)'}" 
+                              font-size="9" font-family="Inter, sans-serif">${n.label}</text>
+                    </g>
+                `;
+            });
+
+            svg.innerHTML = html;
+        }
+
+        /* ===================================================================
+           10. MODAL CONTROLLERS & PERSISTENCE
+           =================================================================== */
+        function toggleInventoryModal() {
+            const m = document.getElementById('modal-inventory');
+            m.classList.toggle('hidden');
+        }
+
+        function toggleMapModal() {
+            const m = document.getElementById('modal-map');
+            m.classList.toggle('hidden');
+            if (!m.classList.contains('hidden')) updateSVGMap();
+        }
+
+        function toggleMetaModal() {
+            const m = document.getElementById('modal-meta');
+            m.classList.toggle('hidden');
+            document.getElementById('run-count-num').innerText = gameState.playCount;
+        }
+
+        function saveSystemState() {
+            try {
+                const payload = {
+                    psychMetrics,
+                    gameState
+                };
+                localStorage.setItem(APP_STATE_KEY, JSON.stringify(payload));
+            } catch (e) { console.error(e); }
+        }
+
+        function loadSystemState() {
+            try {
+                const raw = localStorage.getItem(APP_STATE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.psychMetrics) psychMetrics = parsed.psychMetrics;
+                    if (parsed.gameState) gameState = parsed.gameState;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function restartStory(wipeSave = false) {
+            if (wipeSave) {
+                localStorage.removeItem(APP_STATE_KEY);
+                psychMetrics = { curiosity: 0, fear: 0, greed: 0, courage: 0, empathy: 0, deception: 0 };
+                gameState = {
+                    currentChapterNode: 'prologue_start',
+                    visitedNodes: [],
+                    inventory: [],
+                    playCount: 1,
+                    unlockedEndings: [],
+                    interactiveChoicesMade: 0,
+                    warningsIgnored: 0,
+                    secretsDiscovered: 0,
+                    audioEnabled: gameState.audioEnabled
+                };
+            } else {
+                gameState.playCount++;
+                gameState.currentChapterNode = 'prologue_start';
+                gameState.visitedNodes = [];
+                gameState.inventory = [];
+            }
+
+            document.getElementById('modal-meta').classList.add('hidden');
+            updatePsychUI();
+            updateInventoryUI();
+            renderNode('prologue_start');
+        }
+
+        window.onload = function() {
+            loadSystemState();
+            updatePsychUI();
+            updateInventoryUI();
+            renderNode(gameState.currentChapterNode || 'prologue_start');
+        };
+    </script>
+</body>
+</html>

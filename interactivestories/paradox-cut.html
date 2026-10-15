@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE PARADOX CUT — Guided Story Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Fira+Code:wght@400;600&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkObsidian: '#07090e',
+                        amberAmber: '#ffaa00',
+                        cyanCyan: '#00f0ff',
+                        crimsonRed: '#ff2a55',
+                        emeraldGreen: '#10b981',
+                        violetEra: '#a855f7'
+                    },
+                    fontFamily: {
+                        mono: ['Share Tech Mono', 'monospace'],
+                        code: ['Fira Code', 'monospace'],
+                        sans: ['Rajdhani', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; }
+        body { background: #05070a; color: #d1d5db; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+        .crt-scanlines {
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.35) 50%),
+                        linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
+        .glass-card {
+            background: rgba(13, 18, 26, 0.88);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .btn-action { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
+        .btn-action:hover { transform: translateY(-1px); box-shadow: 0 0 12px rgba(0,240,255,0.25); }
+        .btn-action:active { transform: translateY(1px); }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden relative">
+
+    <div class="crt-scanlines fixed inset-0 z-50 pointer-events-none"></div>
+
+    <!-- HEADER -->
+    <header class="relative z-30 px-3 py-2 bg-black/85 border-b border-white/10 flex flex-wrap justify-between items-center gap-2">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyanCyan via-violetEra to-amberAmber flex items-center justify-center font-bold text-black font-mono text-sm">PC</div>
+            <div>
+                <h1 class="font-sans font-bold text-base md:text-lg text-white leading-none tracking-wider">THE PARADOX CUT</h1>
+                <p class="text-[10px] font-mono text-slate-400">ONE ROOM • FOUR CENTURIES • FINAL DOCUMENTARY</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btnStory" class="glass-card px-3 py-1.5 rounded-lg text-xs font-mono border border-violetEra/40 text-violetEra hover:bg-violetEra/10">
+                <i class="fa-solid fa-book-open mr-1"></i> STORY & GUIDE
+            </button>
+            <button id="btnAudioToggle" class="glass-card px-3 py-1.5 rounded-lg text-xs font-mono flex items-center gap-2 border border-slate-700 hover:border-cyanCyan text-slate-300">
+                <i id="audioIcon" class="fa-solid fa-volume-xmark text-crimsonRed"></i>
+                <span id="audioLabel">SYNTH: OFF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <div class="relative z-20 flex-1 overflow-hidden p-2 md:p-3 max-w-7xl mx-auto w-full flex flex-col gap-2">
+
+        <!-- TOP STORY BANNER (always visible guidance) -->
+        <div id="storyBanner" class="glass-card rounded-xl px-4 py-2.5 border border-violetEra/30 flex flex-wrap items-start gap-3 text-xs font-mono">
+            <div class="flex-1 min-w-[200px]">
+                <div class="text-violetEra font-bold mb-0.5"><i class="fa-solid fa-scroll mr-1"></i> CURRENT OBJECTIVE</div>
+                <div id="objectiveText" class="text-slate-300 leading-relaxed">
+                    You are the last editor of a suppressed documentary. This single room has existed since 1680 and hides a bloodline conspiracy. Start in 1680 and spill the corrosive elixir to begin the chain of events.
+                </div>
+            </div>
+            <div class="text-[11px] text-slate-400 max-w-md">
+                <span class="text-amberAmber font-bold">How to play:</span> Switch eras → interact with objects → unlock new footage → arrange clips on the timeline → the order rewrites history.
+            </div>
+        </div>
+
+        <!-- ROOM + MONITOR -->
+        <div class="grid grid-cols-1 xl:grid-cols-5 gap-2 flex-1 min-h-0">
+
+            <!-- LEFT: ERA + ROOM -->
+            <div class="xl:col-span-3 glass-card rounded-xl p-2.5 flex flex-col border border-violetEra/25 overflow-hidden">
+                <div class="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-2 mb-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-violetEra"></i>
+                        <span id="eraHeader" class="font-serif font-bold text-sm text-white">1680 — ALCHEMIST APOTHECARY</span>
+                    </div>
+                    <div class="flex gap-1 font-mono text-[11px]">
+                        <button data-era="1680" class="era-btn px-2.5 py-1 rounded border border-violetEra/50 bg-violetEra/20 text-violetEra font-bold">1680</button>
+                        <button data-era="1890" class="era-btn px-2.5 py-1 rounded border border-slate-700 text-slate-400">1890</button>
+                        <button data-era="1970" class="era-btn px-2.5 py-1 rounded border border-slate-700 text-slate-400">1970</button>
+                        <button data-era="2040" class="era-btn px-2.5 py-1 rounded border border-slate-700 text-slate-400">2040</button>
+                    </div>
+                </div>
+
+                <div class="relative flex-1 bg-black rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center min-h-[160px]">
+                    <canvas id="roomCanvas" class="w-full h-full"></canvas>
+                </div>
+
+                <div id="itemBar" class="flex flex-wrap gap-2 pt-2 font-mono text-xs"></div>
+            </div>
+
+            <!-- RIGHT: MONITOR + LOG + VAULT -->
+            <div class="xl:col-span-2 flex flex-col gap-2 min-h-0">
+                <div class="glass-card rounded-xl p-2.5 flex flex-col border border-cyanCyan/20 flex-1 min-h-0">
+                    <div class="flex justify-between items-center text-xs font-mono border-b border-white/10 pb-1.5">
+                        <span class="text-cyanCyan flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle text-crimsonRed animate-pulse text-[7px]"></i> DOCUMENTARY MONITOR
+                        </span>
+                        <span id="timecode" class="text-amberAmber font-code">00:00:00:00</span>
+                    </div>
+                    <div class="relative flex-1 bg-black rounded-lg border border-slate-800 my-2 flex items-center justify-center min-h-[110px]">
+                        <canvas id="videoCanvas" class="w-full h-full"></canvas>
+                        <div id="subtitles" class="absolute bottom-2 inset-x-3 bg-black/85 px-2 py-1 rounded text-center font-mono text-[11px] text-cyanCyan">
+                            The room remembers everything. Your cut decides what the world remembers.
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 text-xs font-mono">
+                        <button id="btnPlay" class="btn-action bg-cyanCyan/20 border border-cyanCyan/40 text-cyanCyan px-3 py-1.5 rounded-lg font-bold flex-1">
+                            <i class="fa-solid fa-play"></i> PLAY CUT
+                        </button>
+                        <button id="btnReset" class="btn-action bg-slate-800 border border-slate-700 text-amberAmber px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-2.5 border border-slate-800 space-y-2">
+                    <div class="text-xs font-mono text-violetEra font-bold flex justify-between">
+                        <span><i class="fa-solid fa-book-bookmark mr-1"></i> CROSS-ERA LOG</span>
+                        <span id="rippleBadge" class="text-emeraldGreen text-[10px]">STABLE</span>
+                    </div>
+                    <div id="logBox" class="bg-black/60 p-2 rounded-lg border border-white/10 font-mono text-[11px] text-slate-300 h-28 overflow-y-auto leading-relaxed"></div>
+
+                    <div class="p-2 rounded-lg bg-violetEra/10 border border-violetEra/30 space-y-1.5">
+                        <div class="flex justify-between items-center text-xs font-mono">
+                            <span class="text-violetEra font-bold"><i class="fa-solid fa-vault mr-1"></i> CENTURY VAULT</span>
+                            <span id="vaultStatus" class="text-crimsonRed font-bold">LOCKED</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1">
+                            <input id="code1" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-cyanCyan font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="code2" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-amberAmber font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="code3" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-emeraldGreen font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                            <input id="code4" type="text" maxlength="1" class="bg-black/80 border border-slate-700 text-center text-violetEra font-bold py-1 rounded text-sm uppercase" placeholder="?">
+                        </div>
+                        <button id="btnUnlock" class="w-full btn-action bg-violetEra text-black font-bold py-1.5 rounded-lg text-xs uppercase">UNLOCK VAULT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="glass-card rounded-xl p-3 border border-slate-800 space-y-2">
+            <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-mono border-b border-white/10 pb-1.5">
+                <span class="text-cyanCyan font-bold"><i class="fa-solid fa-sliders mr-1"></i> MULTI-TRACK TIMELINE EDITOR</span>
+                <span id="truthBadge" class="text-amberAmber font-bold">INCOMPLETE CUT</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                <div class="lg:col-span-1">
+                    <div class="text-[10px] font-mono text-slate-400 mb-1">ARCHIVAL FOOTAGE BIN (click to add)</div>
+                    <div id="clipBin" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="lg:col-span-3 space-y-1.5 font-mono text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="w-16 text-[10px] text-cyanCyan font-bold bg-cyanCyan/10 px-1.5 py-1 rounded border border-cyanCyan/20">A-ROLL</span>
+                        <div id="track1" class="flex-1 h-9 bg-black/60 rounded border border-cyanCyan/30 flex items-center p-1 gap-1.5 overflow-x-auto"></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-16 text-[10px] text-amberAmber font-bold bg-amberAmber/10 px-1.5 py-1 rounded border border-amberAmber/20">B-ROLL</span>
+                        <div id="track2" class="flex-1 h-9 bg-black/60 rounded border border-amberAmber/30 flex items-center p-1 gap-1.5 overflow-x-auto"></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-16 text-[10px] text-crimsonRed font-bold bg-crimsonRed/10 px-1.5 py-1 rounded border border-crimsonRed/20">AUDIO</span>
+                        <div id="track3" class="flex-1 h-9 bg-black/60 rounded border border-crimsonRed/30 flex items-center p-1 gap-1.5 overflow-x-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center gap-2 pt-1">
+                <p id="consequenceText" class="text-[11px] font-mono text-slate-400 flex-1">
+                    The order of A-Roll clips decides whether Arthur Vance is a hero or a villain. Advanced clips unlock deeper truths.
+                </p>
+                <button id="btnRender" class="btn-action bg-gradient-to-r from-cyanCyan to-emeraldGreen text-black font-bold font-sans px-5 py-2.5 rounded-xl uppercase tracking-wider text-xs">
+                    <i class="fa-solid fa-compact-disc mr-1"></i> RENDER FINAL DOCUMENTARY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORY MODAL -->
+    <div id="storyModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-2xl w-full p-6 rounded-2xl space-y-4 border border-violetEra shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="text-center space-y-1">
+                <span class="text-[10px] font-mono text-amberAmber uppercase tracking-widest">FULL STORY & GUIDE</span>
+                <h2 class="font-serif font-bold text-2xl text-white">The Paradox Cut</h2>
+                <div class="w-16 h-0.5 bg-violetEra mx-auto"></div>
+            </div>
+
+            <div class="font-mono text-xs text-slate-300 leading-relaxed space-y-3">
+                <p><strong class="text-violetEra">The Premise</strong><br>
+                You are the last editor of a suppressed documentary about one room that has existed for 360 years. This room is a temporal nexus — the same physical space appears in 1680, 1890, 1970 and 2040. A secret bloodline (Nicholas the Alchemist → Lord Pendelton → the Vance family) has used the room to rewrite history.</p>
+
+                <p><strong class="text-cyanCyan">Your Role</strong><br>
+                By interacting with objects in different eras you create permanent “ripples” that change the room forever and unlock new archival footage. You then arrange that footage on a multi-track timeline. The order of the clips decides which version of the truth becomes the official historical record.</p>
+
+                <p><strong class="text-amberAmber">How to Progress</strong><br>
+                1. Start in <strong>1680</strong> and spill the corrosive elixir.<br>
+                2. Move to <strong>1890</strong> and hide the brass key.<br>
+                3. Go to <strong>1970</strong> and broadcast frequency 104.7 FM.<br>
+                4. In <strong>2040</strong> inspect the damaged floor to recover the vault code (7-3-9-1).<br>
+                5. Add the newly unlocked clips to the timeline.<br>
+                6. Pay attention to the order of the two core A-Roll clips (Bribe Offer vs Press Conference) — that order decides Arthur’s fate.<br>
+                7. Render the documentary, then enter the vault code for the full conspiracy ending.</p>
+
+                <p><strong class="text-emeraldGreen">Multiple Endings</strong><br>
+                • Whistleblower Route – Arthur is the hero<br>
+                • Corrupt Executive Route – Arthur is the villain<br>
+                • Temporal Conspiracy Route – the room itself is exposed as the weapon<br>
+                • Full Vault Ending – the entire bloodline conspiracy is revealed</p>
+            </div>
+
+            <button id="storyClose" class="w-full btn-action bg-violetEra text-black font-bold font-mono py-2.5 rounded-xl uppercase tracking-wider text-xs">
+                CLOSE GUIDE
+            </button>
+        </div>
+    </div>
+
+    <!-- ENDING MODAL -->
+    <div id="modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-lg w-full p-6 rounded-2xl space-y-4 border border-cyanCyan shadow-2xl">
+            <div class="text-center space-y-1">
+                <span id="modalSub" class="text-[10px] font-mono text-amberAmber uppercase tracking-widest">DOCUMENTARY RENDER COMPLETE</span>
+                <h2 id="modalTitle" class="font-sans font-bold text-2xl text-white">ENDING</h2>
+                <div class="w-16 h-0.5 bg-cyanCyan mx-auto"></div>
+            </div>
+            <p id="modalBody" class="font-mono text-xs text-slate-300 leading-relaxed bg-black/70 p-3 rounded-lg border border-white/10"></p>
+            <button id="modalClose" class="w-full btn-action bg-cyanCyan text-black font-bold font-mono py-2.5 rounded-xl uppercase tracking-wider text-xs">
+                CONTINUE EDITING
+            </button>
+        </div>
+    </div>
+
+<script>
+class WebSynth {
+    constructor(){ this.ctx=null; this.enabled=false; }
+    init(){ if(!this.ctx) this.ctx=new (window.AudioContext||window.webkitAudioContext)(); }
+    toggle(){ if(!this.ctx)this.init(); this.enabled=!this.enabled; if(this.ctx.state==='suspended')this.ctx.resume(); return this.enabled; }
+    tone(f,d=0.1,t='sine',g=0.05){
+        if(!this.enabled||!this.ctx)return;
+        try{
+            const o=this.ctx.createOscillator(), gain=this.ctx.createGain();
+            o.type=t; o.frequency.setValueAtTime(f,this.ctx.currentTime);
+            gain.gain.setValueAtTime(g,this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+d);
+            o.connect(gain); gain.connect(this.ctx.destination);
+            o.start(); o.stop(this.ctx.currentTime+d);
+        }catch(e){}
+    }
+    click(){ this.tone(800,0.05,'square',0.03); }
+    rewind(){ this.tone(280,0.15,'sawtooth',0.04); }
+    success(){ this.tone(523,0.1); setTimeout(()=>this.tone(659,0.15),90); }
+    fail(){ this.tone(140,0.25,'sawtooth',0.07); }
+}
+const synth = new WebSynth();
+
+let currentEra = '1680';
+let timeline = {1:[], 2:[], 3:[]};
+let state = {
+    acidSpilled: false,
+    keyHidden: false,
+    frequencySet: false,
+    vaultSeen: false,
+    vaultUnlocked: false
+};
+
+const ERA = {
+    '1680': { name: '1680 — ALCHEMIST APOTHECARY', items: [{id:'spillAcid', label:'Spill Corrosive Elixir on Floorboards'}] },
+    '1890': { name: '1890 — VICTORIAN STUDY', items: [{id:'hideKey', label:'Hide Brass Key Behind Loose Brick'}] },
+    '1970': { name: '1970 — PIRATE RADIO STATION', items: [{id:'tuneRadio', label:'Broadcast Frequency 104.7 FM'}] },
+    '2040': { name: '2040 — AI SERVER VAULT', items: [{id:'inspectFloor', label:'Inspect Corroded Floor Vault'}] }
+};
+
+const ALL_CLIPS = [
+    {id:'c1', title:'A-ROLL: Bribe Offer', track:1, locked:false, desc:'Arthur records CEO accepting cash.', color:'border-cyanCyan text-cyanCyan'},
+    {id:'c2', title:'A-ROLL: Press Conference', track:1, locked:false, desc:'Arthur denies offshore accounts.', color:'border-cyanCyan text-cyanCyan'},
+    {id:'c3', title:'B-ROLL: Shredding Papers', track:2, locked:false, desc:'Night footage of documents destroyed.', color:'border-amberAmber text-amberAmber'},
+    {id:'c4', title:'AUDIO: Wiretap #4', track:3, locked:false, desc:'"If this film comes out, eliminate him."', color:'border-crimsonRed text-crimsonRed'},
+    {id:'c5', title:'A-ROLL: Alchemist Confession', track:1, locked:true, desc:'Nicholas admits the room is a temporal seal.', color:'border-cyanCyan text-cyanCyan'},
+    {id:'c6', title:'B-ROLL: Acid Damage 2040', track:2, locked:true, desc:'Corroded floorboards collapse revealing vault.', color:'border-amberAmber text-amberAmber'},
+    {id:'c7', title:'AUDIO: 104.7 Encoded Signal', track:3, locked:true, desc:'Pirate radio transmits the vault digits.', color:'border-crimsonRed text-crimsonRed'},
+    {id:'c8', title:'A-ROLL: Family Ledger 1890', track:1, locked:true, desc:'Lord Pendelton seals the bloodline secret.', color:'border-cyanCyan text-cyanCyan'}
+];
+
+function init(){
+    document.getElementById('btnAudioToggle').addEventListener('click',()=>{
+        const on = synth.toggle();
+        document.getElementById('audioLabel').textContent = on ? 'SYNTH: ON' : 'SYNTH: OFF';
+        document.getElementById('audioIcon').className = on ? 'fa-solid fa-volume-high text-emeraldGreen' : 'fa-solid fa-volume-xmark text-crimsonRed';
+    });
+
+    document.getElementById('btnStory').addEventListener('click', ()=> document.getElementById('storyModal').classList.remove('hidden'));
+    document.getElementById('storyClose').addEventListener('click', ()=> document.getElementById('storyModal').classList.add('hidden'));
+
+    document.querySelectorAll('.era-btn').forEach(btn=>{
+        btn.addEventListener('click', e=>{
+            synth.click();
+            document.querySelectorAll('.era-btn').forEach(b => b.className = 'era-btn px-2.5 py-1 rounded border border-slate-700 text-slate-400');
+            e.currentTarget.className = 'era-btn px-2.5 py-1 rounded border border-violetEra/50 bg-violetEra/20 text-violetEra font-bold';
+            switchEra(e.currentTarget.dataset.era);
+        });
+    });
+
+    document.getElementById('btnPlay').addEventListener('click', playCut);
+    document.getElementById('btnReset').addEventListener('click', resetTimeline);
+    document.getElementById('btnRender').addEventListener('click', renderDocumentary);
+    document.getElementById('btnUnlock').addEventListener('click', tryUnlock);
+    document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('modal').classList.add('hidden'));
+
+    // Strong story opening
+    log('<span class="text-violetEra">[SYSTEM]</span> You are the final editor. This room has existed since 1680. A bloodline has used it to rewrite history for 360 years.');
+    log('<span class="text-amberAmber">[GUIDE]</span> Begin in 1680. Spill the corrosive elixir. That single action creates the weakness that will let you open the vault in 2040.');
+    updateObjective();
+    switchEra('1680');
+    renderClipBin();
+    evaluateCut();
+    drawRoom();
+    drawVideo('AWAITING SEQUENCE');
+}
+
+function updateObjective(){
+    const obj = document.getElementById('objectiveText');
+    if(!state.acidSpilled){
+        obj.innerHTML = 'You are the last editor of a suppressed documentary. This single room has existed since 1680 and hides a bloodline conspiracy. <strong class="text-amberAmber">Start in 1680 and spill the corrosive elixir</strong> to begin the chain of events.';
+    } else if(!state.keyHidden){
+        obj.innerHTML = 'The floorboards are now permanently damaged. Travel to <strong class="text-amberAmber">1890</strong> and hide the brass key behind the loose brick. This action seals part of the family secret.';
+    } else if(!state.frequencySet){
+        obj.innerHTML = 'The key is hidden. Go to <strong class="text-amberAmber">1970</strong> and broadcast frequency 104.7 FM. The signal will carry the vault code forward in time.';
+    } else if(!state.vaultSeen){
+        obj.innerHTML = 'The signal is transmitting. Travel to <strong class="text-amberAmber">2040</strong> and inspect the corroded floor. Because of the acid you spilled in 1680, the vault will now be accessible.';
+    } else if(!state.vaultUnlocked){
+        obj.innerHTML = 'You have the vault code (7-3-9-1). Arrange the unlocked clips on the timeline, pay attention to the order of the Bribe and Press Conference, then render the documentary and unlock the Century Vault for the full truth.';
+    } else {
+        obj.innerHTML = 'The Century Vault is open. The complete overlapping conspiracy of the Nicholas–Pendelton–Vance bloodline is now in your hands. You may still experiment with different documentary cuts.';
+    }
+}
+
+function switchEra(era){
+    currentEra = era;
+    document.getElementById('eraHeader').textContent = ERA[era].name;
+    const bar = document.getElementById('itemBar');
+    bar.innerHTML = '';
+    ERA[era].items.forEach(it=>{
+        const b = document.createElement('button');
+        b.className = 'btn-action bg-violetEra/20 border border-violetEra/40 text-violetEra px-3 py-1.5 rounded-lg text-xs font-mono font-bold';
+        b.textContent = it.label;
+        b.onclick = ()=>doAction(it.id);
+        bar.appendChild(b);
+    });
+    drawRoom();
+}
+
+function doAction(id){
+    synth.click();
+    if(id==='spillAcid' && !state.acidSpilled){
+        state.acidSpilled = true;
+        unlockClip('c6');
+        log('<span class="text-emeraldGreen">[1680]</span> Nicholas spills the corrosive elixir. The floorboards begin to rot. This weakness will still exist 360 years later.');
+        document.getElementById('rippleBadge').textContent = 'RIPPLE ACTIVE';
+        document.getElementById('rippleBadge').className = 'text-amberAmber text-[10px]';
+    }
+    else if(id==='hideKey' && !state.keyHidden){
+        state.keyHidden = true;
+        unlockClip('c8');
+        log('<span class="text-amberAmber">[1890]</span> Lord Pendelton hides the brass key behind the loose brick. The family ledger is now sealed inside the wall.');
+    }
+    else if(id==='tuneRadio' && !state.frequencySet){
+        state.frequencySet = true;
+        unlockClip('c7');
+        log('<span class="text-cyanCyan">[1970]</span> The pirate radio locks onto 104.7 FM. An encoded signal carrying the vault digits begins its long journey toward 2040.');
+    }
+    else if(id==='inspectFloor'){
+        if(state.acidSpilled){
+            state.vaultSeen = true;
+            unlockClip('c5');
+            log('<span class="text-violetEra">[2040]</span> The floor finally collapses. Inside the vault you find the digits carved in metal: <strong>7 – 3 – 9 – 1</strong>. The alchemist’s confession is also recovered.');
+            document.getElementById('subtitles').textContent = 'Vault digits recovered: 7 3 9 1 — The room has given up its secret.';
+        } else {
+            log('<span class="text-crimsonRed">[2040]</span> The floor is still solid. Without the acid damage from 1680 the vault remains sealed.');
+            synth.fail();
+        }
+    }
+    updateObjective();
+    drawRoom();
+    evaluateCut();
+}
+
+function unlockClip(id){
+    const c = ALL_CLIPS.find(x=>x.id===id);
+    if(c && c.locked){
+        c.locked = false;
+        renderClipBin();
+        synth.success();
+        log('<span class="text-cyanCyan">[FOOTAGE UNLOCKED]</span> New archival material has appeared in the bin.');
+    }
+}
+
+function log(msg){
+    const box = document.getElementById('logBox');
+    const p = document.createElement('p');
+    p.innerHTML = msg;
+    box.appendChild(p);
+    box.scrollTop = box.scrollHeight;
+}
+
+function renderClipBin(){
+    const bin = document.getElementById('clipBin');
+    bin.innerHTML = '';
+    ALL_CLIPS.filter(c=>!c.locked).forEach(clip=>{
+        const el = document.createElement('div');
+        el.className = `p-1.5 rounded bg-black/60 border ${clip.color} font-mono text-[11px] cursor-pointer hover:bg-white/5 flex justify-between items-center`;
+        el.innerHTML = `<div><span class="font-bold block">${clip.title}</span><span class="text-[9px] text-slate-500">${clip.desc}</span></div><i class="fa-solid fa-plus text-slate-500"></i>`;
+        el.onclick = ()=>addClip(clip);
+        bin.appendChild(el);
+    });
+}
+
+function addClip(clip){
+    synth.click();
+    if(timeline[clip.track].length >= 4) return;
+    timeline[clip.track].push(clip);
+    updateTracks();
+    evaluateCut();
+}
+
+function updateTracks(){
+    [1,2,3].forEach(t=>{
+        const el = document.getElementById('track'+t);
+        el.innerHTML = '';
+        timeline[t].forEach((c,idx)=>{
+            const tag = document.createElement('div');
+            tag.className = 'px-2 py-1 rounded bg-slate-800 border border-white/20 text-[10px] text-white flex items-center gap-1 cursor-pointer whitespace-nowrap';
+            tag.innerHTML = `<span>${c.title.split(':')[1]||c.title}</span><i class="fa-solid fa-xmark text-slate-400 text-[9px]"></i>`;
+            tag.onclick = ()=>{
+                synth.rewind();
+                timeline[t].splice(idx,1);
+                updateTracks();
+                evaluateCut();
+            };
+            el.appendChild(tag);
+        });
+    });
+}
+
+function evaluateCut(){
+    const a = timeline[1].map(c=>c.id);
+    const badge = document.getElementById('truthBadge');
+    const text = document.getElementById('consequenceText');
+
+    let route = 'INCOMPLETE CUT';
+    let desc = 'Add both core A-Roll clips (Bribe Offer + Press Conference). Their order decides whether Arthur is a hero or a villain.';
+
+    if(a.includes('c1') && a.includes('c2')){
+        const bribeFirst = a.indexOf('c1') < a.indexOf('c2');
+        if(bribeFirst){
+            route = 'CORRUPT EXECUTIVE ROUTE';
+            desc = 'You placed the Bribe before the Press Conference. The documentary now frames Arthur Vance as a bought man who lied to the public.';
+            badge.className = 'text-crimsonRed font-bold';
+        } else {
+            route = 'WHISTLEBLOWER ROUTE';
+            desc = 'You placed the Press Conference before the Bribe. Arthur is framed as an undercover investigator who captured the crime on tape.';
+            badge.className = 'text-emeraldGreen font-bold';
+        }
+    }
+
+    if(a.includes('c5') && a.includes('c8')){
+        route = 'TEMPORAL CONSPIRACY ROUTE';
+        desc = 'You included the Alchemist Confession and the Family Ledger. The documentary now reveals that the room itself is a 360-year temporal weapon used by the bloodline.';
+        badge.className = 'text-violetEra font-bold';
+    }
+
+    badge.textContent = route;
+    text.textContent = desc;
+}
+
+function resetTimeline(){
+    synth.rewind();
+    timeline = {1:[],2:[],3:[]};
+    updateTracks();
+    evaluateCut();
+    drawVideo('TIMELINE CLEARED');
+    document.getElementById('timecode').textContent = '00:00:00:00';
+}
+
+function playCut(){
+    synth.click();
+    drawVideo('PLAYING SEQUENCE…');
+    document.getElementById('timecode').textContent = '00:01:22:08';
+    document.getElementById('subtitles').textContent = document.getElementById('consequenceText').textContent;
+}
+
+function renderDocumentary(){
+    synth.success();
+    const route = document.getElementById('truthBadge').textContent;
+    const modal = document.getElementById('modal');
+    document.getElementById('modalSub').textContent = 'DOCUMENTARY RENDER COMPLETE';
+    document.getElementById('modalTitle').textContent = route;
+
+    let body = document.getElementById('consequenceText').textContent + ' This cut is now the official historical record that will be remembered.';
+
+    if(state.vaultSeen){
+        body += ' The vault digits 7-3-9-1 have been permanently embedded in the archive.';
+    }
+    if(state.vaultUnlocked){
+        body += ' With the Century Vault open, the full Nicholas–Pendelton–Vance conspiracy is exposed for the first time.';
+    }
+
+    document.getElementById('modalBody').textContent = body;
+    modal.classList.remove('hidden');
+}
+
+function tryUnlock(){
+    const code = [1,2,3,4].map(n=>document.getElementById('code'+n).value).join('');
+    if(code === '7391'){
+        synth.success();
+        state.vaultUnlocked = true;
+        document.getElementById('vaultStatus').textContent = 'UNLOCKED';
+        document.getElementById('vaultStatus').className = 'text-emeraldGreen font-bold';
+        log('<span class="text-violetEra">[VAULT]</span> The Century Vault opens. The complete overlapping conspiracy of the bloodline is now in your hands.');
+        updateObjective();
+        document.getElementById('modalSub').textContent = 'CENTURY VAULT SOLVED';
+        document.getElementById('modalTitle').textContent = 'THE OVERLAPPING CONSPIRACY';
+        document.getElementById('modalBody').textContent = 'By chaining actions across 1680 → 1890 → 1970 → 2040 and sealing the correct documentary cut, you have unsealed the room’s true purpose: a temporal lock protecting a bloodline that has rewritten history for centuries. The full truth is finally free.';
+        document.getElementById('modal').classList.remove('hidden');
+    } else {
+        synth.fail();
+        alert('Invalid code. You must first spill the acid in 1680, then inspect the floor in 2040 to recover the digits 7-3-9-1.');
+    }
+}
+
+function drawRoom(){
+    const c = document.getElementById('roomCanvas');
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    const w=c.width, h=c.height, cx=w/2, cy=h/2;
+
+    ctx.fillStyle = '#0a0812';
+    ctx.fillRect(0,0,w,h);
+
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx-110, cy-70, 220, 140);
+
+    ctx.fillStyle = '#a855f7';
+    ctx.font = '14px Cinzel';
+    ctx.textAlign = 'center';
+    ctx.fillText(ERA[currentEra].name.split('—')[1].trim(), cx, cy-85);
+
+    if(state.acidSpilled){
+        ctx.fillStyle = 'rgba(16,185,129,0.45)';
+        ctx.fillRect(cx-50, cy+25, 40, 25);
+        ctx.fillStyle = '#10b981';
+        ctx.font = '10px Share Tech Mono';
+        ctx.fillText('ACID DAMAGE', cx-30, cy+55);
+    }
+    if(state.keyHidden){
+        ctx.fillStyle = 'rgba(255,170,0,0.4)';
+        ctx.fillRect(cx+60, cy-40, 18, 30);
+    }
+    if(state.frequencySet){
+        ctx.strokeStyle = '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(cx, cy-20, 35, 0, Math.PI*2);
+        ctx.stroke();
+    }
+    if(state.vaultSeen){
+        ctx.fillStyle = 'rgba(168,85,247,0.5)';
+        ctx.fillRect(cx-25, cy+10, 50, 20);
+        ctx.fillStyle = '#a855f7';
+        ctx.font = '10px Share Tech Mono';
+        ctx.fillText('VAULT', cx, cy+24);
+    }
+}
+
+function drawVideo(label){
+    const c = document.getElementById('videoCanvas');
+    const ctx = c.getContext('2d');
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    ctx.fillStyle = '#05080c';
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.strokeStyle = 'rgba(0,240,255,0.25)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8,8,c.width-16,c.height-16);
+    ctx.fillStyle = '#00f0ff';
+    ctx.font = '13px Share Tech Mono';
+    ctx.fillText(label, 18, 28);
+}
+
+window.onload = init;
+</script>
+</body>
+</html>

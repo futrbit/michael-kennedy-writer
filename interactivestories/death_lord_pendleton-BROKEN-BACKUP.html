@@ -1,0 +1,1271 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  ShieldAlert,
+  Search,
+  Users,
+  Briefcase,
+  GitMerge,
+  Clock,
+  Volume2,
+  VolumeX,
+  RotateCcw,
+  HelpCircle,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronRight,
+  Eye,
+  FileText,
+  Lock,
+  Sparkles,
+  UserCheck,
+  Compass,
+  ArrowRight,
+  Maximize2,
+  Award,
+  Zap,
+  Info
+} from 'lucide-react';
+
+// Procedural audio synthesizer for ambient noir rain, dramatic stings, and UI clicks
+class NoirAudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.rainNode = null;
+    this.rainGain = null;
+    this.isMuted = false;
+  }
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  startRain() {
+    if (this.isMuted || this.rainNode) return;
+    this.init();
+    try {
+      const bufferSize = 2 * this.ctx.sampleRate;
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      this.rainNode = this.ctx.createBufferSource();
+      this.rainNode.buffer = noiseBuffer;
+      this.rainNode.loop = true;
+
+      // Lowpass filter to simulate heavy indoor rain background
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 800;
+
+      this.rainGain = this.ctx.createGain();
+      this.rainGain.gain.value = 0.03; // Gentle ambient rain sound
+
+      this.rainNode.connect(filter);
+      filter.connect(this.rainGain);
+      this.rainGain.connect(this.ctx.destination);
+
+      this.rainNode.start();
+    } catch (e) {
+      console.warn("Audio Context init blocked until interaction", e);
+    }
+  }
+
+  stopRain() {
+    if (this.rainNode) {
+      try {
+        this.rainNode.stop();
+        this.rainNode.disconnect();
+      } catch (e) {}
+      this.rainNode = null;
+    }
+  }
+
+  playClick() {
+    if (this.isMuted) return;
+    this.init();
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch (e) {}
+  }
+
+  playEvidenceSting() {
+    if (this.isMuted) return;
+    this.init();
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.35);
+    } catch (e) {}
+  }
+
+  playDramaticSting() {
+    if (this.isMuted) return;
+    this.init();
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(110, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(55, this.ctx.currentTime + 0.8);
+      gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.8);
+    } catch (e) {}
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      this.stopRain();
+    } else {
+      this.startRain();
+    }
+    return this.isMuted;
+  }
+}
+
+const audioFX = new NoirAudioEngine();
+
+const SUSPECTS_DATA = {
+  eleanor: {
+    id: 'eleanor',
+    name: 'Lady Eleanor Pendelton',
+    title: 'Grieving Widow',
+    avatar: '👸🏻',
+    motive: 'Large inheritance, secret romantic affair.',
+    alibi: 'Claims she was reading in the Conservatory from 10:45 PM to midnight.',
+    initialTension: 35,
+    bio: 'Arthur\'s second wife. Elegant, poised, but financially cornered by Arthur\'s strict trust funds.',
+    dialogueTree: {
+      start: {
+        text: "Detective Vance... please tell me you've found the monster who took Arthur from me. I'm utterly ruined.",
+        options: [
+          { label: "Can you confirm your whereabouts at 11:00 PM?", next: "alibi_check" },
+          { label: "Did Arthur have any enemies in the household?", next: "enemies" },
+          { label: "[Present Evidence]", next: "present_evidence_menu" }
+        ]
+      },
+      alibi_check: {
+        text: "I was in the Conservatory, reading a poetry collection. I never stepped foot near his Study after dinner at 8:30 PM.",
+        options: [
+          { label: "Did anyone see you in the Conservatory?", next: "alibi_witness" },
+          { label: "Let's discuss something else.", next: "start" }
+        ]
+      },
+      alibi_witness: {
+        text: "Marcus brought me chamomile tea at 10:30 PM. Afterwards, I was alone listening to the rain.",
+        options: [{ label: "I see. Let's step back.", next: "start" }]
+      },
+      enemies: {
+        text: "Arthur was a harsh business tycoon. Dr. Sterling argued with him violently earlier tonight about financial auditing!",
+        options: [{ label: "Fascinating. Let's return to earlier questions.", next: "start" }]
+      },
+      present_evidence_menu: {
+        text: "What item do you wish to show Lady Eleanor?",
+        evidenceInteractions: {
+          handkerchief: {
+            text: "(Her jaw tightens as her eyes dilate) That... that handkerchief! Where did you find it? Fine! I was near the Study around 11:00 PM, but I saw Dr. Sterling rushing out with a dark bottle!",
+            tensionChange: 30,
+            unlocksFact: "Eleanor saw Dr. Sterling leaving the Study at 11:00 PM",
+            breaksAlibi: true
+          },
+          cyanide_bottle: {
+            text: "Poison? Poison is a coward's tool, Detective. I have no access to medical supplies.",
+            tensionChange: 5,
+            unlocksFact: "Eleanor denies medical knowledge"
+          },
+          pocket_watch: {
+            text: "Arthur's pocket watch... he never took it off. It stopped at 11:15 PM? But... I heard the grandfather clock chime 11:00 PM right when Dr. Sterling left!",
+            tensionChange: 15,
+            unlocksFact: "Timeline Discrepancy: Sterling left at 11:00, watch says 11:15"
+          }
+        }
+      }
+    }
+  },
+  sterling: {
+    id: 'sterling',
+    name: 'Dr. Julian Sterling',
+    title: 'Personal Physician',
+    avatar: '👨🏼‍⚕️',
+    motive: 'Arthur discovered he was embezzling medical fund accounts.',
+    alibi: 'Claims he was preparing Arthur\'s heart medication in his office.',
+    initialTension: 45,
+    bio: 'Arthur\'s long-time doctor. Calm, suave, but deeply in debt from secret gambling habits.',
+    dialogueTree: {
+      start: {
+        text: "As his physician, I warned Arthur about his weak heart for years. It was only a matter of time.",
+        options: [
+          { label: "Toxicology suggests cyanide, Doctor, not a heart attack.", next: "cyanide_response" },
+          { label: "Where were you between 11:00 PM and 11:30 PM?", next: "alibi_check" },
+          { label: "[Present Evidence]", next: "present_evidence_menu" }
+        ]
+      },
+      cyanide_response: {
+        text: "Cyanide?! Absurd! I only administer standard Digitalis cardiac treatments to Lord Pendelton.",
+        options: [{ label: "We shall see about that.", next: "start" }]
+      },
+      alibi_check: {
+        text: "I was in my Manor office grinding heart remedies. I never left my office after 10:45 PM until the scream rang out.",
+        options: [{ label: "Understandable. Let's pivot.", next: "start" }]
+      },
+      present_evidence_menu: {
+        text: "What evidence do you present to Dr. Sterling?",
+        evidenceInteractions: {
+          cyanide_bottle: {
+            text: "(He turns pale, sweating under the light) That chemical label... potassium cyanide from Apex Labs! My lab supplier! Okay, look—I brought it for Arthur's specimen preservation, but someone stole it from my bag!",
+            tensionChange: 35,
+            unlocksFact: "Cyanide matches Dr. Sterling's supplier",
+            breaksAlibi: false
+          },
+          medical_ledger: {
+            text: "Where did you get that auditor ledger?! ...Curse you Vance! Yes, Arthur caught me altering billing records! But I didn't kill him!",
+            tensionChange: 40,
+            unlocksFact: "Dr. Sterling had a clear murder motive (Embezzlement cover-up)"
+          },
+          pocket_watch: {
+            text: "11:15 PM? That watch is broken. I was nowhere near his desk at 11:15!",
+            tensionChange: 10,
+            unlocksFact: "Sterling disputes 11:15 time of death"
+          }
+        }
+      }
+    }
+  },
+  marcus: {
+    id: 'marcus',
+    name: 'Marcus Vance',
+    title: 'Head Butler',
+    avatar: '👨💼',
+    motive: 'Arthur threatened to fire him without a pension after 20 years.',
+    alibi: 'Claims he was organizing the Wine Cellar inventory.',
+    initialTension: 20,
+    bio: 'Methodical, quiet, observant. Knows every secret passage and door lock in Blackwood Manor.',
+    dialogueTree: {
+      start: {
+        text: "Good evening, Detective. The household is at your disposal. Ask what you must.",
+        options: [
+          { label: "Did you notice anything unusual around 11:00 PM?", next: "unusual_events" },
+          { label: "Tell me about Arthur's wine decanter.", next: "wine_decanter" },
+          { label: "[Present Evidence]", next: "present_evidence_menu" }
+        ]
+      },
+      unusual_events: {
+        text: "At 11:10 PM, while in the Cellar hallway, I heard glass smashing in the Study above me. Shortly after, I heard heavy footsteps in the Master Bedroom corridor.",
+        options: [{ label: "Thank you, Marcus.", next: "start" }]
+      },
+      wine_decanter: {
+        text: "I served His Lordship his vintage Port wine at 10:30 PM sharp in the Study. The decanter was fresh and untouched.",
+        options: [{ label: "Duly noted.", next: "start" }]
+      },
+      present_evidence_menu: {
+        text: "What evidence do you present to Marcus?",
+        evidenceInteractions: {
+          wine_glass: {
+            text: "Ah, the Port glass. Notice the residue? I only serve Port in crystal tumblers, but this residue smells faintly of bitter almond oil.",
+            tensionChange: 15,
+            unlocksFact: "Cyanide was laced into the Port Wine"
+          },
+          termination_letter: {
+            text: "(He closes his eyes in solemn defeat) His Lordship was firing me for losing an antique silver fork... After 25 years of loyal service. I was bitter, Detective, but I am no murderer.",
+            tensionChange: 25,
+            unlocksFact: "Marcus was facing immediate firing"
+          }
+        }
+      }
+    }
+  },
+  evelyn: {
+    id: 'evelyn',
+    name: 'Evelyn Reed',
+    title: 'Lead Architect',
+    avatar: '👩🏽‍🎨',
+    motive: 'Arthur refused to pay her 200,000 architectural commission fee.',
+    alibi: 'Claims she was sketching blueprint revisions in the Library.',
+    initialTension: 25,
+    bio: 'Sharp, outspoken, brilliant architect renovating the West Wing of Blackwood Manor.',
+    dialogueTree: {
+      start: {
+        text: "Arthur Pendelton was a ruthless tyrant who cheated honest workers. But I didn't poison his wine.",
+        options: [
+          { label: "Did you see anyone near the Study tonight?", next: "saw_anyone" },
+          { label: "How did your dispute with Arthur end?", next: "dispute" },
+          { label: "[Present Evidence]", next: "present_evidence_menu" }
+        ]
+      },
+      saw_anyone: {
+        text: "I saw Evelyn—I mean Lady Eleanor—creeping near the Study door at 10:50 PM clutching a silk scarf.",
+        options: [{ label: "Interesting lead.", next: "start" }]
+      },
+      dispute: {
+        text: "He threatened to ruin my firm if I sued for my fee. He was a monster.",
+        options: [{ label: "I understand your anger.", next: "start" }]
+      },
+      present_evidence_menu: {
+        text: "What evidence do you present to Evelyn?",
+        evidenceInteractions: {
+          blueprints: {
+            text: "Those are my Manor secret passage blueprints! I left them in the Library. Notice the hidden service door connecting the Study directly to the Doctor's Office!",
+            tensionChange: 20,
+            unlocksFact: "Secret Passage connects Study & Doctor's Office!"
+          }
+        }
+      }
+    }
+  }
+};
+
+const ROOMS_DATA = {
+  study: {
+    id: 'study',
+    name: "Arthur's Study (Crime Scene)",
+    icon: '🔬',
+    bgGradient: 'from-slate-900 via-red-950/30 to-slate-950',
+    description: 'The body was discovered slumped over the mahogany desk. Rain batters the stained glass windows.',
+    hotspots: [
+      { id: 'desk', label: 'Mahogany Desk', x: '50%', y: '45%', item: 'pocket_watch', text: 'You examine Arthur\'s wrist. His gold pocket watch is smashed! Hands fixed at 11:15 PM.' },
+      { id: 'decanter', label: 'Port Decanter', x: '75%', y: '60%', item: 'wine_glass', text: 'A crystal glass containing dark red wine. Bitter almond scent detected—classic Cyanide!' },
+      { id: 'safe', label: 'Wall Safe', x: '25%', y: '35%', item: 'termination_letter', text: 'The safe door is cracked open. Inside is a signed termination notice for Marcus.' }
+    ]
+  },
+  doctor_office: {
+    id: 'doctor_office',
+    name: "Doctor's Office",
+    icon: '🩺',
+    bgGradient: 'from-slate-900 via-emerald-950/20 to-slate-950',
+    description: 'Orderly medical cabinet filled with heart medications, surgical tools, and chemicals.',
+    hotspots: [
+      { id: 'med_cabinet', label: 'Locked Cabinet', x: '35%', y: '40%', item: 'cyanide_bottle', text: 'Behind a loose drawer, you find a small vial labeled "Potassium Cyanide - Apex Labs".' },
+      { id: 'ledger', label: 'Audit Ledger', x: '65%', y: '55%', item: 'medical_ledger', text: 'Financial accounting documents showing $50,000 missing from Arthur\'s medical care fund.' }
+    ]
+  },
+  library: {
+    id: 'library',
+    name: 'Manor Library',
+    icon: '📚',
+    bgGradient: 'from-slate-900 via-amber-950/20 to-slate-950',
+    description: 'Towering leather-bound books line the dark oak shelves.',
+    hotspots: [
+      { id: 'table', label: 'Architect Desk', x: '40%', y: '50%', item: 'blueprints', text: 'Detailed Manor blueprints revealing a concealed passage between the Doctor\'s Office and Study.' },
+      { id: 'armchair', label: 'Reading Nook', x: '80%', y: '65%', item: 'handkerchief', text: 'Tucked into a armchair cushion: A silk handkerchief stained with blood & initials "E.P."' }
+    ]
+  },
+  wine_cellar: {
+    id: 'wine_cellar',
+    name: 'Wine Cellar',
+    icon: '🍷',
+    bgGradient: 'from-slate-900 via-purple-950/20 to-slate-950',
+    description: 'Chilly underground cellar storing vintage wines and rare spirits.',
+    hotspots: [
+      { id: 'rack', label: 'Vintage Rack #4', x: '50%', y: '50%', item: null, text: 'Dusty vintage Port bottles. The bottle served tonight was retrieved at 10:30 PM.' }
+    ]
+  },
+  conservatory: {
+    id: 'conservatory',
+    name: 'Glass Conservatory',
+    icon: '🌿',
+    bgGradient: 'from-slate-900 via-teal-950/20 to-slate-950',
+    description: 'Lush exotic plants under a glass ceiling. Thunder flashes overhead.',
+    hotspots: [
+      { id: 'bench', label: 'Wicker Bench', x: '45%', y: '60%', item: null, text: 'A open book of poetry lies on the bench, damp from open rain shutters.' }
+    ]
+  },
+  bedroom: {
+    id: 'bedroom',
+    name: 'Master Bedroom',
+    icon: '🛏️',
+    bgGradient: 'from-slate-900 via-indigo-950/20 to-slate-950',
+    description: 'Lady Eleanor\'s opulent quarters with velvet drapery.',
+    hotspots: [
+      { id: 'vanity', label: 'Jewelry Vanity', x: '60%', y: '45%', item: null, text: 'Extravagant diamond necklaces. No signs of forced entry or robbery.' }
+    ]
+  }
+};
+
+const INITIAL_CLUES = [
+  {
+    id: 'pocket_watch',
+    name: 'Shattered Pocket Watch',
+    category: 'Physical',
+    icon: '⏱️',
+    description: 'Lord Arthur\'s gold watch. Glass smashed and hands stopped at 11:15 PM.',
+    details: 'FORENSIC ANALYSIS: The gear impact marks show the hands were manually forced backward to 11:15 PM to fake the time of death!'
+  },
+  {
+    id: 'wine_glass',
+    name: 'Poisoned Port Glass',
+    category: 'Forensic',
+    icon: '🍷',
+    description: 'Crystal glass containing vintage Port with faint almond odor.',
+    details: 'FORENSIC ANALYSIS: High concentration of Potassium Cyanide laced in the wine glass.'
+  }
+];
+
+const ITEM_DICTIONARY = {
+  cyanide_bottle: {
+    id: 'cyanide_bottle',
+    name: 'Potassium Cyanide Vial',
+    category: 'Forensic',
+    icon: '🧪',
+    description: 'Vial labeled Potassium Cyanide sourced from Apex Labs.',
+    details: 'Matches Dr. Julian Sterling\'s medical supplier codes.'
+  },
+  medical_ledger: {
+    id: 'medical_ledger',
+    name: 'Embezzlement Audit Ledger',
+    category: 'Document',
+    icon: '📊',
+    description: 'Auditing papers detailing $50,000 embezzled from Arthur\'s account.',
+    details: 'Signed off with Dr. Sterling\'s medical registration code.'
+  },
+  blueprints: {
+    id: 'blueprints',
+    name: 'Manor Secret Blueprints',
+    category: 'Document',
+    icon: '📜',
+    description: 'Architectural schematics by Evelyn Reed.',
+    details: 'Proves a hidden wall passage connects the Doctor\'s Office directly to the Study!'
+  },
+  handkerchief: {
+    id: 'handkerchief',
+    name: 'Monogrammed Handkerchief',
+    category: 'Physical',
+    icon: '🧵',
+    description: 'Silk handkerchief embroidered with "E.P." (Eleanor Pendelton).',
+    details: 'Found hidden near the Study corridor.'
+  },
+  termination_letter: {
+    id: 'termination_letter',
+    name: 'Butler Termination Notice',
+    category: 'Document',
+    icon: '✉️',
+    description: 'Formal firing letter written by Lord Arthur to Butler Marcus.',
+    details: 'Demanded Marcus leave the Manor without severance pay by morning.'
+  }
+};
+
+const TIMELINE_EVENTS = [
+  { id: 'event_1', time: '10:30 PM', text: 'Marcus serves vintage Port wine to Arthur in the Study.', correctIndex: 0 },
+  { id: 'event_2', time: '10:50 PM', text: 'Dr. Sterling uses Secret Passage to enter Study & poison Port wine with Cyanide.', correctIndex: 1 },
+  { id: 'event_3', time: '11:00 PM', text: 'Arthur drinks poison and collapses. Dr. Sterling smashes watch & sets to 11:15 PM to create alibi.', correctIndex: 2 },
+  { id: 'event_4', time: '11:15 PM', text: 'Lady Eleanor arrives at Study door; hears silence and leaves handkerchief.', correctIndex: 3 },
+  { id: 'event_5', time: '11:30 PM', text: 'Scream rings out as Marcus discovers Lord Arthur\'s body.', correctIndex: 4 }
+];
+
+export default function App() {
+  // Navigation State
+  const [activeTab, setActiveTab] = useState('briefing'); // 'briefing', 'map', 'suspects', 'evidence', 'timeline', 'accusation'
+  
+  // Audio State
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+
+  // Game Progress State
+  const [currentRoomId, setCurrentRoomId] = useState('study');
+  const [inventory, setInventory] = useState(INITIAL_CLUES);
+  const [discoveredFacts, setDiscoveredFacts] = useState([]);
+  const [suspectTension, setSuspectTension] = useState({
+    eleanor: 35,
+    sterling: 45,
+    marcus: 20,
+    evelyn: 25
+  });
+  const [brokenAlibis, setBrokenAlibis] = useState({});
+  const [activeDialogueSuspect, setActiveDialogueSuspect] = useState(null);
+  const [currentDialogueNode, setCurrentDialogueNode] = useState('start');
+  const [selectedInspectItem, setSelectedInspectItem] = useState(null);
+
+  // Timeline State
+  const [userTimeline, setUserTimeline] = useState([
+    TIMELINE_EVENTS[2],
+    TIMELINE_EVENTS[0],
+    TIMELINE_EVENTS[4],
+    TIMELINE_EVENTS[1],
+    TIMELINE_EVENTS[3]
+  ]);
+  const [timelineSolved, setTimelineSolved] = useState(false);
+
+  // Pinboard Corkboard Connections
+  const [corkboardLinks, setCorkboardLinks] = useState([
+    { from: 'pocket_watch', to: 'sterling', label: 'Fake Alibi Window' }
+  ]);
+
+  // Final Accusation Form State
+  const [accusation, setAccusation] = useState({
+    suspect: '',
+    means: '',
+    motive: '',
+    evidence: ''
+  });
+  const [verdictResult, setVerdictResult] = useState(null); // 'VICTORY' or 'DEFEAT'
+  const [showHintModal, setShowHintModal] = useState(false);
+
+  // Load saved state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('cyanide_cipher_save_v1');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setInventory(parsed.inventory || INITIAL_CLUES);
+        setDiscoveredFacts(parsed.discoveredFacts || []);
+        setSuspectTension(parsed.suspectTension || { eleanor: 35, sterling: 45, marcus: 20, evelyn: 25 });
+        setBrokenAlibis(parsed.brokenAlibis || {});
+      } catch (e) {
+        console.error("Save state load error", e);
+      }
+    }
+  }, []);
+
+  // Auto save when state updates
+  useEffect(() => {
+    const saveData = {
+      inventory,
+      discoveredFacts,
+      suspectTension,
+      brokenAlibis
+    };
+    localStorage.setItem('cyanide_cipher_save_v1', JSON.stringify(saveData));
+  }, [inventory, discoveredFacts, suspectTension, brokenAlibis]);
+
+  const handleTabChange = (tabId) => {
+    audioFX.playClick();
+    setActiveTab(tabId);
+  };
+
+  const toggleSound = () => {
+    const muted = audioFX.toggleMute();
+    setIsAudioMuted(muted);
+  };
+
+  const handleResetGame = () => {
+    if (window.confirm("Are you sure you want to reset all evidence and progress?")) {
+      localStorage.removeItem('cyanide_cipher_save_v1');
+      setInventory(INITIAL_CLUES);
+      setDiscoveredFacts([]);
+      setSuspectTension({ eleanor: 35, sterling: 45, marcus: 20, evelyn: 25 });
+      setBrokenAlibis({});
+      setVerdictResult(null);
+      setActiveTab('briefing');
+      audioFX.playDramaticSting();
+    }
+  };
+
+  const handleInspectHotspot = (hotspot) => {
+    audioFX.playClick();
+    if (hotspot.item && ITEM_DICTIONARY[hotspot.item]) {
+      const itemToCollect = ITEM_DICTIONARY[hotspot.item];
+      if (!inventory.some(i => i.id === itemToCollect.id)) {
+        setInventory(prev => [...prev, itemToCollect]);
+        audioFX.playEvidenceSting();
+        setSelectedInspectItem(itemToCollect);
+      } else {
+        alert(`${hotspot.text}\n\n(Item already collected in Evidence Bag)`);
+      }
+    } else {
+      alert(hotspot.text);
+    }
+  };
+
+  const handleStartInterrogation = (suspectId) => {
+    audioFX.playClick();
+    setActiveDialogueSuspect(suspectId);
+    setCurrentDialogueNode('start');
+  };
+
+  const handlePresentEvidenceToSuspect = (evidenceId) => {
+    audioFX.playClick();
+    const suspect = SUSPECTS_DATA[activeDialogueSuspect];
+    const interactions = suspect.dialogueTree.present_evidence_menu?.evidenceInteractions;
+
+    if (interactions && interactions[evidenceId]) {
+      const reaction = interactions[evidenceId];
+      
+      // Update tension
+      if (reaction.tensionChange) {
+        setSuspectTension(prev => ({
+          ...prev,
+          [activeDialogueSuspect]: Math.min(100, prev[activeDialogueSuspect] + reaction.tensionChange)
+        }));
+      }
+
+      // Unlock Fact
+      if (reaction.unlocksFact && !discoveredFacts.includes(reaction.unlocksFact)) {
+        setDiscoveredFacts(prev => [...prev, reaction.unlocksFact]);
+        audioFX.playEvidenceSting();
+      }
+
+      // Break Alibi
+      if (reaction.breaksAlibi) {
+        setBrokenAlibis(prev => ({ ...prev, [activeDialogueSuspect]: true }));
+      }
+
+      alert(`[INTERROGATION BREAKTHROUGH]\n\n${suspect.name}: "${reaction.text}"`);
+    } else {
+      alert(`${suspect.name}: "That evidence means nothing to me, Detective."`);
+    }
+  };
+
+  const moveTimelineItem = (index, direction) => {
+    audioFX.playClick();
+    const newArr = [...userTimeline];
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= newArr.length) return;
+    const temp = newArr[index];
+    newArr[index] = newArr[targetIdx];
+    newArr[targetIdx] = temp;
+    setUserTimeline(newArr);
+  };
+
+  const verifyTimelineOrder = () => {
+    audioFX.playClick();
+    let isCorrect = true;
+    userTimeline.forEach((item, idx) => {
+      if (item.correctIndex !== idx) isCorrect = false;
+    });
+
+    if (isCorrect) {
+      setTimelineSolved(true);
+      audioFX.playEvidenceSting();
+      if (!discoveredFacts.includes("Reconstructed Timeline proves Watch was staged")) {
+        setDiscoveredFacts(prev => [...prev, "Reconstructed Timeline proves Watch was staged"]);
+      }
+    } else {
+      alert("Timeline sequence is incorrect! Re-examine suspect statements and glass impact marks.");
+    }
+  };
+
+  const handleSubmitAccusation = () => {
+    audioFX.playDramaticSting();
+    // Correct Case: Dr. Julian Sterling + Cyanide Bottle + Embezzlement Audit Ledger + Secret Passages/Watch Staging
+    if (
+      accusation.suspect === 'sterling' &&
+      accusation.means === 'cyanide' &&
+      accusation.motive === 'embezzlement'
+    ) {
+      setVerdictResult('VICTORY');
+    } else {
+      setVerdictResult('DEFEAT');
+    }
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-neutral-950 text-slate-100 flex flex-col items-center justify-center p-2 sm:p-4 font-sans select-none">
+      {/* Mobile Smartphone Frame Container */}
+      <div className="w-full max-w-md bg-neutral-900 border-4 border-neutral-800 rounded-[40px] shadow-2xl overflow-hidden flex flex-col h-[840px] relative border-t-neutral-700">
+        
+        {/* Smartphone Top Notch & Status Bar */}
+        <div className="bg-neutral-950 px-6 pt-3 pb-2 flex justify-between items-center text-xs text-neutral-400 border-b border-neutral-800 shrink-0">
+          <div className="font-semibold text-neutral-300">9:41</div>
+          <div className="w-16 h-3 bg-neutral-800 rounded-full flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-neutral-900"></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleSound} className="text-amber-500 hover:text-amber-400">
+              {isAudioMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+            <span className="text-[10px] text-amber-500 font-mono font-bold">5G</span>
+          </div>
+        </div>
+
+        {/* Game Title Header */}
+        <div className="bg-gradient-to-r from-neutral-950 via-red-950/40 to-neutral-950 p-3 px-4 border-b border-neutral-800 flex justify-between items-center shrink-0">
+          <div>
+            <h1 className="text-sm font-extrabold tracking-wider text-amber-500 uppercase flex items-center gap-1.5">
+              <ShieldAlert className="w-4 h-4 text-red-500 animate-pulse" /> Blackwood Manor
+            </h1>
+            <p className="text-[10px] text-neutral-400 tracking-tight">The Cyanide Cipher • Case #1894</p>
+          </div>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => setShowHintModal(true)}
+              className="p-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-full text-amber-400 border border-neutral-700"
+              title="Get Detective Hint"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleResetGame}
+              className="p-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-full text-red-400 border border-neutral-700"
+              title="Reset Case"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Main Page Content Area */}
+        <div className="flex-1 overflow-y-auto bg-neutral-950 relative p-3">
+          
+          {/* TAB 1: BRIEFING & CASE DOSSIER */}
+          {activeTab === 'briefing' && (
+            <div className="space-y-3">
+              {}
+              <div className="relative rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900 p-4">
+                <div className="absolute inset-0 opacity-15 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80')" }}></div>
+                <div className="relative z-10">
+                  <span className="text-[10px] bg-red-900/60 text-red-200 px-2 py-0.5 rounded font-mono font-bold uppercase tracking-widest border border-red-700/50">Homicide Investigation</span>
+                  <h2 className="text-base font-bold text-amber-400 mt-1">Lord Arthur Pendelton</h2>
+                  <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
+                    Found dead in his locked study at 11:30 PM. Rain batters Blackwood Manor. Four suspects are held in the parlor.
+                  </p>
+                </div>
+              </div>
+
+              {/* Case Objectives Card */}
+              <div className="bg-neutral-900/90 rounded-xl p-3 border border-neutral-800 space-y-2">
+                <h3 className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-amber-500" /> Active Objectives
+                </h3>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-start gap-2 text-neutral-300">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${inventory.length >= 4 ? 'text-emerald-500' : 'text-neutral-600'}`} />
+                    <span>Search Manor rooms to gather at least 4 key items of evidence ({inventory.length}/5 collected).</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-neutral-300">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${Object.keys(brokenAlibis).length > 0 ? 'text-emerald-500' : 'text-neutral-600'}`} />
+                    <span>Interrogate suspects & present evidence to break false alibis.</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-neutral-300">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${timelineSolved ? 'text-emerald-500' : 'text-neutral-600'}`} />
+                    <span>Reconstruct the true murder timeline to disprove the staged watch.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detective Notes Summary */}
+              <div className="bg-neutral-900/90 rounded-xl p-3 border border-neutral-800">
+                <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" /> Discovered Key Facts ({discoveredFacts.length})
+                </h3>
+                {discoveredFacts.length === 0 ? (
+                  <p className="text-xs text-neutral-500 italic">No facts uncovered yet. Start by interrogating suspects and presenting evidence.</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {discoveredFacts.map((fact, idx) => (
+                      <li key={idx} className="text-xs text-emerald-300/90 flex items-start gap-1.5 bg-neutral-950/50 p-1.5 rounded border border-emerald-900/30">
+                        <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{fact}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Start Investigation CTA */}
+              <button
+                onClick={() => handleTabChange('map')}
+                className="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-neutral-950 font-bold rounded-lg text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg"
+              >
+                Enter Crime Scene <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* TAB 2: CRIME SCENE MAP / ROOM EXPLORER */}
+          {activeTab === 'map' && (
+            <div className="space-y-3">
+              {}
+              {/* Room Selection Grid */}
+              <div className="grid grid-cols-3 gap-1.5">
+                {Object.keys(ROOMS_DATA).map(roomId => {
+                  const room = ROOMS_DATA[roomId];
+                  const isSelected = currentRoomId === roomId;
+                  return (
+                    <button
+                      key={roomId}
+                      onClick={() => {
+                        audioFX.playClick();
+                        setCurrentRoomId(roomId);
+                      }}
+                      className={`p-2 rounded-lg text-left border transition-all flex flex-col items-center justify-center text-center gap-1 ${
+                        isSelected
+                          ? 'bg-amber-950/40 border-amber-500 text-amber-300'
+                          : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:bg-neutral-800'
+                      }`}
+                    >
+                      <span className="text-lg">{room.icon}</span>
+                      <span className="text-[10px] font-bold leading-tight line-clamp-1">{room.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Selected Room Canvas View */}
+              {ROOMS_DATA[currentRoomId] && (
+                <div className={`rounded-xl p-4 border border-neutral-800 bg-gradient-to-b ${ROOMS_DATA[currentRoomId].bgGradient} relative min-h-[320px] flex flex-col justify-between overflow-hidden shadow-inner`}>
+                  
+                  {/* Room Ambient Description */}
+                  <div className="bg-neutral-950/70 backdrop-blur-md p-2.5 rounded-lg border border-neutral-800">
+                    <h3 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <span>{ROOMS_DATA[currentRoomId].icon}</span> {ROOMS_DATA[currentRoomId].name}
+                    </h3>
+                    <p className="text-[11px] text-neutral-300 mt-0.5">{ROOMS_DATA[currentRoomId].description}</p>
+                  </div>
+
+                  {/* Interactive Hotspots Area */}
+                  <div className="relative w-full h-[180px] my-2 bg-neutral-950/30 rounded-lg border border-neutral-800/50">
+                    {ROOMS_DATA[currentRoomId].hotspots.map(hotspot => {
+                      const isCollected = hotspot.item && inventory.some(i => i.id === hotspot.item);
+                      return (
+                        <button
+                          key={hotspot.id}
+                          onClick={() => handleInspectHotspot(hotspot)}
+                          style={{ left: hotspot.x, top: hotspot.y }}
+                          className={`absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg border transition-all animate-bounce ${
+                            isCollected
+                              ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 opacity-60'
+                              : 'bg-amber-500 text-neutral-950 border-amber-300 hover:scale-110'
+                          }`}
+                        >
+                          <Search className="w-3 h-3" />
+                          <span>{hotspot.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-[10px] text-center text-neutral-400 italic">Tap pulsing yellow markers to inspect evidence hotspots.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: SUSPECTS & INTERROGATION */}
+          {activeTab === 'suspects' && (
+            <div className="space-y-3">
+              {}
+              {!activeDialogueSuspect ? (
+                /* Suspect Cards Overview */
+                <div className="space-y-2">
+                  <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Blackwood Household Suspects</h3>
+                  {Object.keys(SUSPECTS_DATA).map(suspectId => {
+                    const s = SUSPECTS_DATA[suspectId];
+                    const tension = suspectTension[suspectId];
+                    const isAlibiBroken = brokenAlibis[suspectId];
+
+                    return (
+                      <div key={s.id} className="bg-neutral-900 border border-neutral-800 p-3 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xl shrink-0">
+                            {s.avatar}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="text-xs font-bold text-neutral-200">{s.name}</h4>
+                              {isAlibiBroken && (
+                                <span className="text-[9px] bg-red-950 text-red-400 px-1.5 py-0.2 rounded border border-red-800 font-bold">ALIBI BROKEN</span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-neutral-400">{s.title}</p>
+                            
+                            {/* Suspicion / Tension Bar */}
+                            <div className="w-28 bg-neutral-800 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                              <div
+                                className={`h-full transition-all ${
+                                  tension > 60 ? 'bg-red-500' : tension > 30 ? 'bg-amber-500' : 'bg-emerald-500'
+                                }`}
+                                style={{ width: `${tension}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleStartInterrogation(s.id)}
+                          className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-neutral-950 font-bold text-xs rounded-lg flex items-center gap-1 shrink-0"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" /> Interrogate
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Interrogation Room View */
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 space-y-3">
+                  {/* Suspect Header */}
+                  <div className="flex justify-between items-center border-b border-neutral-800 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{SUSPECTS_DATA[activeDialogueSuspect].avatar}</span>
+                      <div>
+                        <h3 className="text-xs font-bold text-amber-400">{SUSPECTS_DATA[activeDialogueSuspect].name}</h3>
+                        <p className="text-[10px] text-neutral-400">Tension Level: {suspectTension[activeDialogueSuspect]}%</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveDialogueSuspect(null)}
+                      className="text-xs text-neutral-400 hover:text-neutral-200 bg-neutral-800 px-2 py-1 rounded"
+                    >
+                      Exit Interview
+                    </button>
+                  </div>
+
+                  {/* Interrogation Dialogue Box */}
+                  <div className="bg-neutral-950 p-3 rounded-lg border border-neutral-800 min-h-[120px] relative">
+                    <p className="text-xs text-neutral-200 leading-relaxed italic">
+                      "{SUSPECTS_DATA[activeDialogueSuspect].dialogueTree[currentDialogueNode]?.text}"
+                    </p>
+                  </div>
+
+                  {/* Dialogue Branching Choices */}
+                  {currentDialogueNode !== 'present_evidence_menu' ? (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-neutral-400 font-semibold uppercase">Questioning Options:</span>
+                      {SUSPECTS_DATA[activeDialogueSuspect].dialogueTree[currentDialogueNode]?.options?.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            audioFX.playClick();
+                            setCurrentDialogueNode(opt.next);
+                          }}
+                          className="w-full text-left p-2 rounded bg-neutral-800/80 hover:bg-neutral-800 text-xs text-amber-200 border border-neutral-700/60 flex justify-between items-center"
+                        >
+                          <span>{opt.label}</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-neutral-500" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Present Evidence Inventory Picker */
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] text-amber-400 font-bold uppercase">Select Evidence from Bag:</span>
+                        <button
+                          onClick={() => setCurrentDialogueNode('start')}
+                          className="text-[10px] text-neutral-400 underline"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {inventory.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => handlePresentEvidenceToSuspect(item.id)}
+                            className="p-2 bg-neutral-950 hover:bg-neutral-800 border border-amber-900/50 rounded text-left flex items-center gap-1.5"
+                          >
+                            <span className="text-sm">{item.icon}</span>
+                            <span className="text-[10px] font-semibold text-neutral-200 line-clamp-1">{item.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 4: EVIDENCE BAG & PINBOARD */}
+          {activeTab === 'evidence' && (
+            <div className="space-y-3">
+              {}
+              <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider">Collected Evidence ({inventory.length})</h3>
+              
+              <div className="grid grid-cols-2 gap-2">
+                {inventory.map(item => (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      audioFX.playClick();
+                      setSelectedInspectItem(item);
+                    }}
+                    className="p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-amber-500/50 cursor-pointer transition-all flex flex-col justify-between"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">{item.icon}</span>
+                      <div>
+                        <h4 className="text-xs font-bold text-neutral-200 leading-tight">{item.name}</h4>
+                        <span className="text-[9px] bg-neutral-800 text-neutral-400 px-1 rounded">{item.category}</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-neutral-400 line-clamp-2 mt-1">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Interactive Corkboard Pinboard Visualizer */}
+              <div className="bg-neutral-900/90 border border-neutral-800 rounded-xl p-3">
+                <h4 className="text-xs font-bold text-amber-400 mb-2 flex items-center gap-1.5">
+                  <GitMerge className="w-3.5 h-3.5" /> Mind Map / Deduction Corkboard
+                </h4>
+                <div className="bg-amber-950/20 p-3 rounded-lg border border-amber-900/40 space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-amber-300">Shattered Watch</span>
+                    <span className="text-red-400 font-mono">── Red Yarn ──</span>
+                    <span className="font-bold text-amber-300">Dr. Julian Sterling</span>
+                  </div>
+                  <p className="text-[10px] text-neutral-300 italic text-center">
+                    "Gears forced backward to fake time of death at 11:15 PM."
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: TIMELINE RECONSTRUCTION */}
+          {activeTab === 'timeline' && (
+            <div className="space-y-3">
+              {}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 space-y-2">
+                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" /> Reconstruct Murder Night (10:30 PM - 11:30 PM)
+                </h3>
+                <p className="text-[11px] text-neutral-400">
+                  Arrange events in chronological order to expose the killer's false time-of-death trap!
+                </p>
+
+                <div className="space-y-2 my-3">
+                  {userTimeline.map((ev, idx) => (
+                    <div key={ev.id} className="bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold font-mono text-amber-500 bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800">{ev.time}</span>
+                        <p className="text-[11px] text-neutral-200">{ev.text}</p>
+                      </div>
+                      <div className="flex flex-col gap-1 shrink-0">
+                        <button
+                          onClick={() => moveTimelineItem(idx, -1)}
+                          disabled={idx === 0}
+                          className="px-1.5 py-0.5 bg-neutral-800 text-[10px] rounded text-neutral-300 disabled:opacity-30"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => moveTimelineItem(idx, 1)}
+                          disabled={idx === userTimeline.length - 1}
+                          className="px-1.5 py-0.5 bg-neutral-800 text-[10px] rounded text-neutral-300 disabled:opacity-30"
+                        >
+                          ▼
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={verifyTimelineOrder}
+                  className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-neutral-950 font-bold rounded-lg text-xs"
+                >
+                  Verify Timeline Sequence
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: FINAL ACCUSATION & TRIAL */}
+          {activeTab === 'accusation' && (
+            <div className="space-y-3">
+              {}
+              {!verdictResult ? (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 space-y-3">
+                  <div className="border-b border-neutral-800 pb-2">
+                    <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest flex items-center gap-1.5">
+                      <ShieldAlert className="w-4 h-4" /> Final Accusation Protocol
+                    </h3>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">Submit your official trial indictment. You only get one chance!</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-[10px] text-neutral-400 font-bold block mb-1">ACCUSED SUSPECT:</label>
+                      <select
+                        value={accusation.suspect}
+                        onChange={e => setAccusation({ ...accusation, suspect: e.target.value })}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-amber-200"
+                      >
+                        <option value="">Select Primary Suspect...</option>
+                        <option value="eleanor">Lady Eleanor Pendelton</option>
+                        <option value="sterling">Dr. Julian Sterling</option>
+                        <option value="marcus">Marcus Vance (Butler)</option>
+                        <option value="evelyn">Evelyn Reed (Architect)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-neutral-400 font-bold block mb-1">MURDER METHOD / MEANS:</label>
+                      <select
+                        value={accusation.means}
+                        onChange={e => setAccusation({ ...accusation, means: e.target.value })}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-amber-200"
+                      >
+                        <option value="">Select Murder Weapon...</option>
+                        <option value="cyanide">Potassium Cyanide in Port Wine</option>
+                        <option value="blunt">Blunt Object Traumatic Strike</option>
+                        <option value="strangle">Silk Scarf Strangulation</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-neutral-400 font-bold block mb-1">PRIMARY MOTIVE:</label>
+                      <select
+                        value={accusation.motive}
+                        onChange={e => setAccusation({ ...accusation, motive: e.target.value })}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-amber-200"
+                      >
+                        <option value="">Select Motive...</option>
+                        <option value="inheritance">Estate Inheritance Claim</option>
+                        <option value="embezzlement">Cover up $50,000 Medical Embezzlement Audit</option>
+                        <option value="pension">Retaliation for Butler Termination</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSubmitAccusation}
+                    className="w-full py-3 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-600 hover:to-red-700 text-white font-extrabold rounded-lg text-xs uppercase tracking-widest shadow-lg mt-2"
+                  >
+                    Issue Warrant & Arrest
+                  </button>
+                </div>
+              ) : (
+                /* VERDICT CINEMATIC RESULTS */
+                <div className={`p-4 rounded-xl border text-center space-y-3 ${
+                  verdictResult === 'VICTORY' ? 'bg-emerald-950/60 border-emerald-500' : 'bg-red-950/60 border-red-500'
+                }`}>
+                  <div className="text-4xl">{verdictResult === 'VICTORY' ? '🏆' : '⚖️'}</div>
+                  <h3 className={`text-base font-extrabold uppercase ${verdictResult === 'VICTORY' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {verdictResult === 'VICTORY' ? 'CASE SOLVED! MASTER DEDUCTION' : 'WRONG ACCUSATION! KILLER ESCAPED'}
+                  </h3>
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    {verdictResult === 'VICTORY'
+                      ? "Brilliant work, Detective Vance! You proved Dr. Julian Sterling poisoned Arthur's wine with cyanide to cover up his $50,000 embezzlement, then staged the pocket watch to 11:15 PM using the secret passage!"
+                      : "Insufficient proof or incorrect suspect! Scotland Yard dismissed your indictment, and the real killer slipped away into the London fog."}
+                  </p>
+                  <button
+                    onClick={handleResetGame}
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-amber-400 rounded-lg text-xs font-bold border border-neutral-700"
+                  >
+                    Reopen Case Files
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+
+        {/* Item Inspect Modal Popup */}
+        {selectedInspectItem && (
+          <div className="absolute inset-0 bg-neutral-950/90 backdrop-blur-sm z-50 p-4 flex flex-col justify-center items-center">
+            <div className="bg-neutral-900 border border-amber-500/60 rounded-xl p-4 max-w-xs w-full text-center space-y-3">
+              <span className="text-4xl block">{selectedInspectItem.icon}</span>
+              <h3 className="text-sm font-bold text-amber-400">{selectedInspectItem.name}</h3>
+              <p className="text-xs text-neutral-300">{selectedInspectItem.description}</p>
+              <div className="p-2 bg-neutral-950 rounded text-[11px] text-emerald-300 border border-neutral-800">
+                {selectedInspectItem.details}
+              </div>
+              <button
+                onClick={() => setSelectedInspectItem(null)}
+                className="w-full py-2 bg-amber-600 text-neutral-950 font-bold rounded text-xs"
+              >
+                Close Inspector
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Detective Hint System Modal */}
+        {showHintModal && (
+          <div className="absolute inset-0 bg-neutral-950/90 backdrop-blur-sm z-50 p-4 flex flex-col justify-center items-center">
+            <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 max-w-xs w-full space-y-3">
+              <h3 className="text-xs font-bold text-amber-400 uppercase flex items-center gap-1.5">
+                <HelpCircle className="w-4 h-4" /> Detective Vance's Notebook Hint
+              </h3>
+              <p className="text-xs text-neutral-300 leading-relaxed">
+                💡 <span className="font-semibold text-amber-200">Key Breakthrough Strategy:</span> Search the <span className="text-emerald-400 font-bold">Doctor's Office</span> to find the Cyanide Bottle & Embezzlement Audit Ledger. Then, present the <span className="text-amber-300">Cyanide Bottle</span> to Dr. Sterling in Interrogation!
+              </p>
+              <button
+                onClick={() => setShowHintModal(false)}
+                className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-bold rounded text-xs border border-neutral-700"
+              >
+                Return to Investigation
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Smartphone Bottom Mobile Navigation Bar */}
+        {}
+        <div className="bg-neutral-950 border-t border-neutral-800 grid grid-cols-6 p-1.5 shrink-0">
+          <button
+            onClick={() => handleTabChange('briefing')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'briefing' ? 'text-amber-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <Briefcase className="w-4 h-4 mb-0.5" /> Briefing
+          </button>
+          <button
+            onClick={() => handleTabChange('map')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'map' ? 'text-amber-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <Compass className="w-4 h-4 mb-0.5" /> Rooms
+          </button>
+          <button
+            onClick={() => handleTabChange('suspects')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'suspects' ? 'text-amber-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <Users className="w-4 h-4 mb-0.5" /> Suspects
+          </button>
+          <button
+            onClick={() => handleTabChange('evidence')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'evidence' ? 'text-amber-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <FileText className="w-4 h-4 mb-0.5" /> Evidence
+          </button>
+          <button
+            onClick={() => handleTabChange('timeline')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'timeline' ? 'text-amber-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <Clock className="w-4 h-4 mb-0.5" /> Timeline
+          </button>
+          <button
+            onClick={() => handleTabChange('accusation')}
+            className={`flex flex-col items-center py-1 text-[9px] font-bold ${
+              activeTab === 'accusation' ? 'text-red-500' : 'text-neutral-500 hover:text-neutral-400'
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4 mb-0.5" /> Accuse
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}

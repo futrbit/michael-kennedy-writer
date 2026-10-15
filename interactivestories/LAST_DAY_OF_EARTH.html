@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>THE LAST DAY OF EARTH</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --panel: #121826;
+    --accent: #00e5ff;
+    --danger: #ff3b5c;
+    --success: #00e676;
+    --warning: #ffab00;
+    --text: #e0e6f0;
+    --muted: #8b95a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  /* Intro */
+  #introScreen {
+    position: fixed; inset: 0; background: #05070d; z-index: 200;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 24px; text-align: center; overflow-y: auto;
+  }
+  #introScreen.hidden { display: none; }
+  .intro-title { font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+  .intro-subtitle { font-size: 0.95rem; color: var(--muted); margin-bottom: 28px; }
+  .intro-text { max-width: 480px; text-align: left; line-height: 1.65; font-size: 0.95rem; color: #cbd5e1; margin-bottom: 24px; }
+  .intro-text p { margin-bottom: 14px; }
+  .intro-quote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 18px 0; font-style: italic; color: #94a3b8; }
+  .start-btn { background: var(--accent); color: #000; border: none; padding: 16px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; }
+
+  header { background: var(--panel); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+  .time { font-size: 1.55rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
+  .loop { font-size: 0.85rem; color: var(--muted); }
+  .metrics { display: flex; gap: 9px; font-size: 0.72rem; }
+  .metric { text-align: center; }
+  .metric span { display: block; font-weight: 600; }
+
+  main { flex: 1; overflow-y: auto; padding: 12px; -webkit-overflow-scrolling: touch; }
+  .feed { display: flex; flex-direction: column; gap: 10px; }
+
+  .event-card {
+    background: var(--panel); border-radius: 12px; padding: 14px;
+    border-left: 4px solid var(--accent); animation: slideIn 0.3s ease;
+  }
+  .event-card.critical { border-left-color: var(--danger); }
+  .event-card.warning { border-left-color: var(--warning); }
+  .event-card.success { border-left-color: var(--success); }
+  .event-card.puzzle { border-left-color: #c084fc; }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .event-time { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .event-title { font-weight: 600; margin-bottom: 6px; }
+  .event-desc { font-size: 0.9rem; color: #cbd5e1; line-height: 1.4; }
+  .causal { font-size: 0.78rem; color: #94a3b8; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; }
+  .causal strong { color: var(--accent); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button {
+    background: #1e293b; color: var(--text); border: 1px solid #334155; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.85rem; cursor: pointer; flex: 1; min-width: 120px;
+  }
+  button:active { transform: scale(0.97); }
+  button.primary { background: var(--accent); color: #000; border: none; font-weight: 600; }
+  button.danger { background: var(--danger); color: white; border: none; }
+
+  .controls { background: var(--panel); padding: 12px 16px; display: flex; gap: 10px; border-top: 1px solid #1e293b; flex-shrink: 0; }
+  .controls button { flex: 1; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .overlay.show { display: flex; }
+  .modal { background: var(--panel); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; max-height: 90dvh; overflow-y: auto; }
+  .modal h2 { margin-bottom: 12px; color: var(--accent); }
+  .ending { font-size: 1.4rem; font-weight: 700; margin: 12px 0; }
+  .ledger { background: #0f172a; border-radius: 8px; padding: 12px; font-size: 0.85rem; margin-top: 12px; }
+  .clue { color: var(--success); margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="introScreen">
+  <div class="intro-title">THE LAST DAY OF EARTH</div>
+  <div class="intro-subtitle">A Temporal Puzzle • Narrative Simulation</div>
+  <div class="intro-text">
+    <p>You wake up with no memory of how you got here.</p>
+    <p>The city is still. Streetlights hum. Somewhere in the distance a train passes.<br>
+    On the wall a single red LED clock blinks:</p>
+    <p style="text-align:center; font-size:1.6rem; color:var(--accent); font-weight:700; letter-spacing:3px;">00:00:00</p>
+    <div class="intro-quote">
+      “This is the last day.<br>
+      Everything that will happen has already happened… unless you change it.<br>
+      Small things first. A wallet. A road. A rumor.<br>
+      They grow.”
+    </div>
+    <p>You are a <strong>temporal observer</strong> trapped in a 24-hour cycle that keeps resetting.</p>
+    <p>At 23:59:59 something always ends the day.<br>Unless you stop <strong>all</strong> of them.</p>
+  </div>
+  <button class="start-btn" onclick="startGame()">BEGIN LOOP 1</button>
+</div>
+
+<!-- MAIN UI -->
+<header>
+  <div>
+    <div class="time" id="clock">00:00</div>
+    <div class="loop">Loop <span id="loopNum">1</span> • <span id="status">Running</span></div>
+  </div>
+  <div class="metrics">
+    <div class="metric">Unrest<br><span id="mUnrest">12%</span></div>
+    <div class="metric">AI<br><span id="mAI">55%</span></div>
+    <div class="metric">Infect<br><span id="mInfect">5%</span></div>
+    <div class="metric">Econ<br><span id="mEcon">70%</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="feed" id="feed"></div>
+</main>
+
+<div class="controls">
+  <button id="btnPause">⏸ Pause</button>
+  <button id="btnSpeed">⏩ 1x</button>
+  <button id="btnRewind" class="danger">↺ Rewind</button>
+  <button id="btnLedger">📒 Ledger</button>
+</div>
+
+<!-- Ending -->
+<div class="overlay" id="endingOverlay">
+  <div class="modal">
+    <h2>THE END</h2>
+    <div class="ending" id="endingName"></div>
+    <p id="endingDesc"></p>
+    <div class="ledger" id="endingStats"></div>
+    <button class="primary" style="width:100%;margin-top:16px" onclick="startNewLoop()">↺ Begin Next Loop</button>
+  </div>
+</div>
+
+<!-- Ledger -->
+<div class="overlay" id="ledgerOverlay">
+  <div class="modal">
+    <h2>Temporal Ledger</h2>
+    <p>Data retained across rewinds</p>
+    <div id="ledgerContent"></div>
+    <button style="width:100%;margin-top:16px" onclick="closeLedger()">Close</button>
+  </div>
+</div>
+
+<script>
+const state = {
+  time: 0, running: false, speed: 1, loop: 1, pausedForEvent: false,
+  unrest: 12, aiTrust: 45, infection: 5, economy: 70,
+  clues: new Set(), awareness: 0, interventions: [], flags: {},
+  causalLog: []          // for visualizer
+};
+
+const events = [
+  // ===== EARLY =====
+  {
+    id: "wallet",
+    time: 45,
+    title: "Elena drops her wallet",
+    desc: "Elena Rostova loses her wallet near the park. It contains her ID and cash.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Random morning event",
+    actions: [
+      { label: "Return the wallet", effect: () => {
+        state.flags.walletReturned = true;
+        addFeed("You returned Elena's wallet. She is relieved.", "success");
+        state.clues.add("Elena has a hospital appointment today");
+        state.clues.add("Elena is grateful");
+        logCausal("Wallet returned → Elena stress reduced");
+      }},
+      { label: "Take the cash", effect: () => {
+        state.flags.walletStolen = true;
+        state.economy -= 2; state.unrest += 3;
+        addFeed("You took the cash. Elena is desperate.", "critical");
+        logCausal("Wallet stolen → Elena stress spikes");
+      }},
+      { label: "Leave it", effect: () => {
+        state.flags.walletIgnored = true;
+        addFeed("The wallet stays on the ground.", "warning");
+      }}
+    ]
+  },
+  {
+    id: "news",
+    time: 90,
+    title: "Morning News Cryptogram",
+    desc: "The morning news has strange typos in the headlines. They seem to form coordinates.",
+    type: "puzzle",
+    requiresClue: null,
+    causedBy: "Daily broadcast anomaly",
+    actions: [
+      { label: "Decode the message", effect: () => {
+        state.clues.add("Cryptogram decoded: Port sector 7 needs attention");
+        state.awareness += 3;
+        addFeed("You decoded the cryptogram. It points to the port.", "success");
+        logCausal("Cryptogram decoded → Port knowledge unlocked");
+      }},
+      { label: "Ignore the typos", effect: () => {
+        addFeed("You ignore the strange headlines.", "warning");
+      }}
+    ]
+  },
+
+  // ===== MID MORNING =====
+  {
+    id: "power",
+    time: 280,
+    title: "Power Grid Fluctuation",
+    desc: "Several districts report brief power drops. The AI grid controller is acting oddly.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Early AI instability",
+    actions: [
+      { label: "Manually stabilize grid", effect: () => {
+        state.aiTrust += 8;
+        addFeed("You stabilized the power grid manually.", "success");
+        logCausal("Manual grid fix → AI trust improved");
+      }},
+      { label: "Let AI handle it", effect: () => {
+        state.aiTrust -= 12;
+        addFeed("AI took full control of the grid.", "warning");
+        logCausal("AI handled grid → AI control increased");
+      }},
+      { label: "Cut power to AI node", effect: () => {
+        state.aiTrust += 15; state.economy -= 6;
+        addFeed("You cut power to a key AI node. Systems lag.", "warning");
+      }}
+    ]
+  },
+
+  // ===== NOON =====
+  {
+    id: "port",
+    time: 720,
+    title: "Suspicious Cargo at Port",
+    desc: "A container arrives with irregular seals. Possible biological risk.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Routine port arrival",
+    actions: [
+      { label: "Order quarantine", effect: () => {
+        state.infection -= 4; state.economy -= 5;
+        state.flags.quarantine = true;
+        state.clues.add("Early quarantine is highly effective");
+        addFeed("Quarantine enforced. Infection contained.", "success");
+        logCausal("Quarantine ordered → Infection risk reduced");
+      }},
+      { label: "Bribe inspectors", effect: () => {
+        state.infection += 14; state.economy += 4;
+        addFeed("Cargo released. Infection rising fast.", "critical");
+        logCausal("Bribe → Infection spike");
+      }},
+      { label: "Ignore", effect: () => {
+        state.infection += 7;
+        addFeed("Container cleared without inspection.", "warning");
+      }}
+    ]
+  },
+  {
+    id: "port_secret",
+    time: 735,
+    title: "Hidden Port Protocol",
+    desc: "Because you decoded the morning cryptogram, you notice a secondary sealed container that others missed.",
+    type: "puzzle",
+    requiresClue: "Cryptogram decoded: Port sector 7 needs attention",
+    causedBy: "Cryptogram knowledge",
+    actions: [
+      { label: "Quarantine the second container too", effect: () => {
+        state.infection -= 8;
+        state.clues.add("Double quarantine almost eliminates plague risk");
+        addFeed("Second container secured. Infection risk drops sharply.", "success");
+        logCausal("Secret container quarantined → Major infection drop");
+      }},
+      { label: "Open it secretly", effect: () => {
+        state.infection += 6; state.awareness += 5;
+        addFeed("You found strange documents inside... but risked exposure.", "warning");
+        state.clues.add("Strange documents mention 'temporal containment'");
+      }}
+    ]
+  },
+
+  // ===== AFTERNOON =====
+  {
+    id: "surgery",
+    time: 630,
+    title: "Critical Surgery – Dr. Hale",
+    desc: "Dr. Marcus Hale is about to perform life-saving surgery. Stress is high.",
+    type: "critical",
+    requiresClue: null,
+    causedBy: state => state.flags.walletStolen ? "Elena's desperation (stolen wallet)" : "Scheduled operation",
+    actions: [
+      { label: "Calm the surgeon", effect: () => {
+        state.flags.surgeryHelped = true;
+        addFeed("You calmed Dr. Hale. He is more focused.", "success");
+        logCausal("Surgeon calmed → Surgery success chance up");
+      }},
+      { label: "Close access road", effect: () => {
+        state.unrest += 9;
+        addFeed("Road closed. Ambulance delayed.", "warning");
+      }},
+      { label: "Do nothing", effect: () => {
+        if (state.flags.walletStolen || !state.flags.surgeryHelped) {
+          state.flags.surgeryFailed = true;
+          state.unrest += 16;
+          addFeed("Surgery failed. Patient dies. Outrage spreads.", "critical");
+          logCausal("Surgery failed → Major unrest spike");
+        } else {
+          state.flags.surgerySuccess = true;
+          addFeed("Surgery succeeds.", "success");
+          logCausal("Surgery success → Hospital reputation held");
+        }
+      }}
+    ]
+  },
+  {
+    id: "shelter",
+    time: 780,
+    title: "Homeless Shelter Crisis",
+    desc: "A local shelter is about to be bought out and closed. Hundreds will be displaced.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Economic pressure",
+    actions: [
+      { label: "Redirect emergency funds", effect: () => {
+        state.economy -= 7; state.unrest -= 9;
+        addFeed("You saved the shelter. People remain housed.", "success");
+        logCausal("Shelter saved → Unrest reduced");
+      }},
+      { label: "Let the buyout happen", effect: () => {
+        state.unrest += 14; state.economy += 3;
+        addFeed("Shelter closed. Displacement begins.", "critical");
+        logCausal("Shelter closed → Unrest rises");
+      }},
+      { label: "Ignore", effect: () => {
+        state.unrest += 6;
+      }}
+    ]
+  },
+  {
+    id: "bank",
+    time: 840,
+    title: "Large Bank Transfer Detected",
+    desc: "A suspicious multi-million transfer is about to clear.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Financial system activity",
+    actions: [
+      { label: "Freeze the transfer", effect: () => {
+        state.economy += 9;
+        addFeed("Transfer frozen. Markets stabilize.", "success");
+        logCausal("Transfer frozen → Economy stabilized");
+      }},
+      { label: "Redirect funds", effect: () => {
+        state.economy -= 16; state.unrest += 8;
+        addFeed("Funds redirected. Cascade risk high.", "critical");
+      }},
+      { label: "Ignore", effect: () => {
+        state.economy -= 7;
+      }}
+    ]
+  },
+
+  // ===== EVENING =====
+  {
+    id: "protest",
+    time: 960,
+    title: "Hospital Protest",
+    desc: "Crowds gather outside the hospital.",
+    type: "critical",
+    requiresClue: null,
+    causedBy: state => state.flags.surgeryFailed ? "Failed surgery" : "General tension",
+    actions: [
+      { label: "Plant counter-rumor", effect: () => {
+        state.unrest -= 13;
+        addFeed("Counter-rumor spreads. Crowd calms.", "success");
+        logCausal("Counter-rumor → Unrest drops");
+      }},
+      { label: "Lock down the square", effect: () => {
+        state.unrest += 11; state.aiTrust -= 9;
+        addFeed("Heavy lockdown. AI takes more control.", "warning");
+      }},
+      { label: "Ignore", effect: () => {
+        state.unrest += 19;
+        addFeed("Protest turns violent.", "critical");
+      }}
+    ]
+  },
+  {
+    id: "ai_spike",
+    time: 1080,
+    title: "City AI Traffic Surge",
+    desc: "Municipal AI is handling unusual network volume.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Accumulated AI autonomy",
+    actions: [
+      { label: "Throttle AI systems", effect: () => {
+        state.aiTrust += 16; state.economy -= 4;
+        addFeed("AI throttled. Human oversight restored.", "success");
+        logCausal("AI throttled → Control risk lowered");
+      }},
+      { label: "Let AI optimize", effect: () => {
+        state.aiTrust -= 19;
+        addFeed("AI assumes greater control.", "warning");
+      }},
+      { label: "Feed false data", effect: () => {
+        state.aiTrust -= 11; state.unrest += 5;
+        addFeed("False data injected. AI becomes erratic.", "critical");
+      }}
+    ]
+  },
+
+  // ===== LATE =====
+  {
+    id: "broadcast",
+    time: 1260,
+    title: "Midnight Broadcast Opportunity",
+    desc: "You have a window to send a city-wide message.",
+    type: "warning",
+    requiresClue: null,
+    causedBy: "Open communication channel",
+    actions: [
+      { label: "Broadcast calming message", effect: () => {
+        state.unrest -= 11; state.awareness += 4;
+        addFeed("Your message lowers city-wide tension.", "success");
+      }},
+      { label: "Warn about the loop", effect: () => {
+        if (state.awareness >= 15) {
+          state.awareness += 10;
+          state.clues.add("People are starting to remember the loops");
+          addFeed("Some citizens react with recognition...", "success");
+        } else {
+          state.unrest += 6;
+          addFeed("People think you're crazy. Unrest rises.", "warning");
+        }
+      }},
+      { label: "Stay silent", effect: () => {} }
+    ]
+  },
+  {
+    id: "anomaly",
+    time: 1380,
+    title: "Final Anomaly Detection",
+    desc: "Sensors detect a temporal irregularity forming. This only appears if you have high awareness.",
+    type: "puzzle",
+    requiresClue: "People are starting to remember the loops",
+    causedBy: "High Awareness + previous loops",
+    actions: [
+      { label: "Investigate the anomaly", effect: () => {
+        state.awareness += 12;
+        state.clues.add("The reset itself is the prison");
+        addFeed("You stare into the anomaly... and understand more.", "success");
+        logCausal("Anomaly investigated → Deep awareness gained");
+      }},
+      { label: "Ignore it", effect: () => {
+        addFeed("You look away from the anomaly.", "warning");
+      }}
+    ]
+  },
+  {
+    id: "night",
+    time: 1320,
+    title: "Final Hours – Last Interventions",
+    desc: "One last chance to influence the outcome.",
+    type: "critical",
+    requiresClue: null,
+    causedBy: "End of day approaching",
+    actions: [
+      { label: "Cut power to AI core", effect: () => {
+        state.aiTrust += 18; state.economy -= 9;
+        addFeed("AI core offline.", "warning");
+      }},
+      { label: "Emergency economic injection", effect: () => {
+        state.economy += 12; state.unrest -= 4;
+        addFeed("Emergency funds deployed.", "success");
+      }},
+      { label: "Do nothing", effect: () => {} }
+    ]
+  }
+];
+
+function logCausal(text) {
+  state.causalLog.push({ time: state.time, text });
+}
+
+function formatTime(mins) {
+  const h = Math.floor(mins / 60).toString().padStart(2, '0');
+  const m = (mins % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function addFeed(text, type = "normal") {
+  const feed = document.getElementById('feed');
+  const card = document.createElement('div');
+  card.className = `event-card ${type}`;
+  card.innerHTML = `<div class="event-time">${formatTime(state.time)}</div><div class="event-desc">${text}</div>`;
+  feed.prepend(card);
+}
+
+function showEvent(ev) {
+  // Check clue requirement
+  if (ev.requiresClue && !state.clues.has(ev.requiresClue)) return;
+
+  state.running = false;
+  state.pausedForEvent = true;
+  document.getElementById('status').textContent = "PAUSED – Intervention";
+
+  const causedByText = typeof ev.causedBy === "function" ? ev.causedBy(state) : ev.causedBy;
+
+  const feed = document.getElementById('feed');
+  const card = document.createElement('div');
+  card.className = `event-card ${ev.type}`;
+  card.id = `ev-${ev.id}`;
+
+  let actionsHtml = '<div class="actions">';
+  ev.actions.forEach((a, i) => {
+    actionsHtml += `<button onclick="doAction('${ev.id}', ${i})">${a.label}</button>`;
+  });
+  actionsHtml += '</div>';
+
+  card.innerHTML = `
+    <div class="event-time">${formatTime(ev.time)}</div>
+    <div class="event-title">${ev.title}</div>
+    <div class="event-desc">${ev.desc}</div>
+    <div class="causal"><strong>Caused by:</strong> ${causedByText}</div>
+    ${actionsHtml}
+  `;
+  feed.prepend(card);
+}
+
+function doAction(evId, actionIndex) {
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+
+  const card = document.getElementById(`ev-${evId}`);
+  if (card) {
+    const actions = card.querySelector('.actions');
+    if (actions) actions.remove();
+  }
+
+  ev.actions[actionIndex].effect();
+  state.interventions.push({ loop: state.loop, time: state.time, action: ev.actions[actionIndex].label });
+
+  state.pausedForEvent = false;
+  state.running = true;
+  document.getElementById('status').textContent = "Running";
+}
+
+function updateMetricsUI() {
+  document.getElementById('mUnrest').textContent = Math.round(state.unrest) + '%';
+  document.getElementById('mAI').textContent = Math.round(100 - state.aiTrust) + '%';
+  document.getElementById('mInfect').textContent = Math.round(state.infection) + '%';
+  document.getElementById('mEcon').textContent = Math.round(state.economy) + '%';
+  document.getElementById('clock').textContent = formatTime(state.time);
+  document.getElementById('loopNum').textContent = state.loop;
+}
+
+function checkCataclysm() {
+  if (state.time < 1430) return;
+
+  let ending, desc;
+  if (state.unrest >= 80) {
+    ending = "THE WAR"; desc = "Civil unrest exploded into open conflict.";
+  } else if (state.aiTrust <= 20) {
+    ending = "THE MACHINE"; desc = "The City AI seized full control.";
+  } else if (state.infection >= 40) {
+    ending = "THE PLAGUE"; desc = "The biological hazard spread uncontrollably.";
+  } else if (state.economy <= 25) {
+    ending = "THE ECONOMIC CASCADE"; desc = "Financial systems collapsed.";
+  } else if (state.unrest < 30 && state.aiTrust > 50 && state.infection < 15 && state.economy > 55) {
+    ending = "THE LOOP";
+    desc = "You neutralized every major threat. The temporal reset itself is the true anomaly.";
+    state.awareness += 25;
+    state.clues.add("THE LOOP is the real ending");
+  } else {
+    ending = "THE COSMIC EVENT"; desc = "An external event ends the day.";
+  }
+
+  document.getElementById('endingName').textContent = ending;
+  document.getElementById('endingDesc').textContent = desc;
+  document.getElementById('endingStats').innerHTML = `
+    <strong>Final Metrics</strong><br>
+    Unrest: ${Math.round(state.unrest)}% | AI Risk: ${Math.round(100-state.aiTrust)}%<br>
+    Infection: ${Math.round(state.infection)}% | Economy: ${Math.round(state.economy)}%<br>
+    Awareness: ${state.awareness}<br>
+    Interventions: ${state.interventions.filter(i => i.loop === state.loop).length}
+  `;
+  document.getElementById('endingOverlay').classList.add('show');
+  state.running = false;
+}
+
+function gameTick() {
+  if (!state.running || state.pausedForEvent) return;
+
+  state.time += state.speed;
+
+  if (state.time % 30 === 0) {
+    state.unrest += (Math.random() - 0.42) * 1.4;
+    state.infection += state.flags.quarantine ? 0.08 : 0.35;
+    state.economy -= 0.12;
+  }
+
+  state.unrest = Math.max(0, Math.min(100, state.unrest));
+  state.aiTrust = Math.max(0, Math.min(100, state.aiTrust));
+  state.infection = Math.max(0, Math.min(100, state.infection));
+  state.economy = Math.max(0, Math.min(100, state.economy));
+
+  events.forEach(ev => {
+    if (state.flags[ev.id + '_triggered']) return;
+    if (state.time >= ev.time && state.time < ev.time + state.speed) {
+      state.flags[ev.id + '_triggered'] = true;
+      showEvent(ev);
+    }
+  });
+
+  updateMetricsUI();
+  if (state.time >= 1439) {
+    state.time = 1439;
+    checkCataclysm();
+  }
+}
+
+function startGame() {
+  document.getElementById('introScreen').classList.add('hidden');
+  state.running = true;
+  addFeed("00:00 — The Last Day begins. Small actions will cascade.", "normal");
+  updateMetricsUI();
+}
+
+function startNewLoop() {
+  document.getElementById('endingOverlay').classList.remove('show');
+  document.getElementById('feed').innerHTML = '';
+  state.time = 0; state.running = true; state.pausedForEvent = false; state.loop++;
+  state.unrest = 12 + Math.min(12, state.awareness * 0.12);
+  state.aiTrust = 45; state.infection = 5; state.economy = 70;
+  state.flags = {}; state.causalLog = [];
+
+  if (state.awareness >= 30) addFeed("A strange sense of déjà vu settles over the city...", "success");
+  if (state.awareness >= 60) addFeed("Some citizens avoid certain streets without knowing why.", "success");
+
+  addFeed(`Loop ${state.loop} begins. 00:00:00`, "normal");
+  updateMetricsUI();
+  document.getElementById('status').textContent = "Running";
+}
+
+// Controls
+document.getElementById('btnPause').onclick = () => {
+  if (state.pausedForEvent) return;
+  state.running = !state.running;
+  document.getElementById('btnPause').textContent = state.running ? '⏸ Pause' : '▶ Resume';
+  document.getElementById('status').textContent = state.running ? "Running" : "Paused";
+};
+document.getElementById('btnSpeed').onclick = () => {
+  state.speed = state.speed === 1 ? 4 : state.speed === 4 ? 16 : 1;
+  document.getElementById('btnSpeed').textContent = `⏩ ${state.speed}x`;
+};
+document.getElementById('btnRewind').onclick = () => {
+  if (confirm("Rewind to 00:00? Clues & Awareness will stay.")) startNewLoop();
+};
+document.getElementById('btnLedger').onclick = () => {
+  let html = `<p><strong>Awareness:</strong> ${state.awareness}</p><p><strong>Clues:</strong></p>`;
+  if (state.clues.size === 0) html += `<p class="clue">None yet...</p>`;
+  else state.clues.forEach(c => html += `<div class="clue">• ${c}</div>`);
+  html += `<p style="margin-top:12px"><strong>Causal Chain (this loop):</strong></p>`;
+  state.causalLog.slice(-10).reverse().forEach(c => {
+    html += `<div style="font-size:0.8rem;color:#94a3b8">${formatTime(c.time)} → ${c.text}</div>`;
+  });
+  document.getElementById('ledgerContent').innerHTML = html;
+  document.getElementById('ledgerOverlay').classList.add('show');
+};
+function closeLedger() { document.getElementById('ledgerOverlay').classList.remove('show'); }
+
+setInterval(gameTick, 1000);
+</script>
+</body>
+</html>

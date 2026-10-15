@@ -1,0 +1,1903 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111">
+<title>LIONS // TAKEOVER — What Do Lions Eat?</title>
+
+<style>
+:root{
+  --paper:#f7f4ec;
+  --ink:#111;
+  --red:#ed3426;
+  --yellow:#ffd21a;
+  --blue:#155dcc;
+  --green:#168447;
+  --muted:#777;
+  --panel:#fffdf7;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  min-height:100vh;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  max-width:1500px;
+  margin:auto;
+  padding:18px;
+}
+
+/* TOP */
+
+.top{
+  border:3px solid var(--ink);
+  background:var(--panel);
+  display:grid;
+  grid-template-columns:1.5fr 1fr auto;
+  gap:0;
+  box-shadow:10px 10px 0 var(--ink);
+  margin-bottom:28px;
+}
+
+.top>div{
+  padding:18px;
+  border-right:2px solid var(--ink);
+}
+
+.top>div:last-child{
+  border-right:0;
+}
+
+.kicker{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.2em;
+}
+
+.brand{
+  font-size:clamp(28px,5vw,72px);
+  font-weight:900;
+  letter-spacing:-.06em;
+  line-height:.85;
+  margin-top:8px;
+}
+
+.subtitle{
+  font-size:12px;
+  line-height:1.45;
+  margin-top:12px;
+  max-width:520px;
+}
+
+.yearbox strong{
+  font-size:42px;
+  display:block;
+  line-height:1;
+}
+
+.yearbox span,
+.cashbox span{
+  font-size:10px;
+  letter-spacing:.15em;
+  font-weight:900;
+}
+
+.cashbox strong{
+  font-size:30px;
+  display:block;
+  color:var(--green);
+}
+
+.cashbox small{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+
+/* LAYOUT */
+
+.grid{
+  display:grid;
+  grid-template-columns:280px 1fr 330px;
+  gap:18px;
+}
+
+.panel{
+  border:2px solid var(--ink);
+  background:var(--panel);
+  padding:16px;
+}
+
+.panel h2{
+  font-size:13px;
+  letter-spacing:.14em;
+  margin:0 0 15px;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:10px;
+}
+
+/* METRICS */
+
+.metric{
+  margin:0 0 15px;
+}
+
+.metric-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:11px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.bar{
+  height:12px;
+  border:2px solid var(--ink);
+  background:#e9e5d9;
+}
+
+.bar i{
+  display:block;
+  height:100%;
+  width:50%;
+  background:var(--blue);
+  transition: width 0.3s ease;
+}
+
+.bar.red i{
+  background:var(--red);
+}
+
+.bar.green i{
+  background:var(--green);
+}
+
+.bar.yellow i{
+  background:var(--yellow);
+}
+
+.tiny{
+  font-size:10px;
+  color:#555;
+  line-height:1.35;
+  margin-top:5px;
+}
+
+/* TABS */
+
+.tabs{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.tab{
+  border:2px solid var(--ink);
+  background:var(--paper);
+  padding:9px 11px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.tab.active{
+  background:var(--ink);
+  color:white;
+}
+
+.view{
+  display:none;
+}
+
+.view.active{
+  display:block;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.kpi{
+  border:2px solid var(--ink);
+  padding:12px;
+  background:#fff;
+}
+
+.kpi span{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+.kpi strong{
+  display:block;
+  font-size:24px;
+  margin-top:5px;
+}
+
+.kpi em{
+  font-style:normal;
+  font-size:9px;
+  color:#666;
+}
+
+/* DECISION */
+
+.decision{
+  border:3px solid var(--ink);
+  background:#fff;
+  margin-top:15px;
+  box-shadow:7px 7px 0 var(--yellow);
+}
+
+.decision-top{
+  padding:18px;
+  border-bottom:2px solid var(--ink);
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.decision-num{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.2em;
+}
+
+.decision h1{
+  font-size:clamp(24px,4vw,52px);
+  line-height:.9;
+  letter-spacing:-.05em;
+  margin:7px 0;
+}
+
+.decision p{
+  font-size:13px;
+  line-height:1.55;
+  max-width:850px;
+  margin:0;
+}
+
+.options{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:14px;
+}
+
+.option{
+  border:2px solid var(--ink);
+  background:var(--paper);
+  padding:14px;
+  text-align:left;
+  min-height:160px;
+  transition:.15s;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.option:hover{
+  transform:translate(-3px,-3px);
+  box-shadow:5px 5px 0 var(--ink);
+}
+
+.option h3{
+  margin:8px 0;
+  font-size:16px;
+}
+
+.option p{
+  font-size:11px;
+  line-height:1.45;
+  margin:0 0 10px;
+}
+
+.effects{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top: auto;
+}
+
+.effect{
+  font-size:9px;
+  font-weight:900;
+  border:1px solid var(--ink);
+  padding:4px;
+  background:white;
+}
+
+/* NEWS */
+
+.news{
+  border-left:5px solid var(--red);
+  padding-left:10px;
+  margin-bottom:12px;
+}
+
+.news b{
+  font-size:9px;
+  letter-spacing:.12em;
+}
+
+.news p{
+  font-size:11px;
+  line-height:1.4;
+  margin:4px 0;
+}
+
+/* TABLE */
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:10px;
+}
+
+.table th,
+.table td{
+  border-bottom:1px solid #aaa;
+  padding:8px 5px;
+  text-align:left;
+}
+
+.table th{
+  font-size:9px;
+  letter-spacing:.1em;
+}
+
+/* CALLOUTS */
+
+.callout{
+  border:2px solid var(--ink);
+  padding:12px;
+  margin-top:12px;
+  background:var(--yellow);
+  font-size:11px;
+  line-height:1.45;
+}
+
+.redcall{
+  background:#ffd9d5;
+}
+
+.bluecall{
+  background:#dce8ff;
+}
+
+.green{
+  color:var(--green);
+}
+
+.red{
+  color:var(--red);
+}
+
+/* BUTTONS */
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.btn{
+  border:2px solid var(--ink);
+  background:var(--ink);
+  color:white;
+  padding:10px 13px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+
+.btn.alt{
+  background:var(--paper);
+  color:var(--ink);
+}
+
+.btn.redbtn{
+  background:var(--red);
+  color:white;
+}
+
+/* CHART */
+
+.chart{
+  height:170px;
+  border:2px solid var(--ink);
+  display:flex;
+  align-items:end;
+  gap:4px;
+  padding:10px;
+  background:white;
+}
+
+.chart i{
+  flex:1;
+  background:var(--blue);
+  min-height:3px;
+  position:relative;
+}
+
+.chart i:nth-child(3n){
+  background:var(--red);
+}
+
+.chart i:nth-child(5n){
+  background:var(--yellow);
+}
+
+.chart i span{
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:8px;
+  white-space:nowrap;
+}
+
+/* JOURNAL */
+
+.log{
+  max-height:330px;
+  overflow:auto;
+}
+
+.logitem{
+  padding:9px 0;
+  border-bottom:1px solid #bbb;
+  font-size:10px;
+  line-height:1.4;
+}
+
+/* FOOTER */
+
+.footer{
+  margin-top:28px;
+  border-top:3px solid var(--ink);
+  padding:18px 0 40px;
+  font-size:10px;
+  line-height:1.5;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1050px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .top{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .top>div:last-child{
+    border-top:2px solid var(--ink);
+  }
+
+  .options{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:700px){
+  .app{
+    padding:9px;
+  }
+
+  .top{
+    grid-template-columns:1fr;
+    box-shadow:5px 5px 0 var(--ink);
+  }
+
+  .top>div{
+    border-right:0;
+    border-bottom:2px solid var(--ink);
+  }
+
+  .top>div:last-child{
+    border-bottom:0;
+  }
+
+  .dashboard{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .decision-top{
+    display:block;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="startScreen" style="
+position:fixed;
+inset:0;
+z-index:9999;
+background:#f7f4ec;
+color:#111;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:30px;
+">
+  <div style="
+    width:min(900px,100%);
+    border:4px solid #111;
+    background:#fffdf7;
+    box-shadow:14px 14px 0 #111;
+    padding:clamp(28px,6vw,70px);
+  ">
+    <div style="
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.25em;
+      margin-bottom:18px;
+    ">
+      WHAT DO LIONS EAT? / BUSINESS SIMULATION
+    </div>
+
+    <div style="
+      font-size:clamp(54px,11vw,130px);
+      font-weight:900;
+      letter-spacing:-.08em;
+      line-height:.78;
+    ">
+      LIONS<br>
+      // TAKEOVER
+    </div>
+
+    <div style="
+      margin-top:30px;
+      max-width:680px;
+      font-size:18px;
+      line-height:1.5;
+    ">
+      You did not buy a football team.
+      <strong>You bought a living company whose product happens to play football.</strong>
+    </div>
+
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin:30px 0;
+    ">
+      <div style="border:2px solid #111;padding:14px;">
+        <b>10 YEARS</b><br>
+        <small>of ownership decisions</small>
+      </div>
+
+      <div style="border:2px solid #111;padding:14px;">
+        <b>ONE COMPANY</b><br>
+        <small>capital, people &amp; performance</small>
+      </div>
+
+      <div style="border:2px solid #111;padding:14px;">
+        <b>EVERY DECISION</b><br>
+        <small>creates consequences</small>
+      </div>
+    </div>
+
+    <button id="startGame" style="
+      border:3px solid #111;
+      background:#ed3426;
+      color:#fff;
+      padding:18px 25px;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.12em;
+      cursor:pointer;
+      box-shadow:7px 7px 0 #111;
+    ">
+      START THE TAKEOVER →
+    </button>
+
+    <div style="
+      margin-top:25px;
+      font-size:10px;
+      line-height:1.5;
+      color:#666;
+      max-width:650px;
+    ">
+      Fictional business simulation inspired by the public structure
+      of a major football club. This is a game, not a live financial model.
+    </div>
+  </div>
+</div>
+
+<div class="app">
+
+<header class="top">
+
+  <div>
+
+    <div class="kicker">
+      WHAT DO LIONS EAT? / BUSINESS SIMULATION
+    </div>
+
+    <div class="brand">
+      LIONS<br>
+      // TAKEOVER
+    </div>
+
+    <div class="subtitle">
+      You did not buy a football team.
+      You bought a living company whose product happens to play football.
+      Capital, debt, property, people, media, fans, sponsors, regulators
+      and performance all collide.
+    </div>
+
+  </div>
+
+  <div class="yearbox">
+
+    <span>SIMULATION YEAR</span>
+
+    <strong id="year">01</strong>
+
+    <div class="tiny" id="seasonLabel">
+      THE ACQUISITION
+    </div>
+
+    <div class="callout">
+      Every decision changes more than one system.
+      A cheap decision can become an expensive one five years later.
+    </div>
+
+  </div>
+
+  <div class="cashbox">
+
+    <span>LIQUID CASH</span>
+
+    <strong id="cash">£0m</strong>
+
+    <small>
+      available after commitments
+    </small>
+
+  </div>
+
+</header>
+
+
+<div class="grid">
+
+<!-- LEFT -->
+
+<aside>
+
+<section class="panel">
+
+<h2>THE COMPANY</h2>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>CLUB VALUE</span>
+    <span id="value">£0m</span>
+  </div>
+  <div class="bar">
+    <i id="valueBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>BRAND</span>
+    <span id="brand">0</span>
+  </div>
+  <div class="bar yellow">
+    <i id="brandBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>SPORTING POWER</span>
+    <span id="sport">0</span>
+  </div>
+  <div class="bar">
+    <i id="sportBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>FAN TRUST</span>
+    <span id="fans">0</span>
+  </div>
+  <div class="bar green">
+    <i id="fansBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>STAFF / CULTURE</span>
+    <span id="culture">0</span>
+  </div>
+  <div class="bar">
+    <i id="cultureBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>INFRASTRUCTURE</span>
+    <span id="infra">0</span>
+  </div>
+  <div class="bar yellow">
+    <i id="infraBar"></i>
+  </div>
+</div>
+
+<div class="metric">
+  <div class="metric-head">
+    <span>BOARD CONFIDENCE</span>
+    <span id="board">0</span>
+  </div>
+  <div class="bar green">
+    <i id="boardBar"></i>
+  </div>
+</div>
+
+</section>
+
+
+<section class="panel" style="margin-top:18px">
+
+<h2>CAPITAL STRUCTURE</h2>
+
+<table class="table">
+
+<tr>
+<th>DEBT</th>
+<td id="debt">£0m</td>
+</tr>
+
+<tr>
+<th>INTEREST / YR</th>
+<td id="interest">£0m</td>
+</tr>
+
+<tr>
+<th>REVENUE</th>
+<td id="revenue">£0m</td>
+</tr>
+
+<tr>
+<th>OPERATING PROFIT</th>
+<td id="profit">£0m</td>
+</tr>
+
+<tr>
+<th>NET CASHFLOW</th>
+<td id="flow">£0m</td>
+</tr>
+
+<tr>
+<th>VALUATION MULTIPLE</th>
+<td id="multiple">0.0×</td>
+</tr>
+
+</table>
+
+<div class="tiny">
+
+The model separates cash, debt, operating performance
+and enterprise value.
+
+Winning matches does not automatically mean creating
+shareholder value.
+
+</div>
+
+</section>
+
+</aside>
+
+
+<!-- CENTRE -->
+
+<main>
+
+<div class="tabs">
+
+<button class="tab active" data-view="decision">
+DECISION ROOM
+</button>
+
+<button class="tab" data-view="company">
+COMPANY
+</button>
+
+<button class="tab" data-view="capital">
+CAPITAL
+</button>
+
+<button class="tab" data-view="stakeholders">
+STAKEHOLDERS
+</button>
+
+<button class="tab" data-view="journal">
+JOURNAL
+</button>
+
+</div>
+
+
+<!-- DECISION VIEW -->
+
+<section id="decision" class="view active">
+
+<div class="dashboard">
+
+<div class="kpi">
+<span>REVENUE</span>
+<strong id="kRevenue">£0m</strong>
+<em>commercial + broadcast + matchday</em>
+</div>
+
+<div class="kpi">
+<span>EBITDA</span>
+<strong id="kEbitda">£0m</strong>
+<em>before finance + tax + depreciation</em>
+</div>
+
+<div class="kpi">
+<span>DEBT / EBITDA</span>
+<strong id="kLeverage">0.0×</strong>
+<em>pressure on future freedom</em>
+</div>
+
+<div class="kpi">
+<span>FAN SENTIMENT</span>
+<strong id="kSentiment">0</strong>
+<em>not the same as brand value</em>
+</div>
+
+</div>
+
+
+<div class="decision">
+
+<div class="decision-top">
+
+<div>
+
+<div class="decision-num" id="decisionNum">
+DECISION 01 / 10
+</div>
+
+<h1 id="decisionTitle">
+THE FIRST BOARD MEETING
+</h1>
+
+<p id="decisionText"></p>
+
+</div>
+
+</div>
+
+
+<div class="options" id="options"></div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h2>THE MARKET IS MOVING</h2>
+
+<div id="newsFeed"></div>
+
+</div>
+
+</section>
+
+
+<!-- COMPANY -->
+
+<section id="company" class="view">
+
+<div class="panel">
+
+<h2>THE BUSINESS ENGINE</h2>
+
+<p class="tiny">
+
+A major football club is not a single-product company.
+In this simulation, the business is split into commercial,
+broadcasting and matchday engines, with football performance
+feeding back into each one.
+
+</p>
+
+
+<div class="dashboard">
+
+<div class="kpi">
+<span>COMMERCIAL</span>
+<strong id="commercial">£0m</strong>
+<em>sponsorship, retail, licensing, content</em>
+</div>
+
+<div class="kpi">
+<span>BROADCAST</span>
+<strong id="broadcast">£0m</strong>
+<em>competition + distribution</em>
+</div>
+
+<div class="kpi">
+<span>MATCHDAY</span>
+<strong id="matchday">£0m</strong>
+<em>tickets, hospitality, venue activity</em>
+</div>
+
+<div class="kpi">
+<span>PEOPLE COST</span>
+<strong id="peopleCost">£0m</strong>
+<em>wages + executive + staff</em>
+</div>
+
+</div>
+
+
+<div class="chart" id="revenueChart"></div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h2>THE HIDDEN BALANCE SHEET</h2>
+
+<table class="table">
+
+<tr>
+<th>INTANGIBLE / SQUAD ASSETS</th>
+<td id="assetsSquad">£0m</td>
+</tr>
+
+<tr>
+<th>PROPERTY / INFRASTRUCTURE</th>
+<td id="assetsInfra">£0m</td>
+</tr>
+
+<tr>
+<th>BRAND EQUITY</th>
+<td id="assetsBrand">£0m</td>
+</tr>
+
+<tr>
+<th>LIQUIDITY BUFFER</th>
+<td id="assetsCash">£0m</td>
+</tr>
+
+<tr>
+<th>DEBT OBLIGATIONS</th>
+<td id="assetsDebt">£0m</td>
+</tr>
+
+</table>
+
+
+<div class="callout bluecall">
+
+The trap:
+
+two clubs can have identical league positions
+and radically different businesses.
+
+One may own its future;
+the other may have mortgaged it.
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CAPITAL -->
+
+<section id="capital" class="view">
+
+<div class="panel">
+
+<h2>CAPITAL ALLOCATION</h2>
+
+<p class="tiny">
+
+Your job is to decide where the next pound goes.
+
+The game tracks cash generation, borrowing,
+interest, capital expenditure and value creation separately.
+
+</p>
+
+<table class="table">
+
+<tr>
+<th>YEAR</th>
+<th>REVENUE</th>
+<th>EBITDA</th>
+<th>CAPEX</th>
+<th>INTEREST</th>
+<th>CASHFLOW</th>
+</tr>
+
+<tbody id="capitalTable"></tbody>
+
+</table>
+
+
+<div class="chart" id="cashChart"></div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h2>DEBT CLOCK</h2>
+
+<div class="metric">
+
+<div class="metric-head">
+
+<span>DEBT LOAD</span>
+
+<span id="debtLoad">0%</span>
+
+</div>
+
+<div class="bar red">
+<i id="debtBar"></i>
+</div>
+
+</div>
+
+
+<div class="callout redcall">
+
+Borrowing can accelerate transformation,
+but interest is a claim on future cash.
+
+The simulation deliberately makes financing
+decisions echo across later years.
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- STAKEHOLDERS -->
+
+<section id="stakeholders" class="view">
+
+<div class="panel">
+
+<h2>
+EVERYONE OWNS A PIECE OF THE PROBLEM
+</h2>
+
+<div class="dashboard">
+
+<div class="kpi">
+<span>FANS</span>
+<strong id="sFans">0</strong>
+<em>identity + price + trust</em>
+</div>
+
+<div class="kpi">
+<span>PLAYERS</span>
+<strong id="sPlayers">0</strong>
+<em>sporting ambition + wages</em>
+</div>
+
+<div class="kpi">
+<span>STAFF</span>
+<strong id="sStaff">0</strong>
+<em>culture + stability</em>
+</div>
+
+<div class="kpi">
+<span>INVESTORS</span>
+<strong id="sInvestors">0</strong>
+<em>returns + risk</em>
+</div>
+
+</div>
+
+
+<div id="stakeholderText" class="callout"></div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h2>THE TRADE-OFF MAP</h2>
+
+<table class="table">
+
+<tr>
+<th>DECISION</th>
+<th>WHO WANTS IT?</th>
+<th>WHO PAYS?</th>
+</tr>
+
+<tr>
+<td>Borrow to build</td>
+<td>Growth-minded capital</td>
+<td>Future cashflow</td>
+</tr>
+
+<tr>
+<td>Cut costs</td>
+<td>Finance</td>
+<td>Culture / sporting depth</td>
+</tr>
+
+<tr>
+<td>Raise prices</td>
+<td>Revenue team</td>
+<td>Some matchday goodwill</td>
+</tr>
+
+<tr>
+<td>Invest in academy</td>
+<td>Long-term football strategy</td>
+<td>Short-term cash</td>
+</tr>
+
+<tr>
+<td>Commercial expansion</td>
+<td>Investors</td>
+<td>Brand attention / complexity</td>
+</tr>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- JOURNAL -->
+
+<section id="journal" class="view">
+
+<div class="panel">
+
+<h2>OWNER'S JOURNAL</h2>
+
+<div id="journalText" class="log"></div>
+
+<div class="actions">
+
+<button class="btn alt" id="restart">
+RESET SIMULATION
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- RIGHT -->
+
+<aside>
+
+<section class="panel">
+
+<h2>NEWSWIRE</h2>
+
+<div id="sideNews"></div>
+
+</section>
+
+
+<section class="panel" style="margin-top:18px">
+
+<h2>THE OWNER'S BRIEF</h2>
+
+<div id="brief" class="tiny"></div>
+
+</section>
+
+</aside>
+
+</div>
+
+
+<footer class="footer">
+
+<b>LIONS // TAKEOVER</b>
+is a fictional business simulation created as the interactive
+companion to <i>What Do Lions Eat?</i>.
+
+It uses the public business structure of a major football club
+as conceptual inspiration: commercial, broadcasting and
+matchday revenue, alongside capital expenditure, financing,
+people costs and sporting performance.
+
+It is not a live Manchester United financial model,
+valuation, forecast or investment recommendation.
+
+</footer>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const startScreen = document.getElementById("startScreen");
+  const startGame = document.getElementById("startGame");
+
+  if(startGame && startScreen){
+    startGame.addEventListener("click", function(){
+      startScreen.style.transition = "opacity .35s ease";
+      startScreen.style.opacity = "0";
+
+      setTimeout(function(){
+        startScreen.style.display = "none";
+      }, 350);
+    });
+  }
+});
+</script>
+
+<script>
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+const initial = {
+  year: 1,
+  decision: 0,
+  cash: 420,
+  value: 6200,
+  debt: 2100,
+  brand: 82,
+  sport: 58,
+  fans: 68,
+  culture: 62,
+  infra: 48,
+  board: 70,
+  commercial: 310,
+  broadcast: 250,
+  matchday: 115,
+  people: 290,
+  revenue: 675,
+  ebitda: 145,
+  capex: 80,
+  interest: 92,
+  flow: -27,
+  sentiment: 68,
+  squadAssets: 900,
+  infraAssets: 1800,
+  history: [],
+  revenueHistory: [675],
+  cashHistory: [420],
+  decisions: 0
+};
+
+let s = JSON.parse(JSON.stringify(initial));
+
+/* =========================================================
+   DECISIONS DATA
+========================================================= */
+
+const decisions = [
+  {
+    title: "THE FIRST BOARD MEETING",
+    text: "The acquisition is complete. The club has global recognition, an expensive operation and a balance sheet that can become either a platform or a trap. The board asks one question: what is the first principle of ownership?",
+    options: [
+      [
+        "BUILD THE ENGINE",
+        "Treat the club as a company first. Upgrade finance, data, commercial operations and decision systems before making glamorous moves.",
+        "CASH -£20m",
+        "BRAND +2",
+        "BOARD +8",
+        "CULTURE +4"
+      ],
+      [
+        "BUY THE SIGNAL",
+        "Make an immediate statement: major football investment, aggressive recruitment and a visible promise to supporters.",
+        "CASH -£90m",
+        "SPORT +8",
+        "FANS +6",
+        "DEBT +£70m"
+      ],
+      [
+        "REPAIR THE HOUSE",
+        "Freeze expansion and redirect cash toward debt reduction, facilities maintenance and operating discipline.",
+        "CASH -£30m",
+        "DEBT -£120m",
+        "BOARD +6",
+        "SPORT -2"
+      ]
+    ]
+  },
+  {
+    title: "THE REVENUE MACHINE",
+    text: "Commercial income is strong but fragmented. Your team proposes three paths: sell more sponsorship, build a direct-to-fan media company, or protect the brand from over-commercialisation.",
+    options: [
+      [
+        "GLOBAL SPONSORSHIP GRID",
+        "Build regional and product-specific sponsorship packages. More contracts, more revenue, more organisational complexity.",
+        "CASH +£10m",
+        "REVENUE +£42m",
+        "BRAND +3",
+        "CULTURE -2"
+      ],
+      [
+        "BUILD THE MEDIA COMPANY",
+        "Invest in direct-to-fan content, membership and digital products. Slow start, potentially powerful recurring revenue.",
+        "CASH -£55m",
+        "REVENUE +£18m",
+        "BRAND +7",
+        "FANS +5"
+      ],
+      [
+        "SCARCITY OVER VOLUME",
+        "Fewer partners, higher standards, premium inventory. Slower revenue growth but stronger brand control.",
+        "CASH +£4m",
+        "REVENUE +£18m",
+        "BRAND +8",
+        "BOARD +2"
+      ]
+    ]
+  },
+  {
+    title: "THE STADIUM DECISION",
+    text: "The venue is more than a football ground: it is a property asset, a hospitality machine and a symbol. You can refurbish, rebuild, or optimise what already exists.",
+    options: [
+      [
+        "DEEP REFURBISHMENT",
+        "Modernise hospitality, concourses, digital infrastructure and premium seating without betting the company on a new build.",
+        "CASH -£140m",
+        "INFRA +12",
+        "MATCHDAY +£35m",
+        "FANS +3"
+      ],
+      [
+        "NEW DISTRICT",
+        "Commit to a transformational stadium-and-neighbourhood project financed over years.",
+        "CASH -£40m",
+        "DEBT +£350m",
+        "INFRA +25",
+        "VALUE +£500m"
+      ],
+      [
+        "DO MORE WITH LESS",
+        "Dynamic pricing, hospitality redesign, events and non-matchday use. No megaproject.",
+        "CASH -£18m",
+        "MATCHDAY +£28m",
+        "FANS -2",
+        "BOARD +4"
+      ]
+    ]
+  },
+  {
+    title: "THE WAGE CURVE",
+    text: "The sporting department wants a higher payroll. Finance warns that salary commitments behave differently from one-off transfer spending: once embedded, they become structural.",
+    options: [
+      [
+        "STAR-LED PAYROLL",
+        "Concentrate resources on a few elite players and accept a higher fixed wage base.",
+        "CASH -£70m",
+        "SPORT +10",
+        "FANS +7",
+        "CULTURE -4"
+      ],
+      [
+        "PERFORMANCE PAY",
+        "Move more compensation toward bonuses, appearances and team outcomes.",
+        "CASH -£30m",
+        "SPORT +5",
+        "BOARD +5",
+        "CULTURE +3"
+      ],
+      [
+        "DISCIPLINED WAGE BAND",
+        "Set clear internal ranges and refuse deals that break the structure.",
+        "CASH +£15m",
+        "SPORT -3",
+        "CULTURE +7",
+        "BOARD +7"
+      ]
+    ]
+  },
+  {
+    title: "THE ACADEMY BET",
+    text: "The academy is a ten-year decision disguised as a five-year budget line. You can buy ready-made talent, develop aggressively, or redesign the pipeline around data and education.",
+    options: [
+      [
+        "ELITE DEVELOPMENT CAMPUS",
+        "Heavy investment in coaching, facilities, education and scouting.",
+        "CASH -£65m",
+        "SPORT +4",
+        "CULTURE +10",
+        "INFRA +7"
+      ],
+      [
+        "GLOBAL YOUTH NETWORK",
+        "Create a worldwide scouting and development network with partner academies.",
+        "CASH -£35m",
+        "SPORT +6",
+        "BRAND +4",
+        "CULTURE +4"
+      ],
+      [
+        "BUY THE FINISHED PRODUCT",
+        "Keep academy spending steady and use the first-team market to solve sporting problems.",
+        "CASH -£5m",
+        "SPORT +7",
+        "CULTURE -6",
+        "BOARD +1"
+      ]
+    ]
+  },
+  {
+    title: "THE DEBT OFFER",
+    text: "An investment bank offers cheap-looking capital. The money could transform the club now, but the repayment profile matters more than the headline amount.",
+    options: [
+      [
+        "BORROW BIG",
+        "Raise £500m for infrastructure, commercial technology and sporting investment.",
+        "CASH +£500m",
+        "DEBT +£500m",
+        "INFRA +12",
+        "VALUE +£650m"
+      ],
+      [
+        "PARTIAL FINANCING",
+        "Raise £180m and keep a larger liquidity buffer.",
+        "CASH +£180m",
+        "DEBT +£180m",
+        "INFRA +5",
+        "BOARD +3"
+      ],
+      [
+        "NO NEW DEBT",
+        "Decline the offer. Growth must come from operations and asset discipline.",
+        "DEBT -£80m",
+        "BOARD +8",
+        "VALUE -£100m",
+        "CASH +£0m"
+      ]
+    ]
+  },
+  {
+    title: "THE FAN CONTRACT",
+    text: "Supporters are not simply a marketing segment. They are customers, community, memory and legitimacy. Your commercial director presents three approaches.",
+    options: [
+      [
+        "MAXIMISE PRICING",
+        "Push premium tickets, hospitality and dynamic pricing to capture willingness to pay.",
+        "CASH +£55m",
+        "FANS -9",
+        "REVENUE +£40m",
+        "BOARD +3"
+      ],
+      [
+        "ACCESS + PREMIUM",
+        "Protect ordinary access while expanding premium and non-matchday experiences.",
+        "CASH +£28m",
+        "FANS +6",
+        "REVENUE +£25m",
+        "BRAND +3"
+      ],
+      [
+        "THE COMMUNITY MODEL",
+        "Lower some prices, expand community investment and make supporter membership a core product.",
+        "CASH -£5m",
+        "FANS +12",
+        "BRAND +8",
+        "REVENUE +£8m"
+      ]
+    ]
+  },
+  {
+    title: "THE EUROPEAN RISK",
+    text: "Qualification changes the economics. The sporting department wants more squad depth; finance wants a budget that survives missing the biggest competitions.",
+    options: [
+      [
+        "PLAN FOR THE UPSIDE",
+        "Build a squad and cost base assuming elite European revenue arrives.",
+        "CASH -£85m",
+        "SPORT +10",
+        "REVENUE +£60m",
+        "DEBT +£40m"
+      ],
+      [
+        "BASE-CASE BUDGET",
+        "Budget for a middle outcome and hold a contingency reserve.",
+        "CASH -£30m",
+        "SPORT +5",
+        "BOARD +8",
+        "FANS +2"
+      ],
+      [
+        "DOWNSIDE RESILIENCE",
+        "Accept a little less sporting ambition in exchange for a balance sheet that can absorb a bad season.",
+        "CASH +£10m",
+        "SPORT -4",
+        "DEBT -£70m",
+        "BOARD +10"
+      ]
+    ]
+  },
+  {
+    title: "THE BRAND QUESTION",
+    text: "The club has become a platform for media, retail, sponsorship, data and entertainment. The next decision is whether to expand the brand beyond football or protect its scarcity.",
+    options: [
+      [
+        "GLOBAL ENTERTAINMENT PLATFORM",
+        "Build documentaries, memberships, games, commerce and creator partnerships around the club.",
+        "CASH -£70m",
+        "BRAND +12",
+        "REVENUE +£45m",
+        "FANS +3"
+      ],
+      [
+        "FOOTBALL FIRST",
+        "Keep the brand tightly centred on football and use commercial partnerships selectively.",
+        "CASH +£15m",
+        "BRAND +5",
+        "FANS +5",
+        "REVENUE +£12m"
+      ],
+      [
+        "LICENCE THE WORLD",
+        "Aggressively license the brand into new categories and territories.",
+        "CASH +£25m",
+        "BRAND -3",
+        "REVENUE +£65m",
+        "BOARD +4"
+      ]
+    ]
+  },
+  {
+    title: "THE TEN-YEAR HANDOVER",
+    text: "You can now define what type of institution you leave behind. Will it be a global entertainment conglomerate, an efficient athletic machine, or a balanced sustainable institution?",
+    options: [
+      [
+        "THE MEGA-BRAND",
+        "Seal global partnerships, optimize international operations and maximize public valuation.",
+        "VALUE +£800m",
+        "BRAND +15",
+        "CASH +£100m",
+        "FANS -5"
+      ],
+      [
+        "SPORTING DYNASTY",
+        "Funnel every surplus pound back into squad development, coaching systems and athletic technology.",
+        "SPORT +15",
+        "FANS +10",
+        "CASH -£80m",
+        "BOARD +5"
+      ],
+      [
+        "FORTRESS BALANCE SHEET",
+        "Pay down leverage, secure institutional reserves and optimize long-term debt ratios.",
+        "DEBT -£300m",
+        "BOARD +15",
+        "CASH +£150m",
+        "VALUE +£300m"
+      ]
+    ]
+  }
+];
+
+/* =========================================================
+   LOGIC & ENGINE
+========================================================= */
+
+function applyOption(optIndex) {
+  if (s.decision >= decisions.length) return;
+
+  const current = decisions[s.decision];
+  const choice = current.options[optIndex];
+  
+  s.history.push({
+    year: s.year,
+    title: current.title,
+    choice: choice[0]
+  });
+
+  // Parse effects from chosen option array
+  for (let i = 2; i < choice.length; i++) {
+    const eff = choice[i];
+    const parts = eff.split(" ");
+    const key = parts[0];
+    const valStr = parts[1];
+    let val = parseInt(valStr.replace(/[^0-9-]/g, ''), 10);
+
+    if (key === "CASH") s.cash += val;
+    if (key === "DEBT") s.debt += val;
+    if (key === "BRAND") s.brand = Math.min(100, Math.max(0, s.brand + val));
+    if (key === "SPORT") s.sport = Math.min(100, Math.max(0, s.sport + val));
+    if (key === "FANS") s.fans = Math.min(100, Math.max(0, s.fans + val));
+    if (key === "CULTURE") s.culture = Math.min(100, Math.max(0, s.culture + val));
+    if (key === "INFRA") s.infra = Math.min(100, Math.max(0, s.infra + val));
+    if (key === "BOARD") s.board = Math.min(100, Math.max(0, s.board + val));
+    if (key === "REVENUE") s.revenue += val;
+    if (key === "VALUE") s.value += val;
+    if (key === "MATCHDAY") s.matchday += val;
+  }
+
+  // Recalculate underlying model dependencies
+  s.interest = Math.round(s.debt * 0.045);
+  s.ebitda = Math.round(s.revenue * 0.22);
+  s.flow = Math.round(s.ebitda - s.capex - s.interest);
+  s.value = Math.round(s.revenue * 8 + s.brand * 10 - s.debt * 0.5);
+  s.sentiment = Math.round((s.fans + s.sport) / 2);
+
+  s.revenueHistory.push(s.revenue);
+  s.cashHistory.push(s.cash);
+
+  s.decision++;
+  s.year++;
+
+  updateUI();
+}
+
+function updateUI() {
+  // Top level stats
+  document.getElementById("year").textContent = String(s.year).padStart(2, '0');
+  document.getElementById("cash").textContent = `£${s.cash}m`;
+  
+  // Metric meters
+  document.getElementById("value").textContent = `£${s.value}m`;
+  document.getElementById("valueBar").style.width = Math.min(100, Math.max(5, (s.value / 10000) * 100)) + "%";
+
+  document.getElementById("brand").textContent = s.brand;
+  document.getElementById("brandBar").style.width = s.brand + "%";
+
+  document.getElementById("sport").textContent = s.sport;
+  document.getElementById("sportBar").style.width = s.sport + "%";
+
+  document.getElementById("fans").textContent = s.fans;
+  document.getElementById("fansBar").style.width = s.fans + "%";
+
+  document.getElementById("culture").textContent = s.culture;
+  document.getElementById("cultureBar").style.width = s.culture + "%";
+
+  document.getElementById("infra").textContent = s.infra;
+  document.getElementById("infraBar").style.width = s.infra + "%";
+
+  document.getElementById("board").textContent = s.board;
+  document.getElementById("boardBar").style.width = s.board + "%";
+
+  // Financials table
+  document.getElementById("debt").textContent = `£${s.debt}m`;
+  document.getElementById("interest").textContent = `£${s.interest}m`;
+  document.getElementById("revenue").textContent = `£${s.revenue}m`;
+  document.getElementById("profit").textContent = `£${s.ebitda}m`;
+  document.getElementById("flow").textContent = `£${s.flow}m`;
+  
+  const mult = (s.value / Math.max(1, s.revenue)).toFixed(1);
+  document.getElementById("multiple").textContent = `${mult}×`;
+
+  // KPIs
+  document.getElementById("kRevenue").textContent = `£${s.revenue}m`;
+  document.getElementById("kEbitda").textContent = `£${s.ebitda}m`;
+  
+  const leverage = (s.debt / Math.max(1, s.ebitda)).toFixed(1);
+  document.getElementById("kLeverage").textContent = `${leverage}×`;
+  document.getElementById("kSentiment").textContent = s.sentiment;
+
+  // Render decisions or game over screen
+  if (s.decision < decisions.length) {
+    const cur = decisions[s.decision];
+    document.getElementById("decisionNum").textContent = `DECISION ${String(s.decision + 1).padStart(2, '0')} / ${decisions.length}`;
+    document.getElementById("decisionTitle").textContent = cur.title;
+    document.getElementById("decisionText").textContent = cur.text;
+
+    let optHTML = "";
+    cur.options.forEach((opt, idx) => {
+      let effects = "";
+      for (let i = 2; i < opt.length; i++) {
+        effects += `<span class="effect">${opt[i]}</span>`;
+      }
+
+      optHTML += `
+        <button class="option" onclick="applyOption(${idx})">
+          <div>
+            <h3>${opt[0]}</h3>
+            <p>${opt[1]}</p>
+          </div>
+          <div class="effects">${effects}</div>
+        </button>
+      `;
+    });
+    document.getElementById("options").innerHTML = optHTML;
+  } else {
+    document.getElementById("decisionNum").textContent = "SIMULATION COMPLETE";
+    document.getElementById("decisionTitle").textContent = "TEN-YEAR TENURE COMPLETED";
+    document.getElementById("decisionText").textContent = `You have completed your 10-year term as club owner. Enterprise value ended at £${s.value}m with £${s.cash}m in liquid cash reserves and total debt standing at £${s.debt}m. Check the Journal tab to review your complete timeline.`;
+    document.getElementById("options").innerHTML = `
+      <div style="padding:20px; text-align:center; grid-column: 1 / -1;">
+        <button class="btn redbtn" onclick="resetSim()">RESTART SIMULATION</button>
+      </div>
+    `;
+  }
+
+  // Render side news & briefings
+  renderNews();
+  renderCompany();
+  renderCapital();
+  renderStakeholders();
+  renderJournal();
+}
+
+function renderNews() {
+  const newsItems = [
+    `Fan groups issue statement regarding operational direction in Year ${s.year}.`,
+    `Financial analysts monitor high-yield debt obligations across top tier football clubs.`,
+    `Broadcast rights dynamic shift creates competitive revenue tension.`,
+    `Infrastructure upgrade costs rise across European athletic venues.`
+  ];
+  
+  let newsHTML = "";
+  newsItems.forEach(item => {
+    newsHTML += `<div class="news"><b>MARKET FEED</b><p>${item}</p></div>`;
+  });
+  document.getElementById("newsFeed").innerHTML = newsHTML;
+  document.getElementById("sideNews").innerHTML = newsHTML;
+
+  document.getElementById("brief").innerHTML = `
+    <b>EXECUTIVE SUMMARY:</b><br>
+    Operating leverage sits at ${(s.debt / Math.max(1, s.ebitda)).toFixed(1)}x. 
+    Board confidence is currently at ${s.board}%. 
+    Focus remains on maintaining debt service coverage while optimizing squad assets.
+  `;
+}
+
+function renderCompany() {
+  document.getElementById("commercial").textContent = `£${s.commercial}m`;
+  document.getElementById("broadcast").textContent = `£${s.broadcast}m`;
+  document.getElementById("matchday").textContent = `£${s.matchday}m`;
+  document.getElementById("peopleCost").textContent = `£${s.people}m`;
+
+  document.getElementById("assetsSquad").textContent = `£${s.squadAssets}m`;
+  document.getElementById("assetsInfra").textContent = `£${s.infraAssets}m`;
+  document.getElementById("assetsBrand").textContent = `£${s.brand * 15}m`;
+  document.getElementById("assetsCash").textContent = `£${s.cash}m`;
+  document.getElementById("assetsDebt").textContent = `£${s.debt}m`;
+
+  let chartHTML = "";
+  s.revenueHistory.forEach((rev, idx) => {
+    const h = Math.min(100, Math.max(10, (rev / 1000) * 100));
+    chartHTML += `<i style="height:${h}%"><span>Y${idx + 1}: £${rev}m</span></i>`;
+  });
+  document.getElementById("revenueChart").innerHTML = chartHTML;
+}
+
+function renderCapital() {
+  let tableHTML = "";
+  s.history.forEach((h, idx) => {
+    tableHTML += `
+      <tr>
+        <td>Year ${h.year}</td>
+        <td>£${s.revenueHistory[idx + 1] || s.revenue}m</td>
+        <td>£${Math.round((s.revenueHistory[idx + 1] || s.revenue) * 0.22)}m</td>
+        <td>£${s.capex}m</td>
+        <td>£${s.interest}m</td>
+        <td>£${s.flow}m</td>
+      </tr>
+    `;
+  });
+  document.getElementById("capitalTable").innerHTML = tableHTML;
+
+  const debtPct = Math.min(100, Math.round((s.debt / 3000) * 100));
+  document.getElementById("debtLoad").textContent = `${debtPct}%`;
+  document.getElementById("debtBar").style.width = `${debtPct}%`;
+
+  let cashHTML = "";
+  s.cashHistory.forEach((c, idx) => {
+    const h = Math.min(100, Math.max(5, (c / 1000) * 100));
+    cashHTML += `<i style="height:${h}%"><span>Y${idx + 1}: £${c}m</span></i>`;
+  });
+  document.getElementById("cashChart").innerHTML = cashHTML;
+}
+
+function renderStakeholders() {
+  document.getElementById("sFans").textContent = s.fans;
+  document.getElementById("sPlayers").textContent = s.sport;
+  document.getElementById("sStaff").textContent = s.culture;
+  document.getElementById("sInvestors").textContent = s.board;
+
+  document.getElementById("stakeholderText").innerHTML = `
+    <strong>STAKEHOLDER CONTEXT:</strong><br>
+    Fans score trust at <b>${s.fans}/100</b>. 
+    Board confidence sits at <b>${s.board}/100</b>.
+    Balancing competitive sports results with fiscal sustainability remains your primary trade-off.
+  `;
+}
+
+function renderJournal() {
+  let logHTML = "";
+  if (s.history.length === 0) {
+    logHTML = `<div class="logitem">No decisions made yet. Begin the takeover!</div>`;
+  } else {
+    s.history.forEach(item => {
+      logHTML += `
+        <div class="logitem">
+          <b>YEAR ${item.year}: ${item.title}</b><br>
+          Selected: <i>${item.choice}</i>
+        </div>
+      `;
+    });
+  }
+  document.getElementById("journalText").innerHTML = logHTML;
+}
+
+function resetSim() {
+  s = JSON.parse(JSON.stringify(initial));
+  updateUI();
+}
+
+// Tab Switching Listener
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", function() {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+
+    this.classList.add("active");
+    const viewId = this.getAttribute("data-view");
+    document.getElementById(viewId).classList.add("active");
+  });
+});
+
+// Reset Button
+document.getElementById("restart").addEventListener("click", resetSim);
+
+// Initialize Simulation
+updateUI();
+</script>
+</body>
+</html>

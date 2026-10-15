@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trillionaire - Who Wants to Be a Trillionaire?</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#ffe066',
+                            400: '#ffd700',
+                            500: '#e6c200',
+                            600: '#b39700',
+                        },
+                        cyber: {
+                            blue: '#0a1128',
+                            dark: '#030712',
+                            glow: '#00f0ff',
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at center, #0f172a 0%, #030712 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fff2a3 0%, #ffd700 50%, #cca300 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border-glow {
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.35), inset 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .cyan-border-glow {
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35), inset 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        /* TV Studio Spotlight Animation */
+        .spotlight {
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120vw;
+            height: 120vh;
+            background: radial-gradient(ellipse at top, rgba(0, 240, 255, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Option shape / Diamond cut styling */
+        .hexagon-btn {
+            position: relative;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
+            border: 2px solid #1e293b;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hexagon-btn:hover:not(:disabled) {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .hexagon-btn.selected {
+            background: linear-gradient(180deg, #854d0e 0%, #713f12 100%) !important;
+            border-color: #ffd700 !important;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6) !important;
+            animation: pulse-gold 1s infinite alternate;
+        }
+
+        .hexagon-btn.correct {
+            background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+            border-color: #22c55e !important;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8) !important;
+            animation: flash-correct 0.4s ease-in-out 3;
+        }
+
+        .hexagon-btn.wrong {
+            background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.7) !important;
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9); }
+        }
+
+        @keyframes flash-correct {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Glassmorphic Container */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(3, 7, 18, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffd700;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative font-sans overflow-x-hidden">
+    <div class="spotlight"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="relative z-10 flex flex-col flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-8 justify-between gap-4">
+        
+        <!-- HEADER / NAVIGATION -->
+        <header class="glass-panel rounded-2xl p-4 flex justify-between items-center shadow-2xl border-b border-cyan-500/20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-yellow-500/20">
+                    $
+                </div>
+                <div>
+                    <h1 class="font-orbitron font-extrabold text-2xl sm:text-3xl tracking-wider gold-gradient-text uppercase">
+                        Trillionaire
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">15 Questions to $1,000,000,000,000</p>
+                </div>
+            </div>
+
+            <!-- Sound & High Score Controls -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex flex-col items-end mr-2">
+                    <span class="text-xs uppercase tracking-widest text-slate-400 font-semibold">High Score</span>
+                    <span id="high-score-display" class="font-orbitron font-bold text-yellow-400 text-base">$0</span>
+                </div>
+                <button id="sound-btn" onclick="toggleAudio()" class="p-3 rounded-xl glass-panel text-slate-300 hover:text-yellow-400 hover:border-yellow-400/50 transition duration-200" title="Toggle Sound">
+                    <i id="sound-icon" class="fas fa-volume-up text-lg"></i>
+                </button>
+                <button onclick="confirmCashOut()" class="px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold text-sm hover:bg-amber-500/20 transition flex items-center gap-2">
+                    <i class="fas fa-hand-holding-dollar"></i>
+                    <span class="hidden sm:inline">Walk Away</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 items-stretch">
+            
+            <!-- LEFT MAIN GAME AREA (8 Cols) -->
+            <main class="lg:col-span-8 flex flex-col justify-between gap-4">
+                
+                <!-- TOP BAR: LIFELINES -->
+                <section class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-2 shadow-xl">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 hidden sm:inline">Lifelines:</span>
+                    <div class="flex gap-3 sm:gap-4 w-full sm:w-auto justify-around">
+                        <!-- 50:50 -->
+                        <button id="lifeline-5050" onclick="use5050()" class="flex-1 sm:flex-none px-4 py-3 rounded-xl glass-panel border border-cyan-500/30 hover:border-cyan-400 hover:bg-cyan-500/10 text-cyan-300 font-orbitron font-bold text-sm transition flex flex-col sm:flex-row items-center gap-2 group relative">
+                            <i class="fas fa-percent text-cyan-400 group-hover:scale-110 transition"></i>
+                            <span>50:50</span>
+                        </button>
+
+                        <!-- Ask Audience -->
+                        <button id="lifeline-audience" onclick="useAskAudience()" class="flex-1 sm:flex-none px-4 py-3 rounded-xl glass-panel border border-cyan-500/30 hover:border-cyan-400 hover:bg-cyan-500/10 text-cyan-300 font-orbitron font-bold text-sm transition flex flex-col sm:flex-row items-center gap-2 group relative">
+                            <i class="fas fa-users text-cyan-400 group-hover:scale-110 transition"></i>
+                            <span>Audience</span>
+                        </button>
+
+                        <!-- Phone Friend -->
+                        <button id="lifeline-phone" onclick="usePhoneFriend()" class="flex-1 sm:flex-none px-4 py-3 rounded-xl glass-panel border border-cyan-500/30 hover:border-cyan-400 hover:bg-cyan-500/10 text-cyan-300 font-orbitron font-bold text-sm transition flex flex-col sm:flex-row items-center gap-2 group relative">
+                            <i class="fas fa-phone text-cyan-400 group-hover:scale-110 transition"></i>
+                            <span>Phone</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- QUESTION BOARD -->
+                <section class="glass-panel rounded-3xl p-6 sm:p-8 flex-1 flex flex-col justify-center items-center text-center relative border border-slate-700/50 shadow-2xl min-h-[220px]">
+                    <div class="absolute -top-3 px-4 py-1 rounded-full bg-slate-900 border border-yellow-500/40 text-yellow-400 font-orbitron text-xs tracking-widest uppercase">
+                        Question <span id="current-q-num">1</span> of 15
+                    </div>
+                    <div id="question-text" class="text-lg sm:text-2xl lg:text-3xl font-semibold leading-relaxed text-slate-100 max-w-3xl mt-2">
+                        Loading Question...
+                    </div>
+                </section>
+
+                <!-- ANSWERS GRID -->
+                <section class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <button id="btn-option-0" onclick="selectAnswer(0)" class="hexagon-btn rounded-2xl p-4 sm:p-5 flex items-center text-left transition group">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-orbitron font-bold flex items-center justify-center mr-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition">A</span>
+                        <span id="text-option-0" class="text-sm sm:text-base font-medium text-slate-200 flex-1">Option A</span>
+                    </button>
+
+                    <button id="btn-option-1" onclick="selectAnswer(1)" class="hexagon-btn rounded-2xl p-4 sm:p-5 flex items-center text-left transition group">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-orbitron font-bold flex items-center justify-center mr-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition">B</span>
+                        <span id="text-option-1" class="text-sm sm:text-base font-medium text-slate-200 flex-1">Option B</span>
+                    </button>
+
+                    <button id="btn-option-2" onclick="selectAnswer(2)" class="hexagon-btn rounded-2xl p-4 sm:p-5 flex items-center text-left transition group">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-orbitron font-bold flex items-center justify-center mr-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition">C</span>
+                        <span id="text-option-2" class="text-sm sm:text-base font-medium text-slate-200 flex-1">Option C</span>
+                    </button>
+
+                    <button id="btn-option-3" onclick="selectAnswer(3)" class="hexagon-btn rounded-2xl p-4 sm:p-5 flex items-center text-left transition group">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-orbitron font-bold flex items-center justify-center mr-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition">D</span>
+                        <span id="text-option-3" class="text-sm sm:text-base font-medium text-slate-200 flex-1">Option D</span>
+                    </button>
+                </section>
+
+            </main>
+
+            <!-- RIGHT SIDEBAR: MONEY LADDER (4 Cols) -->
+            <aside class="lg:col-span-4 glass-panel rounded-3xl p-4 sm:p-5 flex flex-col justify-between shadow-2xl border border-slate-700/50">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                    <h2 class="font-orbitron text-xs font-bold uppercase tracking-widest text-slate-400">Cash Ladder</h2>
+                    <span id="current-bank-display" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Guaranteed: $0</span>
+                </div>
+
+                <div id="ladder-container" class="flex flex-col-reverse gap-1.5 my-3 overflow-y-auto max-h-[380px] lg:max-h-none pr-1">
+                    <!-- Dynamic Ladder Tiers will be generated here -->
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                        <span>Safety Net</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                        <span>Trillion Threshold</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- MODAL: ASK THE AUDIENCE -->
+    <div id="modal-audience" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 border border-cyan-500/40 shadow-2xl flex flex-col items-center">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl mb-3">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="font-orbitron font-bold text-xl text-slate-100 mb-1">Audience Poll Results</h3>
+            <p class="text-xs text-slate-400 mb-6 text-center">Percentage breakdown from studio audience votes</p>
+
+            <div class="w-full space-y-4 mb-6">
+                <!-- Option A -->
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-300">Option A</span>
+                        <span id="aud-percent-0" class="text-cyan-400 font-orbitron">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="aud-bar-0" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+                <!-- Option B -->
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-300">Option B</span>
+                        <span id="aud-percent-1" class="text-cyan-400 font-orbitron">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="aud-bar-1" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+                <!-- Option C -->
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-300">Option C</span>
+                        <span id="aud-percent-2" class="text-cyan-400 font-orbitron">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="aud-bar-2" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+                <!-- Option D -->
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-slate-300">Option D</span>
+                        <span id="aud-percent-3" class="text-cyan-400 font-orbitron">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="aud-bar-3" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-1000 w-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeModal('modal-audience')" class="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-orbitron font-bold text-sm transition">
+                Return to Game
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PHONE A FRIEND -->
+    <div id="modal-phone" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 border border-amber-500/40 shadow-2xl flex flex-col items-center">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mb-3">
+                <i class="fas fa-phone-volume animate-pulse"></i>
+            </div>
+            <h3 class="font-orbitron font-bold text-xl text-slate-100 mb-1">Calling Dr. Aris...</h3>
+            <p class="text-xs text-slate-400 mb-5">Your expert friend is on the line</p>
+
+            <div class="w-full p-4 rounded-2xl bg-slate-900/90 border border-slate-700/60 mb-6 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center shrink-0">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-200 leading-relaxed italic">
+                    "<span id="phone-dialogue-text">Connecting call...</span>"
+                </div>
+            </div>
+
+            <button onclick="closeModal('modal-phone')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-orbitron font-bold text-sm transition">
+                Thanks, Got It!
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME OVER / VICTORY / WALK AWAY -->
+    <div id="modal-gameover" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-8 border gold-border-glow shadow-2xl flex flex-col items-center text-center">
+            <div id="gameover-icon-box" class="w-20 h-20 rounded-3xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-4xl mb-4 border border-amber-500/30">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 id="gameover-title" class="font-orbitron font-black text-2xl sm:text-3xl gold-gradient-text uppercase tracking-wider mb-2">
+                Trillionaire!
+            </h2>
+            <p id="gameover-subtitle" class="text-sm text-slate-300 mb-6">
+                You walked away with your fortune intact!
+            </p>
+
+            <div class="w-full p-5 rounded-2xl bg-slate-900/80 border border-slate-800 mb-6 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-400">Total Winnings:</span>
+                    <span id="final-winnings" class="font-orbitron font-bold text-yellow-400 text-xl">$0</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Questions Answered:</span>
+                    <span id="final-questions" class="font-semibold text-slate-200">0 / 15</span>
+                </div>
+            </div>
+
+            <button onclick="restartGame()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-400 hover:from-yellow-400 hover:to-amber-300 text-slate-950 font-orbitron font-black text-base shadow-lg shadow-yellow-500/20 transition transform hover:-translate-y-0.5">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Audio Engine using Web Audio API for rich zero-external-dep SFX
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTone(freq, type, duration, gainVal = 0.1) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playSelect() {
+                this.init();
+                this.playTone(440, 'sine', 0.15, 0.1);
+            }
+
+            playCorrect() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'triangle', 0.3, 0.15), idx * 100);
+                });
+            }
+
+            playWrong() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                [200, 180, 150].forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'sawtooth', 0.3, 0.2), idx * 120);
+                });
+            }
+
+            playLifeline() {
+                this.init();
+                this.playTone(880, 'sine', 0.2, 0.1);
+                setTimeout(() => this.playTone(1174.66, 'sine', 0.3, 0.1), 100);
+            }
+
+            playWin() {
+                this.init();
+                if (this.muted || !this.ctx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'square', 0.4, 0.15), idx * 150);
+                });
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        function toggleAudio() {
+            audio.init();
+            audio.muted = !audio.muted;
+            const icon = document.getElementById('sound-icon');
+            if (audio.muted) {
+                icon.className = 'fas fa-volume-mute text-slate-500';
+            } else {
+                icon.className = 'fas fa-volume-up text-lg';
+                audio.playSelect();
+            }
+        }
+
+        const MONEY_LADDER = [
+            { level: 1, amount: "$1,000", val: 1000, safety: false },
+            { level: 2, amount: "$5,000", val: 5000, safety: false },
+            { level: 3, amount: "$10,000", val: 10000, safety: true },
+            { level: 4, amount: "$50,000", val: 50000, safety: false },
+            { level: 5, amount: "$100,000", val: 100000, safety: false },
+            { level: 6, amount: "$500,000", val: 500000, safety: false },
+            { level: 7, amount: "$1,000,000", val: 1000000, safety: true },
+            { level: 8, amount: "$5,000,000", val: 5000000, safety: false },
+            { level: 9, amount: "$10,000,000", val: 10000000, safety: false },
+            { level: 10, amount: "$50,000,000", val: 50000000, safety: false },
+            { level: 11, amount: "$100,000,000", val: 100000000, safety: false },
+            { level: 12, amount: "$500,000,000", val: 500000000, safety: false },
+            { level: 13, amount: "$1,000,000,000", val: 1000000000, safety: false },
+            { level: 14, amount: "$500,000,000,000", val: 500000000000, safety: false },
+            { level: 15, amount: "$1,000,000,000,000", val: 1000000000000, safety: true, trillion: true }
+        ];
+
+        const QUESTIONS_POOL = [
+            // Tier 1 ($1,000)
+            {
+                q: "What does the abbreviation 'AI' stand for in modern technology?",
+                options: ["Automated Internet", "Artificial Intelligence", "Advanced Integration", "Array Interface"],
+                correct: 1
+            },
+            // Tier 2 ($5,000)
+            {
+                q: "Which chemical element has the symbol 'Au' on the periodic table?",
+                options: ["Silver", "Aluminum", "Gold", "Argon"],
+                correct: 2
+            },
+            // Tier 3 ($10,000 - SAFETY)
+            {
+                q: "What is the official capital city of Australia?",
+                options: ["Sydney", "Melbourne", "Brisbane", "Canberra"],
+                correct: 3
+            },
+            // Tier 4 ($50,000)
+            {
+                q: "Which planet in our Solar System is known for having the most extensive ring system?",
+                options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
+                correct: 1
+            },
+            // Tier 5 ($100,000)
+            {
+                q: "What is the primary gas found in Earth's atmosphere by volume?",
+                options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"],
+                correct: 2
+            },
+            // Tier 6 ($500,000)
+            {
+                q: "Which 17th-century Dutch master painted 'Girl with a Pearl Earring'?",
+                options: ["Rembrandt", "Johannes Vermeer", "Vincent van Gogh", "Frans Hals"],
+                correct: 1
+            },
+            // Tier 7 ($1,000,000 - SAFETY)
+            {
+                q: "Which river is traditionally considered the longest in the world?",
+                options: ["Amazon River", "Nile River", "Yangtze River", "Mississippi River"],
+                correct: 1
+            },
+            // Tier 8 ($5,000,000)
+            {
+                q: "Who formulated the general theory of relativity in physics?",
+                options: ["Isaac Newton", "Niels Bohr", "Albert Einstein", "James Clerk Maxwell"],
+                correct: 2
+            },
+            // Tier 9 ($10,000,000)
+            {
+                q: "What unit of measurement is used to quantify electrical capacitance?",
+                options: ["Farad", "Henry", "Tesla", "Ohm"],
+                correct: 0
+            },
+            // Tier 10 ($50,000,000)
+            {
+                q: "In oceanography, what is the deepest known point in Earth's oceans?",
+                options: ["Java Trench", "Puerto Rico Trench", "Challenger Deep", "Sunda Trench"],
+                correct: 2
+            },
+            // Tier 11 ($100,000,000)
+            {
+                q: "Which naturally occurring element is considered the rarest in Earth's crust?",
+                options: ["Astatine", "Francium", "Promethium", "Oganesson"],
+                correct: 0
+            },
+            // Tier 12 ($500,000,000)
+            {
+                q: "In what year did the Byzantine Empire collapse following the Fall of Constantinople?",
+                options: ["1204", "1453", "1492", "1517"],
+                correct: 1
+            },
+            // Tier 13 ($1,000,000,000)
+            {
+                q: "Which gauge boson particle mediates the strong nuclear force binding quarks together?",
+                options: ["W Boson", "Photon", "Gluon", "Z Boson"],
+                correct: 2
+            },
+            // Tier 14 ($500,000,000,000)
+            {
+                q: "What is the exact speed of light in a vacuum in SI units (m/s)?",
+                options: ["299,792,458 m/s", "300,000,000 m/s", "299,792,100 m/s", "298,800,000 m/s"],
+                correct: 0
+            },
+            // Tier 15 ($1,000,000,000,000 - TRILLIONAIRE)
+            {
+                q: "Which ancient Mesopotamian kingdom was ruled by King Hammurabi, creator of one of the earliest written legal codes?",
+                options: ["Assyria", "Babylonia", "Akkad", "Sumer"],
+                correct: 1
+            }
+        ];
+
+        // State variables
+        let currentQuestionIdx = 0;
+        let selectedOption = null;
+        let isLocked = false;
+        let lifelinesUsed = { '5050': false, 'audience': false, 'phone': false };
+        let highScore = parseInt(localStorage.getItem('trillionaire_highscore') || '0');
+
+        window.onload = function() {
+            document.getElementById('high-score-display').innerText = formatMoney(highScore);
+            renderLadder();
+            loadQuestion();
+        }
+
+        function formatMoney(num) {
+            return '$' + num.toLocaleString();
+        }
+
+        function renderLadder() {
+            const container = document.getElementById('ladder-container');
+            container.innerHTML = '';
+
+            MONEY_LADDER.forEach((tier, idx) => {
+                const item = document.createElement('div');
+                const isCurrent = idx === currentQuestionIdx;
+                const isPast = idx < currentQuestionIdx;
+
+                let classes = "flex justify-between items-center px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 ";
+                if (isCurrent) {
+                    classes += "bg-amber-500/20 text-yellow-300 border border-yellow-400/60 shadow-lg scale-[1.02] font-orbitron ";
+                } else if (isPast) {
+                    classes += "text-emerald-400 opacity-60 ";
+                } else {
+                    classes += tier.safety ? "text-yellow-400/90 " : "text-slate-400 ";
+                }
+
+                item.className = classes;
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-orbitron w-5 text-right text-[11px] opacity-70">${tier.level}</span>
+                        <span>${tier.amount}</span>
+                    </div>
+                    ${tier.safety ? '<i class="fas fa-shield-halved text-yellow-400 text-xs"></i>' : ''}
+                `;
+                container.appendChild(item);
+            });
+
+            // Update current guaranteed safe bank amount
+            const guaranteedVal = getGuaranteedAmount();
+            document.getElementById('current-bank-display').innerText = `Guaranteed: ${formatMoney(guaranteedVal)}`;
+        }
+
+        function getGuaranteedAmount() {
+            let safeVal = 0;
+            for (let i = 0; i < currentQuestionIdx; i++) {
+                if (MONEY_LADDER[i].safety) {
+                    safeVal = MONEY_LADDER[i].val;
+                }
+            }
+            return safeVal;
+        }
+
+        function loadQuestion() {
+            isLocked = false;
+            selectedOption = null;
+            renderLadder();
+
+            const currentData = QUESTIONS_POOL[currentQuestionIdx];
+            document.getElementById('current-q-num').innerText = currentQuestionIdx + 1;
+            document.getElementById('question-text').innerText = currentData.q;
+
+            // Reset buttons
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`btn-option-${i}`);
+                const txt = document.getElementById(`text-option-${i}`);
+                btn.className = 'hexagon-btn rounded-2xl p-4 sm:p-5 flex items-center text-left transition group';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                txt.innerText = currentData.options[i];
+            }
+        }
+
+        function selectAnswer(optionIdx) {
+            if (isLocked) return;
+            isLocked = true;
+            selectedOption = optionIdx;
+            audio.playSelect();
+
+            const selectedBtn = document.getElementById(`btn-option-${optionIdx}`);
+            selectedBtn.classList.add('selected');
+
+            // Suspense Delay
+            setTimeout(() => {
+                const currentData = QUESTIONS_POOL[currentQuestionIdx];
+                const isCorrect = optionIdx === currentData.correct;
+
+                selectedBtn.classList.remove('selected');
+
+                if (isCorrect) {
+                    selectedBtn.classList.add('correct');
+                    audio.playCorrect();
+
+                    setTimeout(() => {
+                        if (currentQuestionIdx === MONEY_LADDER.length - 1) {
+                            // WON TRILLION DOLLARS!
+                            handleGameOver(true, MONEY_LADDER[14].val);
+                        } else {
+                            currentQuestionIdx++;
+                            loadQuestion();
+                        }
+                    }, 1800);
+                } else {
+                    selectedBtn.classList.add('wrong');
+                    // Highlight correct answer
+                    const correctBtn = document.getElementById(`btn-option-${currentData.correct}`);
+                    correctBtn.classList.add('correct');
+                    audio.playWrong();
+
+                    setTimeout(() => {
+                        const finalBank = getGuaranteedAmount();
+                        handleGameOver(false, finalBank);
+                    }, 2200);
+                }
+            }, 1500);
+        }
+
+        function use5050() {
+            if (isLocked || lifelinesUsed['5050']) return;
+            lifelinesUsed['5050'] = true;
+            audio.playLifeline();
+
+            const btn50 = document.getElementById('lifeline-5050');
+            btn50.disabled = true;
+            btn50.classList.add('opacity-40', 'line-through');
+
+            const correctIdx = QUESTIONS_POOL[currentQuestionIdx].correct;
+            let wrongIndexes = [0, 1, 2, 3].filter(idx => idx !== correctIdx);
+            
+            // Shuffle & pick 2 wrong options to hide
+            wrongIndexes.sort(() => Math.random() - 0.5);
+            const toHide = wrongIndexes.slice(0, 2);
+
+            toHide.forEach(idx => {
+                const btn = document.getElementById(`btn-option-${idx}`);
+                btn.style.opacity = '0.2';
+                btn.disabled = true;
+            });
+        }
+
+        function useAskAudience() {
+            if (isLocked || lifelinesUsed['audience']) return;
+            lifelinesUsed['audience'] = true;
+            audio.playLifeline();
+
+            const btnAud = document.getElementById('lifeline-audience');
+            btnAud.disabled = true;
+            btnAud.classList.add('opacity-40', 'line-through');
+
+            const correctIdx = QUESTIONS_POOL[currentQuestionIdx].correct;
+            let percentages = [0, 0, 0, 0];
+            
+            // Allocate highest percentage to correct option based on question difficulty
+            let correctShare = Math.floor(Math.random() * 20) + (70 - currentQuestionIdx * 3); // harder as level increases
+            correctShare = Math.max(35, correctShare);
+            let remaining = 100 - correctShare;
+
+            percentages[correctIdx] = correctShare;
+
+            for (let i = 0; i < 4; i++) {
+                if (i !== correctIdx) {
+                    let share = Math.floor(Math.random() * remaining);
+                    percentages[i] = share;
+                    remaining -= share;
+                }
+            }
+            percentages[correctIdx] += remaining; // Add remainder
+
+            // Display in Modal
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`aud-percent-${i}`).innerText = `${percentages[i]}%`;
+                document.getElementById(`aud-bar-${i}`).style.width = `${percentages[i]}%`;
+            }
+
+            document.getElementById('modal-audience').classList.remove('hidden');
+        }
+
+        function usePhoneFriend() {
+            if (isLocked || lifelinesUsed['phone']) return;
+            lifelinesUsed['phone'] = true;
+            audio.playLifeline();
+
+            const btnPhone = document.getElementById('lifeline-phone');
+            btnPhone.disabled = true;
+            btnPhone.classList.add('opacity-40', 'line-through');
+
+            const correctIdx = QUESTIONS_POOL[currentQuestionIdx].correct;
+            const letters = ['A', 'B', 'C', 'D'];
+            const optionLetter = letters[correctIdx];
+
+            const hints = [
+                `I'm about 90% sure the correct answer is option ${optionLetter}.`,
+                `Hmm, this is tricky, but I strongly lean towards option ${optionLetter}.`,
+                `I recently read about this! It's definitely option ${optionLetter}.`
+            ];
+            const chosenHint = hints[Math.floor(Math.random() * hints.length)];
+
+            document.getElementById('phone-dialogue-text').innerText = chosenHint;
+            document.getElementById('modal-phone').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function confirmCashOut() {
+            if (isLocked) return;
+            let currentEarnings = currentQuestionIdx > 0 ? MONEY_LADDER[currentQuestionIdx - 1].val : 0;
+            handleGameOver('walkaway', currentEarnings);
+        }
+
+        function handleGameOver(status, earnings) {
+            const modal = document.getElementById('modal-gameover');
+            const title = document.getElementById('gameover-title');
+            const subtitle = document.getElementById('gameover-subtitle');
+            const iconBox = document.getElementById('gameover-icon-box');
+
+            if (status === true) {
+                // Trillionaire Winner!
+                audio.playWin();
+                title.innerText = "TRILLIONAIRE!";
+                subtitle.innerText = "Astonishing! You answered all 15 questions and conquered the galaxy!";
+                iconBox.innerHTML = '<i class="fas fa-crown text-yellow-400"></i>';
+            } else if (status === 'walkaway') {
+                audio.playSelect();
+                title.innerText = "CASHED OUT";
+                subtitle.innerText = "Smart decision! You chose to walk away with your hard-earned winnings.";
+                iconBox.innerHTML = '<i class="fas fa-hand-holding-dollar text-amber-400"></i>';
+            } else {
+                // Wrong Answer
+                title.innerText = "GAME OVER";
+                subtitle.innerText = "An incorrect answer ended your run! You fall back to your safety net.";
+                iconBox.innerHTML = '<i class="fas fa-skull text-red-400"></i>';
+            }
+
+            document.getElementById('final-winnings').innerText = formatMoney(earnings);
+            document.getElementById('final-questions').innerText = `${currentQuestionIdx} / 15`;
+
+            // Update High Score
+            if (earnings > highScore) {
+                highScore = earnings;
+                localStorage.setItem('trillionaire_highscore', highScore.toString());
+                document.getElementById('high-score-display').innerText = formatMoney(highScore);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function restartGame() {
+            currentQuestionIdx = 0;
+            lifelinesUsed = { '5050': false, 'audience': false, 'phone': false };
+
+            // Reset Lifeline Button Styles
+            ['5050', 'audience', 'phone'].forEach(type => {
+                const btn = document.getElementById(`lifeline-${type}`);
+                btn.disabled = false;
+                btn.classList.remove('opacity-40', 'line-through');
+            });
+
+            closeModal('modal-gameover');
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>

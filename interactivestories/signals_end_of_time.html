@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>THE SIGNAL AT THE END OF TIME</title>
+
+<style>
+:root {
+    --bg: #020506;
+    --panel: #071014;
+    --panel2: #0a171c;
+
+    --cyan: #00f0ff;
+    --cyan-dim: rgba(0,240,255,.22);
+
+    --green: #00ff66;
+    --green-dim: rgba(0,255,102,.18);
+
+    --amber: #ffaa00;
+    --amber-dim: rgba(255,170,0,.22);
+
+    --red: #ff3344;
+
+    --text: #cceeff;
+    --muted: #5c8998;
+
+    --mono: "Courier New", Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--cyan);
+    font-family: var(--mono);
+}
+
+/* =========================================================
+   CRT EFFECT
+========================================================= */
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+
+    background:
+        linear-gradient(
+            rgba(18,16,16,0) 50%,
+            rgba(0,0,0,.28) 50%
+        );
+
+    background-size: 100% 4px;
+    opacity: .45;
+}
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+#hud-header {
+    flex: 0 0 54px;
+    height: 54px;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    padding: 0 18px;
+
+    background: rgba(5,13,17,.97);
+    border-bottom: 1px solid var(--cyan-dim);
+
+    z-index: 50;
+}
+
+.hud-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hud-metric:nth-child(2) {
+    text-align: center;
+}
+
+.hud-metric:nth-child(3) {
+    text-align: right;
+}
+
+.hud-label {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+}
+
+.hud-value {
+    color: var(--cyan);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   STAR VIEW
+========================================================= */
+
+#viewport-container {
+    position: relative;
+
+    flex: 1 1 auto;
+    min-height: 0;
+
+    width: 100%;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #0b1b22 0%,
+            #03080b 48%,
+            #010304 100%
+        );
+
+    overflow: hidden;
+}
+
+#star-canvas {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    touch-action: none;
+    cursor: crosshair;
+}
+
+#reticle-overlay {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 150px;
+    height: 150px;
+
+    transform: translate(-50%, -50%);
+
+    border: 1px dashed var(--amber-dim);
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#reticle-overlay::before {
+    content: "";
+
+    position: absolute;
+
+    width: 100%;
+    height: 1px;
+
+    background: var(--amber-dim);
+}
+
+#reticle-overlay::after {
+    content: "";
+
+    position: absolute;
+
+    width: 1px;
+    height: 100%;
+
+    background: var(--amber-dim);
+}
+
+#reticle-overlay .reticle-dot {
+    width: 5px;
+    height: 5px;
+
+    background: var(--amber);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 8px var(--amber),
+        0 0 20px var(--amber);
+}
+
+.target-indicator {
+    position: absolute;
+
+    left: 14px;
+    top: 14px;
+
+    padding: 8px 12px;
+
+    background: rgba(0,0,0,.72);
+
+    border-left: 2px solid var(--amber);
+
+    color: var(--amber);
+
+    font-size: 10px;
+    line-height: 1.6;
+
+    letter-spacing: .7px;
+
+    pointer-events: none;
+}
+
+.target-indicator span {
+    color: #ffd27a;
+}
+
+/* =========================================================
+   VIEWPORT STATUS
+========================================================= */
+
+#viewport-status {
+    position: absolute;
+
+    right: 14px;
+    top: 14px;
+
+    padding: 7px 10px;
+
+    background: rgba(0,0,0,.7);
+
+    border: 1px solid var(--cyan-dim);
+
+    color: var(--cyan);
+
+    font-size: 9px;
+    letter-spacing: 1px;
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   SIGNAL SECTION
+========================================================= */
+
+#signal-section {
+    flex: 0 0 112px;
+
+    min-height: 112px;
+
+    background: #040b0f;
+
+    border-top: 1px solid var(--cyan);
+    border-bottom: 1px solid var(--cyan-dim);
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 40;
+}
+
+/* Signal title */
+
+.signal-title {
+    flex: 0 0 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 12px;
+
+    background: rgba(0,240,255,.04);
+
+    border-bottom: 1px solid rgba(0,240,255,.12);
+
+    font-size: 9px;
+    letter-spacing: 1.5px;
+}
+
+.signal-title .right {
+    color: var(--muted);
+}
+
+/* Wave canvas */
+
+#waveform-wrapper {
+    position: relative;
+
+    flex: 1;
+
+    min-height: 0;
+
+    overflow: hidden;
+}
+
+#wave-canvas {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+}
+
+/* Centre line */
+
+#waveform-wrapper::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 50%;
+
+    height: 1px;
+
+    background: rgba(0,240,255,.08);
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   CONTROL DECK
+========================================================= */
+
+#deck-panel {
+    flex: 0 0 275px;
+
+    min-height: 275px;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        linear-gradient(
+            180deg,
+            #091318 0%,
+            #050b0e 100%
+        );
+
+    border-top: 1px solid var(--cyan-dim);
+
+    z-index: 50;
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+#control-row {
+    flex: 0 0 auto;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px, 1.6fr)
+        minmax(150px, .8fr)
+        minmax(150px, .8fr);
+
+    gap: 10px;
+
+    padding: 12px;
+
+    background: rgba(0,0,0,.32);
+
+    border-bottom: 1px solid var(--cyan-dim);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.control-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    color: #77aacc;
+
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+#freq-val {
+    color: var(--cyan);
+
+    font-size: 14px;
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   FREQUENCY SLIDER
+========================================================= */
+
+#freq-slider {
+    width: 100%;
+
+    height: 28px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    background: transparent;
+
+    cursor: pointer;
+    touch-action: pan-y;
+}
+
+#freq-slider::-webkit-slider-runnable-track {
+    height: 5px;
+
+    border: 1px solid #14505a;
+
+    background:
+        linear-gradient(
+            90deg,
+            #06252b,
+            #0b5660
+        );
+
+    border-radius: 2px;
+}
+
+#freq-slider::-moz-range-track {
+    height: 5px;
+
+    border: 1px solid #14505a;
+
+    background:
+        linear-gradient(
+            90deg,
+            #06252b,
+            #0b5660
+        );
+
+    border-radius: 2px;
+}
+
+#freq-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 18px;
+    height: 18px;
+
+    margin-top: -7px;
+
+    border-radius: 50%;
+
+    background: var(--cyan);
+
+    border: 2px solid #d9ffff;
+
+    box-shadow:
+        0 0 8px var(--cyan),
+        0 0 18px var(--cyan);
+
+    cursor: pointer;
+}
+
+#freq-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: var(--cyan);
+
+    border: 2px solid #d9ffff;
+
+    box-shadow:
+        0 0 8px var(--cyan),
+        0 0 18px var(--cyan);
+
+    cursor: pointer;
+}
+
+/* Frequency scale */
+
+.frequency-scale {
+    display: flex;
+    justify-content: space-between;
+
+    color: #456c77;
+
+    font-size: 8px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.deck-btn {
+    width: 100%;
+    height: 48px;
+
+    align-self: center;
+
+    background: rgba(0,240,255,.06);
+
+    border: 1px solid var(--cyan);
+
+    color: var(--cyan);
+
+    padding: 8px;
+
+    font-family: var(--mono);
+
+    font-size: 10px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.5px;
+
+    cursor: pointer;
+
+    border-radius: 2px;
+
+    transition:
+        background .15s,
+        color .15s,
+        box-shadow .15s;
+}
+
+.deck-btn:hover:not(:disabled) {
+    background: rgba(0,240,255,.15);
+
+    box-shadow:
+        0 0 15px rgba(0,240,255,.12);
+}
+
+.deck-btn:active:not(:disabled) {
+    background: var(--cyan);
+    color: #000;
+}
+
+.deck-btn:disabled {
+    opacity: .3;
+
+    border-color: #446677;
+
+    color: #446677;
+
+    cursor: not-allowed;
+}
+
+.btn-transmit {
+    border-color: var(--amber);
+    color: var(--amber);
+
+    background: rgba(255,170,0,.05);
+}
+
+.btn-transmit:hover:not(:disabled) {
+    background: rgba(255,170,0,.14);
+}
+
+.btn-transmit:active:not(:disabled) {
+    background: var(--amber);
+    color: #000;
+}
+
+/* =========================================================
+   TERMINAL
+========================================================= */
+
+#terminal {
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    padding: 10px 12px 18px;
+
+    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+
+    font-size: 11px;
+    line-height: 1.45;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyan-dim) transparent;
+}
+
+#terminal::-webkit-scrollbar {
+    width: 5px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: var(--cyan-dim);
+}
+
+.log-entry {
+    border-left: 2px solid var(--cyan);
+
+    padding-left: 8px;
+
+    animation: fadeIn .3s ease;
+}
+
+.log-entry.incoming {
+    border-left-color: var(--amber);
+
+    background: rgba(255,170,0,.05);
+
+    padding: 8px;
+
+    border-radius: 0 3px 3px 0;
+}
+
+.log-time {
+    margin-bottom: 3px;
+
+    color: #6699aa;
+
+    font-size: 8px;
+    letter-spacing: .7px;
+}
+
+.log-text {
+    color: var(--text);
+}
+
+.incoming .log-text {
+    color: #ffddaa;
+}
+
+/* =========================================================
+   CHOICES
+========================================================= */
+
+#choice-box {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-top: 4px;
+}
+
+.choice-btn {
+    width: 100%;
+
+    background: rgba(0,0,0,.65);
+
+    border: 1px solid var(--amber);
+
+    color: var(--amber);
+
+    padding: 10px;
+
+    text-align: left;
+
+    font-family: var(--mono);
+
+    font-size: 10px;
+
+    line-height: 1.4;
+
+    cursor: pointer;
+
+    transition:
+        background .15s,
+        color .15s;
+}
+
+.choice-btn:hover,
+.choice-btn:active {
+    background: var(--amber);
+
+    color: #000;
+}
+
+/* =========================================================
+   LOCK STATE
+========================================================= */
+
+.locked #waveform-wrapper {
+    box-shadow:
+        inset 0 0 25px rgba(0,255,102,.08);
+}
+
+.locked #freq-slider::-webkit-slider-thumb {
+    background: var(--green);
+
+    box-shadow:
+        0 0 8px var(--green),
+        0 0 18px var(--green);
+}
+
+.locked #freq-slider::-moz-range-thumb {
+    background: var(--green);
+
+    box-shadow:
+        0 0 8px var(--green),
+        0 0 18px var(--green);
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    #hud-header {
+        flex: 0 0 48px;
+        height: 48px;
+
+        padding: 0 9px;
+    }
+
+    .hud-label {
+        font-size: 7px;
+    }
+
+    .hud-value {
+        font-size: 9px;
+    }
+
+    #reticle-overlay {
+        width: 115px;
+        height: 115px;
+    }
+
+    .target-indicator {
+        left: 8px;
+        top: 8px;
+
+        font-size: 8px;
+
+        max-width: 75%;
+    }
+
+    #viewport-status {
+        right: 8px;
+        top: 8px;
+
+        font-size: 7px;
+    }
+
+    #signal-section {
+        flex-basis: 95px;
+        min-height: 95px;
+    }
+
+    #deck-panel {
+        flex-basis: 360px;
+        min-height: 360px;
+    }
+
+    #control-row {
+        grid-template-columns: 1fr;
+
+        gap: 8px;
+
+        padding: 9px;
+    }
+
+    .deck-btn {
+        height: 40px;
+    }
+
+    #terminal {
+        font-size: 10px;
+    }
+}
+
+@media (max-height: 700px) and (min-width: 701px) {
+
+    #signal-section {
+        flex-basis: 90px;
+        min-height: 90px;
+    }
+
+    #deck-panel {
+        flex-basis: 230px;
+        min-height: 230px;
+    }
+
+    #control-row {
+        padding: 8px;
+    }
+
+    .deck-btn {
+        height: 40px;
+    }
+
+    #terminal {
+        font-size: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- =====================================================
+         HUD
+    ====================================================== -->
+
+    <header id="hud-header">
+
+        <div class="hud-metric">
+            <span class="hud-label">LOCAL TIMESTAMP</span>
+            <span class="hud-value" id="clock-display">
+                2,241.082 AD | 03:17:00
+            </span>
+        </div>
+
+        <div class="hud-metric">
+            <span class="hud-label">OBSERVATORY STATUS</span>
+            <span class="hud-value" style="color:var(--green)">
+                ONLINE
+            </span>
+        </div>
+
+        <div class="hud-metric">
+            <span class="hud-label">TARGET SIGNAL</span>
+            <span class="hud-value"
+                  id="signal-lock-status"
+                  style="color:var(--red)">
+                UNLOCKED
+            </span>
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         STAR VIEW
+    ====================================================== -->
+
+    <section id="viewport-container">
+
+        <canvas id="star-canvas"></canvas>
+
+        <div id="reticle-overlay">
+            <div class="reticle-dot"></div>
+        </div>
+
+        <div class="target-indicator">
+            COORDS:
+            <span>RA 11h 54m / DEC +55° 33'</span>
+            <br>
+
+            TARGET STAR:
+            <span>HD 10307 (Ursa Major)</span>
+        </div>
+
+        <div id="viewport-status">
+            DRAG TO ROTATE // LOCATE TARGET
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WAVEFORM
+    ====================================================== -->
+
+    <section id="signal-section">
+
+        <div class="signal-title">
+            <span>SIGNAL WAVEFORM</span>
+            <span class="right" id="wave-status">
+                NO CARRIER LOCK
+            </span>
+        </div>
+
+        <div id="waveform-wrapper">
+            <canvas id="wave-canvas"></canvas>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONTROL DECK
+    ====================================================== -->
+
+    <section id="deck-panel">
+
+        <div id="control-row">
+
+            <div class="control-group">
+
+                <div class="control-label">
+                    <span>RECEIVER FREQUENCY</span>
+                    <span id="freq-val">1410.0 MHz</span>
+                </div>
+
+                <input
+                    type="range"
+                    id="freq-slider"
+                    min="1400"
+                    max="1440"
+                    step="0.1"
+                    value="1410.0"
+                >
+
+                <div class="frequency-scale">
+                    <span>1400</span>
+                    <span>1410</span>
+                    <span>1420.4</span>
+                    <span>1430</span>
+                    <span>1440 MHz</span>
+                </div>
+
+            </div>
+
+
+            <button
+                class="deck-btn"
+                id="decode-btn"
+                type="button"
+            >
+                DECODE SIGNAL
+            </button>
+
+
+            <button
+                class="deck-btn btn-transmit"
+                id="transmit-btn"
+                type="button"
+                disabled
+            >
+                TRANSMIT REPLY
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             TERMINAL
+        ================================================== -->
+
+        <div id="terminal">
+
+            <div class="log-entry">
+
+                <div class="log-time">
+                    2241.082 - SYSTEM INITIALIZATION
+                </div>
+
+                <div class="log-text">
+                    Awaiting operator input. Rotate telescope
+                    viewport to lock signal coordinates HD 10307.
+                    Tune receiver frequency to 1420.4 MHz.
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================
+     THREE.JS
+========================================================= -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+const gameState = {
+
+    targetFreq: 1420.4,
+
+    currentFreq: 1410.0,
+
+    aligned: false,
+
+    decoded: false,
+
+    act: 1,
+
+    choices: []
+
+};
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const container =
+    document.getElementById("viewport-container");
+
+const starCanvas =
+    document.getElementById("star-canvas");
+
+const waveCanvas =
+    document.getElementById("wave-canvas");
+
+const waveCtx =
+    waveCanvas.getContext("2d");
+
+const freqSlider =
+    document.getElementById("freq-slider");
+
+const freqVal =
+    document.getElementById("freq-val");
+
+const decodeBtn =
+    document.getElementById("decode-btn");
+
+const transmitBtn =
+    document.getElementById("transmit-btn");
+
+const terminal =
+    document.getElementById("terminal");
+
+const signalStatus =
+    document.getElementById("signal-lock-status");
+
+const waveStatus =
+    document.getElementById("wave-status");
+
+
+/* =========================================================
+   THREE.JS SETUP
+========================================================= */
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+    60,
+    1,
+    0.1,
+    1000
+);
+
+camera.position.z = 1;
+
+
+const renderer = new THREE.WebGLRenderer({
+    canvas: starCanvas,
+    antialias: true,
+    alpha: true
+});
+
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, 2)
+);
+
+
+/* =========================================================
+   STAR FIELD
+========================================================= */
+
+const starsGeometry =
+    new THREE.BufferGeometry();
+
+const starCount = 1600;
+
+const positions =
+    new Float32Array(starCount * 3);
+
+const colors =
+    new Float32Array(starCount * 3);
+
+
+for (
+    let i = 0;
+    i < starCount * 3;
+    i += 3
+) {
+
+    positions[i] =
+        (Math.random() - 0.5) * 400;
+
+    positions[i + 1] =
+        (Math.random() - 0.5) * 400;
+
+    positions[i + 2] =
+        (Math.random() - 0.5) * 400;
+
+
+    const brightness =
+        0.45 + Math.random() * 0.55;
+
+    colors[i] =
+        brightness * 0.65;
+
+    colors[i + 1] =
+        brightness * 0.9;
+
+    colors[i + 2] =
+        brightness;
+}
+
+
+starsGeometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(
+        positions,
+        3
+    )
+);
+
+starsGeometry.setAttribute(
+    "color",
+    new THREE.BufferAttribute(
+        colors,
+        3
+    )
+);
+
+
+const starsMaterial =
+    new THREE.PointsMaterial({
+
+        size: 1.25,
+
+        vertexColors: true,
+
+        transparent: true,
+
+        opacity: .9
+
+    });
+
+
+const starField =
+    new THREE.Points(
+        starsGeometry,
+        starsMaterial
+    );
+
+
+scene.add(starField);
+
+
+/* =========================================================
+   TARGET STAR
+========================================================= */
+
+const targetGeo =
+    new THREE.SphereGeometry(
+        2.4,
+        16,
+        16
+    );
+
+
+const targetMat =
+    new THREE.MeshBasicMaterial({
+
+        color: 0xffaa00,
+
+        wireframe: true
+
+    });
+
+
+const targetStar =
+    new THREE.Mesh(
+        targetGeo,
+        targetMat
+    );
+
+
+targetStar.position.set(
+    20,
+    15,
+    -120
+);
+
+
+scene.add(targetStar);
+
+
+/* =========================================================
+   SECONDARY TARGET GLOW
+========================================================= */
+
+const glowGeo =
+    new THREE.SphereGeometry(
+        4.5,
+        12,
+        12
+    );
+
+
+const glowMat =
+    new THREE.MeshBasicMaterial({
+
+        color: 0xffaa00,
+
+        transparent: true,
+
+        opacity: .08,
+
+        wireframe: true
+
+    });
+
+
+const targetGlow =
+    new THREE.Mesh(
+        glowGeo,
+        glowMat
+    );
+
+
+targetStar.add(targetGlow);
+
+
+/* =========================================================
+   RESIZE THREE.JS
+========================================================= */
+
+function resizeThree() {
+
+    const width =
+        container.clientWidth;
+
+    const height =
+        container.clientHeight;
+
+
+    if (
+        width <= 0 ||
+        height <= 0
+    ) {
+        return;
+    }
+
+
+    camera.aspect =
+        width / height;
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+        width,
+        height,
+        false
+    );
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeThree
+);
+
+resizeThree();
+
+
+/* =========================================================
+   STAR DRAGGING
+========================================================= */
+
+let isDragging = false;
+
+let previousPointer = {
+    x: 0,
+    y: 0
+};
+
+
+function getPointerPosition(e) {
+
+    if (
+        e.touches &&
+        e.touches.length
+    ) {
+
+        return {
+
+            x: e.touches[0].clientX,
+
+            y: e.touches[0].clientY
+
+        };
+
+    }
+
+
+    return {
+
+        x: e.clientX,
+
+        y: e.clientY
+
+    };
+
+}
+
+
+function pointerDown(e) {
+
+    const p =
+        getPointerPosition(e);
+
+
+    isDragging = true;
+
+
+    previousPointer = {
+
+        x: p.x,
+
+        y: p.y
+
+    };
+
+}
+
+
+function pointerMove(e) {
+
+    if (!isDragging) {
+        return;
+    }
+
+
+    const p =
+        getPointerPosition(e);
+
+
+    const dx =
+        p.x - previousPointer.x;
+
+    const dy =
+        p.y - previousPointer.y;
+
+
+    starField.rotation.y +=
+        dx * 0.003;
+
+    starField.rotation.x +=
+        dy * 0.003;
+
+
+    /*
+       The target itself moves toward the
+       centre reticle. This is the actual
+       puzzle mechanic.
+    */
+
+    targetStar.position.x +=
+        dx * 0.15;
+
+    targetStar.position.y -=
+        dy * 0.15;
+
+
+    previousPointer = {
+
+        x: p.x,
+
+        y: p.y
+
+    };
+
+
+    checkAlignment();
+
+}
+
+
+function pointerUp() {
+
+    isDragging = false;
+
+}
+
+
+starCanvas.addEventListener(
+    "mousedown",
+    pointerDown
+);
+
+starCanvas.addEventListener(
+    "mousemove",
+    pointerMove
+);
+
+window.addEventListener(
+    "mouseup",
+    pointerUp
+);
+
+
+starCanvas.addEventListener(
+    "touchstart",
+    pointerDown,
+    { passive: true }
+);
+
+starCanvas.addEventListener(
+    "touchmove",
+    pointerMove,
+    { passive: true }
+);
+
+window.addEventListener(
+    "touchend",
+    pointerUp
+);
+
+
+/* =========================================================
+   ALIGNMENT
+========================================================= */
+
+function checkAlignment() {
+
+    const distance =
+        Math.sqrt(
+
+            targetStar.position.x *
+            targetStar.position.x
+
+            +
+
+            targetStar.position.y *
+            targetStar.position.y
+
+        );
+
+
+    const locked =
+        distance < 8;
+
+
+    gameState.aligned =
+        locked;
+
+
+    if (locked) {
+
+        signalStatus.innerText =
+            "COORDINATE LOCK";
+
+        signalStatus.style.color =
+            "var(--green)";
+
+        document.body.classList.add(
+            "locked"
+        );
+
+    } else {
+
+        signalStatus.innerText =
+            "UNLOCKED";
+
+        signalStatus.style.color =
+            "var(--red)";
+
+        document.body.classList.remove(
+            "locked"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   WAVEFORM RESIZE
+========================================================= */
+
+function resizeWaveCanvas() {
+
+    const rect =
+        waveCanvas.getBoundingClientRect();
+
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+
+    waveCanvas.width =
+        Math.max(
+            1,
+            Math.floor(rect.width * dpr)
+        );
+
+    waveCanvas.height =
+        Math.max(
+            1,
+            Math.floor(rect.height * dpr)
+        );
+
+
+    waveCtx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeWaveCanvas
+);
+
+resizeWaveCanvas();
+
+
+/* =========================================================
+   WAVEFORM
+========================================================= */
+
+let wavePhase = 0;
+
+
+function drawWaveform() {
+
+    const width =
+        waveCanvas.clientWidth;
+
+    const height =
+        waveCanvas.clientHeight;
+
+
+    if (
+        width <= 0 ||
+        height <= 0
+    ) {
+
+        requestAnimationFrame(
+            drawWaveform
+        );
+
+        return;
+
+    }
+
+
+    waveCtx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const frequencyDifference =
+        Math.abs(
+            gameState.currentFreq -
+            gameState.targetFreq
+        );
+
+
+    const signalLocked =
+        frequencyDifference < 0.2 &&
+        gameState.aligned;
+
+
+    /*
+       Signal gets progressively cleaner
+       as the operator approaches 1420.4.
+    */
+
+    const proximity =
+        Math.max(
+            0,
+            1 -
+            frequencyDifference / 10
+        );
+
+
+    const centre =
+        height / 2;
+
+
+    waveCtx.beginPath();
+
+    waveCtx.lineWidth =
+        signalLocked ? 2.5 : 1.4;
+
+
+    waveCtx.strokeStyle =
+        signalLocked
+            ? "#00ff66"
+            : "#00f0ff";
+
+
+    waveCtx.shadowBlur =
+        signalLocked ? 10 : 0;
+
+    waveCtx.shadowColor =
+        signalLocked
+            ? "#00ff66"
+            : "#00f0ff";
+
+
+    for (
+        let x = 0;
+        x < width;
+        x++
+    ) {
+
+        let y;
+
+
+        if (signalLocked) {
+
+            /*
+               Clean carrier.
+            */
+
+            y =
+                centre
+
+                +
+
+                Math.sin(
+                    x * 0.055 +
+                    wavePhase
+                ) * 18
+
+                +
+
+                Math.sin(
+                    x * 0.021 +
+                    wavePhase * 1.5
+                ) * 7;
+
+        } else {
+
+            /*
+               Noise decreases as we
+               approach the target frequency.
+            */
+
+            const noiseAmount =
+                24 -
+                proximity * 16;
+
+
+            y =
+                centre
+
+                +
+
+                Math.sin(
+                    x * 0.05 +
+                    wavePhase
+                ) *
+                (3 + proximity * 7)
+
+                +
+
+                (Math.random() - .5) *
+                noiseAmount;
+
+        }
+
+
+        if (x === 0) {
+
+            waveCtx.moveTo(
+                x,
+                y
+            );
+
+        } else {
+
+            waveCtx.lineTo(
+                x,
+                y
+            );
+
+        }
+
+    }
+
+
+    waveCtx.stroke();
+
+    waveCtx.shadowBlur = 0;
+
+
+    /*
+       Carrier lock text.
+    */
+
+    if (signalLocked) {
+
+        waveStatus.innerText =
+            "CARRIER LOCK // 1420.4 MHz";
+
+        waveStatus.style.color =
+            "var(--green)";
+
+    } else {
+
+        waveStatus.innerText =
+            "NO CARRIER LOCK";
+
+        waveStatus.style.color =
+            "var(--muted)";
+
+    }
+
+
+    wavePhase += .12;
+
+
+    requestAnimationFrame(
+        drawWaveform
+    );
+
+}
+
+
+drawWaveform();
+
+
+/* =========================================================
+   FREQUENCY CONTROL
+========================================================= */
+
+freqSlider.addEventListener(
+    "input",
+    function() {
+
+        gameState.currentFreq =
+            parseFloat(
+                this.value
+            );
+
+
+        freqVal.innerText =
+            gameState.currentFreq
+                .toFixed(1)
+            +
+            " MHz";
+
+    }
+);
+
+
+/* =========================================================
+   TERMINAL
+========================================================= */
+
+function appendLog(
+    text,
+    incoming = false
+) {
+
+    const entry =
+        document.createElement(
+            "div"
+        );
+
+
+    entry.className =
+        incoming
+            ? "log-entry incoming"
+            : "log-entry";
+
+
+    const now =
+        new Date();
+
+
+    const seconds =
+        now.getSeconds()
+            .toString()
+            .padStart(2, "0");
+
+
+    const minutes =
+        now.getMinutes()
+            .toString()
+            .padStart(2, "0");
+
+
+    entry.innerHTML = `
+
+        <div class="log-time">
+
+            2241.082 AD | 03:${minutes}:${seconds}
+            -
+            ${incoming
+                ? "INCOMING TRANSMISSION [TIMESTAMP: 6,241 AD]"
+                : "SYSTEM LOG"
+            }
+
+        </div>
+
+        <div class="log-text">
+            ${text}
+        </div>
+
+    `;
+
+
+    terminal.appendChild(
+        entry
+    );
+
+
+    terminal.scrollTop =
+        terminal.scrollHeight;
+
+}
+
+
+/* =========================================================
+   DECODE
+========================================================= */
+
+function attemptDecode() {
+
+    const frequencyDifference =
+        Math.abs(
+            gameState.currentFreq -
+            gameState.targetFreq
+        );
+
+
+    if (!gameState.aligned) {
+
+        appendLog(
+            "DECRYPTION FAILED: Telescope target unaligned. Reposition viewport reticle over HD 10307."
+        );
+
+        return;
+
+    }
+
+
+    if (frequencyDifference >= .2) {
+
+        appendLog(
+
+            "DECRYPTION FAILED: High noise floor at "
+
+            +
+
+            gameState.currentFreq.toFixed(1)
+
+            +
+
+            " MHz. Tune carrier frequency to 1420.4 MHz."
+
+        );
+
+        return;
+
+    }
+
+
+    if (gameState.decoded) {
+
+        appendLog(
+            "SIGNAL ALREADY DECODED. Buffer contains active message envelope."
+        );
+
+        return;
+
+    }
+
+
+    gameState.decoded = true;
+
+
+    transmitBtn.disabled = false;
+
+
+    appendLog(
+        "SIGNAL LOCKED & DECRYPTED SUCCESSFULLY."
+    );
+
+
+    setTimeout(
+        function() {
+
+            appendLog(
+
+                "\"Operator... if you are receiving this at 03:17 UTC in 2241 AD, do not adjust your orbital telemetry. We are responding to the choice you are about to make in 3 minutes. Earth is missing in our time, 6,241 AD. You are the origin point of its divergence.\"",
+
+                true
+
+            );
+
+
+            presentChoicePrompt();
+
+        },
+        800
+    );
+
+}
+
+
+/* =========================================================
+   CHOICE PROMPT
+========================================================= */
+
+function presentChoicePrompt() {
+
+    if (
+        document.getElementById(
+            "choice-box"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const choiceBox =
+        document.createElement(
+            "div"
+        );
+
+
+    choiceBox.id =
+        "choice-box";
+
+
+    choiceBox.innerHTML = `
+
+        <button
+            class="choice-btn"
+            data-choice="1"
+        >
+            [OPTION A]
+            Transmit Observatory telemetry
+            data back to origin coordinates.
+        </button>
+
+        <button
+            class="choice-btn"
+            data-choice="2"
+        >
+            [OPTION B]
+            Mute transmission and initiate
+            localized temporal containment shield.
+        </button>
+
+        <button
+            class="choice-btn"
+            data-choice="3"
+        >
+            [OPTION C]
+            Purge signal archive and execute
+            deep space burn.
+        </button>
+
+    `;
+
+
+    terminal.appendChild(
+        choiceBox
+    );
+
+
+    choiceBox
+        .querySelectorAll(
+            ".choice-btn"
+        )
+        .forEach(
+            function(button) {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        makeChoice(
+                            Number(
+                                this.dataset.choice
+                            )
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    terminal.scrollTop =
+        terminal.scrollHeight;
+
+}
+
+
+/* =========================================================
+   CHOICES
+========================================================= */
+
+function makeChoice(option) {
+
+    const choiceBox =
+        document.getElementById(
+            "choice-box"
+        );
+
+
+    if (choiceBox) {
+
+        choiceBox.remove();
+
+    }
+
+
+    gameState.choices.push(
+        option
+    );
+
+
+    if (option === 1) {
+
+        appendLog(
+            "TRANSMITTING: Full Observatory telemetry packet broadcasted on 1420.4 MHz."
+        );
+
+
+        setTimeout(
+            function() {
+
+                appendLog(
+
+                    "\"RESPONSE RECEIVED [6241 AD]: You transmitted. The dark matter array in our historical archive just collapsed. Branch A initialized: The Void Event.\"",
+
+                    true
+
+                );
+
+            },
+            1200
+        );
+
+    }
+
+
+    else if (option === 2) {
+
+        appendLog(
+            "EXECUTING: Telemetry suppressed. Temporal containment shield activated."
+        );
+
+
+        setTimeout(
+            function() {
+
+                appendLog(
+
+                    "\"RESPONSE RECEIVED [6241 AD]: Your shield locked Earth inside a frozen time loop. We have been waiting inside this bubble for 3,000 years. Branch C initialized: The Loop.\"",
+
+                    true
+
+                );
+
+            },
+            1200
+        );
+
+    }
+
+
+    else {
+
+        appendLog(
+            "PURGING: Signal buffers cleared. Initiating engine thruster burn."
+        );
+
+
+        setTimeout(
+            function() {
+
+                appendLog(
+
+                    "\"RESPONSE RECEIVED [6241 AD]: By cutting communication, you forced humanity to transcend physical space before Earth burned. Branch B initialized: The Ascent.\"",
+
+                    true
+
+                );
+
+            },
+            1200
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+decodeBtn.addEventListener(
+    "click",
+    attemptDecode
+);
+
+
+/*
+   The original game had a TRANSMIT REPLY
+   button but it didn't actually do anything.
+   Now it explains that the transmission decision
+   is presented after decoding.
+*/
+
+transmitBtn.addEventListener(
+    "click",
+    function() {
+
+        if (!gameState.decoded) {
+
+            return;
+
+        }
+
+
+        appendLog(
+            "TRANSMISSION CHANNEL ARMED. Awaiting operator decision."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   CLOCK
+========================================================= */
+
+let futureSeconds =
+    3 * 60 + 17;
+
+
+function updateClock() {
+
+    futureSeconds += 1;
+
+
+    const hours =
+        Math.floor(
+            futureSeconds / 3600
+        ) % 24;
+
+
+    const minutes =
+        Math.floor(
+            futureSeconds / 60
+        ) % 60;
+
+
+    const seconds =
+        futureSeconds % 60;
+
+
+    const h =
+        hours
+            .toString()
+            .padStart(2, "0");
+
+
+    const m =
+        minutes
+            .toString()
+            .padStart(2, "0");
+
+
+    const s =
+        seconds
+            .toString()
+            .padStart(2, "0");
+
+
+    document.getElementById(
+        "clock-display"
+    ).innerText =
+        "2,241.082 AD | " +
+        h +
+        ":" +
+        m +
+        ":" +
+        s;
+
+}
+
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+/* =========================================================
+   THREE.JS LOOP
+========================================================= */
+
+function animate() {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    targetStar.rotation.x += .008;
+
+    targetStar.rotation.y += .012;
+
+
+    targetGlow.rotation.x -= .003;
+
+    targetGlow.rotation.y += .004;
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+animate();
+
+
+/* =========================================================
+   INITIAL ALIGNMENT CHECK
+========================================================= */
+
+checkAlignment();
+
+</script>
+
+</body>
+</html>

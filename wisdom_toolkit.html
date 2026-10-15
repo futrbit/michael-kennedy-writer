@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WISDOM // TOOLKIT</title>
+<style>
+:root{
+  --paper:#f5f1e8;--ink:#171717;--muted:#706e67;--line:#c9c2b5;
+  --accent:#d84b2f;--gold:#d6a62b;--blue:#315b73;--card:#fffdf7;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}.shell{max-width:1400px;margin:auto;padding:20px}
+.top{min-height:92vh;border:1px solid var(--ink);position:relative;overflow:hidden;background:var(--card);display:flex;flex-direction:column}
+.top:before{content:"";position:absolute;width:44vw;height:44vw;border-radius:50%;background:var(--gold);right:-18vw;top:-20vw;opacity:.9}
+.topbar{display:flex;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--ink);position:relative;z-index:2;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.hero{position:relative;z-index:1;padding:clamp(55px,10vw,130px) clamp(25px,7vw,100px) 70px;display:grid;grid-template-columns:1.3fr .7fr;gap:60px;flex:1;align-items:end}
+.kicker{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:800}
+h1{font-size:clamp(64px,11vw,170px);line-height:.78;letter-spacing:-.075em;margin:20px 0 30px;max-width:900px}
+.hero p{font-family:Georgia,serif;font-size:clamp(20px,2.5vw,32px);line-height:1.2;max-width:690px;margin:0}
+.orbit{height:320px;width:320px;border:1px solid var(--ink);border-radius:50%;display:grid;place-items:center;position:relative}
+.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid var(--ink);border-radius:50%;inset:35px}.orbit:after{inset:85px}
+.orbit span{font-size:12px;letter-spacing:.15em;text-transform:uppercase;text-align:center;max-width:100px}
+.dot{position:absolute;width:13px;height:13px;background:var(--accent);border-radius:50%;top:25px;left:50%;animation:spin 8s linear infinite;transform-origin:0 135px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress{position:sticky;top:0;z-index:20;background:rgba(245,241,232,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.progress-inner{max-width:1400px;margin:auto;padding:10px 20px;display:flex;align-items:center;gap:12px}
+.bar{height:4px;background:var(--line);flex:1}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:.5s}.count{font-size:11px;letter-spacing:.12em}
+section{padding:110px 0}.section-grid{display:grid;grid-template-columns:150px 1fr;gap:40px;border-top:1px solid var(--ink);padding-top:18px}
+.num{font-size:13px;letter-spacing:.15em}.content{max-width:1050px}h2{font-size:clamp(42px,7vw,92px);letter-spacing:-.06em;line-height:.9;margin:0 0 22px}h3{font-size:25px;margin:0 0 12px}.lead{font:24px/1.3 Georgia,serif;max-width:760px;color:#383630}
+.card{background:var(--card);border:1px solid var(--ink);padding:28px;margin-top:35px}.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+.tool{border:1px solid var(--line);padding:22px;min-height:210px;background:#fbf8f0;cursor:pointer;transition:.25s}.tool:hover,.tool.active{transform:translateY(-5px);border-color:var(--ink);box-shadow:8px 8px 0 var(--ink)}
+.tool .icon{font-size:30px;margin-bottom:35px}.tool small{color:var(--muted);display:block;line-height:1.45}
+.meter{margin-top:28px}.meterline{height:12px;border:1px solid var(--ink);padding:2px}.meterline i{height:100%;display:block;background:var(--accent);width:50%;transition:.5s}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.labels{display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.prompt{font:30px/1.2 Georgia,serif;min-height:110px}.answer{width:100%;min-height:150px;border:1px solid var(--ink);background:#fff;padding:18px;resize:vertical;outline:none}.answer:focus{box-shadow:5px 5px 0 var(--gold)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button{border:1px solid var(--ink);background:var(--ink);color:white;padding:12px 17px;cursor:pointer;text-transform:uppercase;letter-spacing:.1em;font-size:11px}button.alt{background:transparent;color:var(--ink)}button:hover{transform:translateY(-2px)}
+.quote{border-left:7px solid var(--gold);padding:8px 25px;font:italic 32px/1.2 Georgia,serif;margin:30px 0}
+.reading{display:grid;grid-template-columns:1fr 1fr;gap:12px}.book{border:1px solid var(--ink);padding:22px;min-height:180px;background:#fff}.book b{font-size:20px}.book span{display:block;margin-top:35px;font-size:12px;color:var(--muted)}
+
+.library-nav{display:flex;flex-wrap:wrap;gap:8px;margin:25px 0}
+.topic{background:transparent;color:var(--ink);border:1px solid var(--line);padding:10px 14px;font-size:11px;letter-spacing:.1em}
+.topic.active,.topic:hover{background:var(--ink);color:#fff}
+.library-display{display:grid;grid-template-columns:1fr .8fr;gap:0;border:1px solid var(--ink);background:#fff}
+.library-main{padding:34px;border-right:1px solid var(--ink);min-height:290px}
+.library-main h3{font-size:clamp(35px,5vw,62px);letter-spacing:-.05em;margin:0 0 15px}
+.library-main p{font:21px/1.4 Georgia,serif;max-width:650px}
+.library-aside{padding:28px;background:#f1ede3}
+.library-aside b{font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.library-aside ul{padding-left:18px;line-height:1.8;font-size:13px}
+.philosophers{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:28px}
+.phil{border:1px solid var(--line);background:#fbf8f0;padding:20px;min-height:150px;cursor:pointer;transition:.2s}
+.phil:hover,.phil.active{background:var(--gold);border-color:var(--ink);transform:translateY(-4px)}
+.phil strong{font-size:18px;display:block}.phil small{display:block;margin-top:30px;color:#555}
+.phil-room{margin-top:12px;border:1px solid var(--ink);background:#fff;padding:34px;display:grid;grid-template-columns:.65fr 1.35fr;gap:35px}
+.phil-room h3{font-size:38px;letter-spacing:-.04em}
+.phil-room p{font:22px/1.45 Georgia,serif;margin:0}
+.source-note{font-size:11px!important;font-family:inherit!important;color:var(--muted);margin-top:25px!important}
+@media(max-width:800px){.library-display,.phil-room{grid-template-columns:1fr}.library-main{border-right:0;border-bottom:1px solid var(--ink)}.philosophers{grid-template-columns:1fr 1fr}}
+
+.final{background:var(--ink);color:var(--paper);padding:80px 7vw;margin:0 -20px}.final h2{max-width:900px}.signal{font:24px Georgia,serif;max-width:720px;color:#ddd}.saved{font-size:12px;letter-spacing:.12em;color:#aaa;margin-top:35px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.orbit{width:220px;height:220px}.orbit:before{inset:25px}.orbit:after{inset:60px}.dot{transform-origin:0 90px}.tools,.reading{grid-template-columns:1fr}.section-grid{grid-template-columns:1fr;gap:10px}section{padding:75px 0}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="top">
+<div class="topbar"><span>WISDOM // TOOLKIT</span><span>01 — 08</span></div>
+<div class="hero">
+<div>
+<div class="kicker">An interactive companion</div>
+<h1>LIVE<br>WISE.</h1>
+<p>A small room on the internet for becoming quieter, clearer and more awake.</p>
+</div>
+<div class="orbit"><div class="dot"></div><span>breath<br>inquiry<br>reflection<br>meaning</span></div>
+</div>
+</div>
+
+<div class="progress"><div class="progress-inner"><span class="count" id="count">01 / 08</span><div class="bar"><i id="bar"></i></div><span class="count">YOUR JOURNEY</span></div></div>
+
+<section id="s1">
+<div class="section-grid"><div class="num">01 / ARRIVE</div><div class="content">
+<h2>Before wisdom,<br>there is attention.</h2>
+<p class="lead">Start by noticing the state you actually occupy. Don't fix it. Name it.</p>
+<div class="card">
+<h3>Where are you right now?</h3>
+<input id="mood" type="range" min="0" max="100" value="50">
+<div class="labels"><span>restless</span><span id="moodValue">steady</span><span>open</span></div>
+<div class="meter"><div class="meterline"><i id="moodBar"></i></div></div>
+</div>
+</div></div>
+</section>
+
+<section id="s2">
+<div class="section-grid"><div class="num">02 / MEDITATE</div><div class="content">
+<h2>Three doors<br>inward.</h2>
+<p class="lead">Choose a practice. Stay for as long as feels useful. The point isn't performance.</p>
+<div class="tools">
+<div class="tool active" data-med="breath"><div class="icon">◯</div><h3>Breath</h3><small>Follow five slow breaths. Notice the beginning, middle and end of each one.</small></div>
+<div class="tool" data-med="metta"><div class="icon">♡</div><h3>Kindness</h3><small>Offer a simple wish of wellbeing to yourself, someone you love, and someone difficult.</small></div>
+<div class="tool" data-med="inquiry"><div class="icon">?</div><h3>Inquiry</h3><small>Ask “Who am I?” Then notice what appears without trying to manufacture an answer.</small></div>
+</div>
+<div class="card" id="medBox">
+<h3 id="medTitle">BREATH PRACTICE</h3>
+<p id="medText">Sit comfortably. Breathe naturally. Follow five breaths without changing them. When attention wanders, return gently.</p>
+<button id="startBreath">START 60 SECOND PRACTICE</button>
+<div class="meter"><div class="meterline"><i id="timerBar"></i></div></div>
+<p id="timer" style="font-size:12px;letter-spacing:.1em">READY</p>
+</div>
+</div></div>
+</section>
+
+<section id="s3">
+<div class="section-grid"><div class="num">03 / REFLECT</div><div class="content">
+<h2>Ask better<br>questions.</h2>
+<p class="lead">Wisdom often arrives as a better question rather than a faster answer.</p>
+<div class="card">
+<div class="prompt" id="prompt">What did a difficult experience teach you that comfort never could?</div>
+<textarea class="answer" id="answer" placeholder="Write without editing yourself…"></textarea>
+<div class="actions"><button id="newPrompt">ANOTHER QUESTION</button><button class="alt" id="saveNote">SAVE REFLECTION</button></div>
+<p id="saveState" class="saved"></p>
+</div>
+</div></div>
+</section>
+
+<section id="s4">
+<div class="section-grid"><div class="num">04 / GRATITUDE</div><div class="content">
+<h2>Change the<br>frame.</h2>
+<p class="lead">Gratitude isn't pretending everything is good. It is training attention to notice what is here.</p>
+<div class="card">
+<h3>Find one thing.</h3>
+<p>Move the dial until it represents how much space gratitude has in your attention today.</p>
+<input id="gratitude" type="range" min="0" max="100" value="35">
+<div class="labels"><span>noticing</span><span id="gratText">35%</span><span>deeply noticing</span></div>
+<div class="quote">“What you pay attention to becomes part of the world you inhabit.”</div>
+</div>
+</div></div>
+</section>
+
+<section id="s5">
+<div class="section-grid"><div class="num">05 / READ</div><div class="content">
+<h2>Borrow a<br>mind.</h2>
+<p class="lead">Reading lets another human being change the shape of a question inside you.</p>
+<div class="reading">
+<div class="book"><b>Meditations</b><span>Marcus Aurelius · attention, resilience, conduct</span></div>
+<div class="book"><b>Man's Search for Meaning</b><span>Viktor E. Frankl · meaning, suffering, responsibility</span></div>
+<div class="book"><b>The Wisdom of Insecurity</b><span>Alan Watts · presence, uncertainty, impermanence</span></div>
+<div class="book"><b>The Art of Happiness</b><span>Dalai Lama & Howard Cutler · compassion, discipline, happiness</span></div>
+<div class="book"><b>The Untethered Soul</b><span>Michael A. Singer · observation, inner freedom</span></div>
+<div class="book"><b>The Four Agreements</b><span>Don Miguel Ruiz · principles for everyday conduct</span></div>
+</div>
+</div></div>
+</section>
+
+
+<section id="s6">
+<div class="section-grid"><div class="num">06 / LIBRARY</div><div class="content">
+<h2>Enter the<br>ideas.</h2>
+<p class="lead">A living index of the questions human beings have returned to for thousands of years.</p>
+<div class="library-nav" id="topicNav"></div>
+<div class="library-display">
+<div class="library-main"><div class="kicker" id="topicKicker">A QUESTION</div><h3 id="topicTitle">TIME</h3><p id="topicText">We experience time as a line, but much of wisdom asks us to examine how we spend the small portion of it we actually possess.</p></div>
+<div class="library-aside"><b>Explore</b><ul id="topicList"><li>Mortality</li><li>Attention</li><li>Change</li></ul></div>
+</div>
+</div></div>
+</section>
+
+<section id="s7">
+<div class="section-grid"><div class="num">07 / PHILOSOPHY</div><div class="content">
+<h2>Borrow a<br>mind.</h2>
+<p class="lead">Enter a tradition of thought. Read what a thinker actually argued, then decide what you think.</p>
+<div class="philosophers" id="philosophers"></div>
+<div class="phil-room">
+<div><div class="kicker">THE STUDY</div><h3 id="philName">MARCUS AURELIUS</h3></div>
+<div><p id="philText">Stoic practice places attention on what belongs to our agency: our judgments, choices and actions. The exercise is not to control the world, but to conduct ourselves deliberately within it.</p><p class="source-note" id="philSource">Primary work: Meditations. This summary describes a documented philosophical tradition; it is not a quotation.</p></div>
+</div>
+</div></div>
+</section>
+
+<section id="s8">
+<div class="section-grid"><div class="num">08 / RETURN</div><div class="content">
+<h2>Take it<br>outside.</h2>
+<p class="lead">The toolkit ends where ordinary life begins. Choose one small thing to carry with you.</p>
+<div class="card">
+<h3>Your one practice</h3>
+<input id="practice" type="range" min="0" max="3" step="1" value="0">
+<div class="labels"><span>listen</span><span id="practiceText">pause</span><span>act</span></div>
+<div class="quote" id="finalQuote">Pause before the next thing you say. Let the space count.</div>
+<button id="finish">COMPLETE TODAY'S JOURNEY</button>
+</div>
+</div></div>
+</section>
+
+<div class="final">
+<div class="kicker">WISDOM TOOLKIT / COMPLETE</div>
+<h2 id="ending">You don't need to become someone else.</h2>
+<p class="signal">You only need to see more clearly what is already happening — and choose your next small action with care.</p>
+<div class="saved" id="finalStatus">TODAY'S SESSION IS YOURS.</div>
+</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const sections=[...document.querySelectorAll("section")];
+const bar=$("#bar"),count=$("#count");
+function updateProgress(){
+ let y=scrollY+innerHeight*.35, idx=sections.findLastIndex(s=>s.offsetTop<=y);
+ idx=Math.max(0,idx);
+ bar.style.width=((idx+1)/8*100)+"%";
+ count.textContent=String(idx+1).padStart(2,"0")+" / 08";
+}
+addEventListener("scroll",updateProgress); updateProgress();
+
+const mood=$("#mood"),moodBar=$("#moodBar"),moodValue=$("#moodValue");
+function moodUpdate(){
+ let v=+mood.value;moodBar.style.width=v+"%";
+ moodValue.textContent=v<34?"restless":v<67?"steady":"open";
+}
+mood.addEventListener("input",moodUpdate);moodUpdate();
+
+const medData={
+ breath:["BREATH PRACTICE","Sit comfortably. Breathe naturally. Follow five breaths without changing them. When attention wanders, return gently."],
+ metta:["LOVING-KINDNESS","Repeat quietly: May I be well. May I be safe. May I live with ease. Then extend the same wish to another person."],
+ inquiry:["SELF-INQUIRY","Ask “Who am I?” and let the question rest. Notice thoughts, memories and sensations without needing to solve them."]
+};
+document.querySelectorAll(".tool").forEach(t=>t.onclick=()=>{
+ document.querySelectorAll(".tool").forEach(x=>x.classList.remove("active"));t.classList.add("active");
+ const d=medData[t.dataset.med];$("#medTitle").textContent=d[0];$("#medText").textContent=d[1];
+});
+let timer=null;
+$("#startBreath").onclick=()=>{
+ if(timer)return;
+ let start=Date.now(),duration=60000;
+ $("#startBreath").textContent="PRACTICE RUNNING";
+ timer=setInterval(()=>{
+  let left=Math.max(0,duration-(Date.now()-start));
+  $("#timer").textContent=Math.ceil(left/1000)+" SECONDS";
+  $("#timerBar").style.width=((duration-left)/duration*100)+"%";
+  if(left<=0){clearInterval(timer);timer=null;$("#timer").textContent="COMPLETE — NOTICE HOW YOU FEEL";$("#startBreath").textContent="START AGAIN";}
+ },100);
+};
+
+const prompts=[
+"What did a difficult experience teach you that comfort never could?",
+"What are you avoiding because you already know what it asks of you?",
+"What would change if you stopped needing everyone to understand you?",
+"Which value do you claim to hold, and where did you last act on it?",
+"What would you notice today if you moved 10% slower?",
+"What is enough for you, before anyone else tells you what enough means?"
+];
+let pi=0;
+$("#newPrompt").onclick=()=>{pi=(pi+1)%prompts.length;$("#prompt").textContent=prompts[pi];$("#answer").focus()};
+$("#saveNote").onclick=()=>{
+ const text=$("#answer").value.trim();
+ if(!text){$("#saveState").textContent="WRITE SOMETHING FIRST.";return}
+ localStorage.setItem("wisdomReflection",text);
+ $("#saveState").textContent="REFLECTION SAVED LOCALLY · "+new Date().toLocaleTimeString();
+};
+if(localStorage.getItem("wisdomReflection"))$("#saveState").textContent="A PREVIOUS REFLECTION IS SAVED ON THIS DEVICE.";
+
+$("#gratitude").oninput=()=>$("#gratText").textContent=$("#gratitude").value+"%";
+
+
+const topics={
+ TIME:["TIME","We experience time as a line, but much of wisdom asks us to examine how we spend the small portion of it we actually possess.",["Mortality","Attention","Change"]],
+ LOVE:["LOVE","Love can be approached not only as feeling, but as attention, responsibility, vulnerability and action.",["Attachment","Compassion","Responsibility"]],
+ DEATH:["DEATH","Mortality gives a finite shape to life. Philosophical traditions differ greatly on what follows, but repeatedly return to the question of how awareness of death changes living.",["Finitude","Legacy","Presence"]],
+ PURPOSE:["PURPOSE","Purpose asks what makes an action worth doing beyond immediate reward. It can be examined through values, service, craft and meaning.",["Meaning","Values","Service"]],
+ EGO:["EGO","The sense of self can be useful and also limiting. Wisdom traditions repeatedly ask which parts of the self are constructed, defended or changeable.",["Identity","Desire","Attachment"]],
+ FREEDOM:["FREEDOM","Freedom can mean choice, independence, inner discipline or responsibility. Different traditions use the word in importantly different ways.",["Choice","Agency","Responsibility"]],
+ SUFFERING:["SUFFERING","Human beings have long asked whether suffering can be reduced, endured, transformed, understood or given meaning.",["Pain","Meaning","Acceptance"]],
+ GRATITUDE:["GRATITUDE","Gratitude directs attention toward what is present and received. It can coexist with difficulty rather than requiring difficulty to disappear.",["Attention","Enough","Appreciation"]]
+};
+const topicNav=$("#topicNav");
+Object.keys(topics).forEach((k,i)=>{
+ const b=document.createElement("button");b.className="topic"+(i===0?" active":"");b.textContent=k;
+ b.onclick=()=>{
+  document.querySelectorAll(".topic").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+  const d=topics[k];$("#topicTitle").textContent=d[0];$("#topicText").textContent=d[1];
+  $("#topicList").innerHTML=d[2].map(x=>"<li>"+x+"</li>").join("");
+ };topicNav.appendChild(b);
+});
+const thinkers={
+ "MARCUS AURELIUS":["Stoic practice places attention on what belongs to our agency: our judgments, choices and actions. The exercise is not to control the world, but to conduct ourselves deliberately within it.","Primary work: Meditations."],
+ "EPICTETUS":["Epictetus distinguished between what is within our control and what is not. His teaching repeatedly turns attention toward our judgments, choices and responses.","Primary work: Discourses; Enchiridion."],
+ "ARISTOTLE":["Aristotle treated flourishing as connected to the cultivation of virtues through repeated action. Character, on this view, is shaped by practice.","Primary work: Nicomachean Ethics."],
+ "BUDDHIST TRADITIONS":["Early Buddhist teachings examine suffering, craving, impermanence and the cultivation of a path of practice. Different Buddhist traditions develop these ideas in distinct ways.","Primary sources vary by tradition; see the Pali Canon and later Buddhist literature."],
+ "LAOZI":["Daoist texts associated with Laozi explore simplicity, non-forcing, naturalness and the limits of imposing rigid control on the world.","Primary work: Dao De Jing; authorship and historical dating are debated."],
+ "NIETZSCHE":["Nietzsche examined morality, values, self-overcoming and the forces that shape how people interpret existence. His work contains tensions and deliberate provocations that invite interpretation.","Primary works include Beyond Good and Evil and Thus Spoke Zarathustra."],
+ "VIKTOR FRANKL":["Frankl's logotherapy places meaning at the centre of human life and argues that people can orient themselves toward meaning even under severe conditions.","Primary work: Man's Search for Meaning."],
+ "ALAN WATTS":["Watts introduced many Western readers to ideas from Asian philosophical traditions, often focusing on presence, the limits of conceptual control and the relationship between self and world.","Primary works include The Wisdom of Insecurity and The Book." ]
+};
+const ph=$("#philosophers");
+Object.keys(thinkers).forEach((k,i)=>{
+ const d=document.createElement("div");d.className="phil"+(i===0?" active":"");
+ d.innerHTML="<strong>"+k+"</strong><small>EXPLORE THE IDEA</small>";
+ d.onclick=()=>{
+  document.querySelectorAll(".phil").forEach(x=>x.classList.remove("active"));d.classList.add("active");
+  $("#philName").textContent=k;$("#philText").textContent=thinkers[k][0];$("#philSource").textContent=thinkers[k][1]+" This is a summary, not a quotation.";
+ };ph.appendChild(d);
+});
+
+const practices=[
+["pause","Pause before the next thing you say. Let the space count."],
+["listen","Listen to one person today without preparing your reply."],
+["notice","Notice one ordinary thing as if seeing it for the first time."],
+["act","Do one small thing that aligns with a value you say matters."]
+];
+$("#practice").oninput=()=>{let p=practices[+$("#practice").value];$("#practiceText").textContent=p[0];$("#finalQuote").textContent=p[1]};
+$("#finish").onclick=()=>{
+ localStorage.setItem("wisdomCompleted",new Date().toISOString());
+ $("#ending").textContent="Carry one thing with you.";
+ $("#finalStatus").textContent="JOURNEY COMPLETE · "+new Date().toLocaleDateString();
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+};
+</script>
+</body>
+</html>

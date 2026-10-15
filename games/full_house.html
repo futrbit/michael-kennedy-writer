@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full House - Tactical Trivia Board Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0b0f19 50%, #020617 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .scene {
+            width: 84px;
+            height: 84px;
+            perspective: 500px;
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.4s cubic-bezier(0.15, 0.85, 0.25, 1.1);
+        }
+
+        .cube__face {
+            position: absolute;
+            width: 84px;
+            height: 84px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 18px;
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.4), 0 0 25px rgba(99, 102, 241, 0.6);
+            display: grid;
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 10px;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .cube__face--1  { transform: rotateY(0deg) translateZ(42px); }
+        .cube__face--2  { transform: rotateY(90deg) translateZ(42px); }
+        .cube__face--3  { transform: rotateY(180deg) translateZ(42px); background: linear-gradient(135deg, #f59e0b, #ef4444); } /* Wild 3 */
+        .cube__face--4  { transform: rotateY(-90deg) translateZ(42px); }
+        .cube__face--5  { transform: rotateX(90deg) translateZ(42px); }
+        .cube__face--6  { transform: rotateX(-90deg) translateZ(42px); }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .block-slot {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .block-filled {
+            box-shadow: 0 0 15px currentColor;
+            transform: scale(1.06);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), inset 0 0 25px rgba(99, 102, 241, 0.4); }
+        }
+
+        .active-turn {
+            animation: pulse-glow 2.5s infinite;
+        }
+
+        @keyframes modal-pop {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-modal {
+            animation: modal-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.25) forwards;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 3px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center p-3 sm:p-6">
+
+    <header class="w-full max-w-7xl flex justify-between items-center glass-panel px-5 py-3.5 rounded-2xl mb-4 shadow-2xl">
+        <div class="flex items-center gap-3.5">
+            <div class="bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid font-black text-2xl text-white fa-cubes"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400">FULL HOUSE <span class="text-xs px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40">TACTICAL EDITION</span></h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Roll 3 for Wild Choice &bull; Protect with Shields &bull; Risk Double-Downs!</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 sm:gap-4">
+            <div class="hidden md:flex items-center bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-700/80">
+                <span class="text-xs text-slate-400 mr-2 font-medium">MODE:</span>
+                <span id="mode-badge" class="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">VS COMPUTER</span>
+            </div>
+
+            <div class="flex items-center bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-700/80">
+                <span class="text-xs text-slate-400 mr-2 font-medium">LEVEL:</span>
+                <span id="diff-badge" class="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">MEDIUM</span>
+            </div>
+
+            <button id="sound-btn" onclick="game.toggleSound()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center">
+                <i id="sound-icon" class="fa-solid fa-volume-high text-lg"></i>
+            </button>
+
+            <button onclick="game.showSettingsModal()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center" title="Game Settings">
+                <i class="fa-solid fa-gear text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
+        
+        <!-- Player 1 Board -->
+        <section id="p1-card" class="lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 active-turn border-2 border-cyan-500/50">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/60">
+                <div class="flex items-center gap-3">
+                    <div id="p1-avatar-icon" class="w-10 h-10 rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 font-bold shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h2 id="p1-name" class="font-extrabold text-lg text-cyan-300 tracking-wide">PLAYER 1</h2>
+                        <p class="text-xs text-slate-400" id="p1-status">Your turn to roll!</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl font-black text-cyan-400" id="p1-score-total">0</span>
+                    <span class="text-xs text-slate-400 font-bold">/ 36 BLOCKS</span>
+                </div>
+            </div>
+
+            <!-- Player 1 Tactical Controls -->
+            <div class="bg-slate-900/90 p-3 rounded-2xl mb-4 border border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-shield-halved text-cyan-400 mr-1"></i> SHIELDS:</span>
+                    <span id="p1-shields-count" class="px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-extrabold text-xs">1</span>
+                </div>
+                <button onclick="game.toggleRiskMode(1)" id="p1-risk-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> RISK 2X: <span id="p1-risk-status" class="text-slate-400">OFF</span>
+                </button>
+            </div>
+
+            <!-- 6 Topic Grid Player 1 -->
+            <div class="space-y-3" id="p1-topics-container"></div>
+        </section>
+
+        <!-- Center Interactive Dice & Turn Hub -->
+        <section class="lg:col-span-2 glass-panel rounded-3xl p-5 flex flex-col items-center justify-center gap-4 text-center border border-slate-700/50 self-center shadow-2xl">
+            <div class="text-xs font-bold tracking-widest text-slate-400 uppercase">TURN STATUS</div>
+            
+            <div id="turn-banner" class="px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse shadow-md">
+                PLAYER 1'S TURN
+            </div>
+
+            <!-- 3D Dice Object -->
+            <div class="scene my-2">
+                <div class="cube" id="dice">
+                    <div class="cube__face cube__face--1"><div class="dot" style="grid-area: 2/2"></div></div>
+                    <div class="cube__face cube__face--2"><div class="dot" style="grid-area: 1/1"></div><div class="dot" style="grid-area: 3/3"></div></div>
+                    <div class="cube__face cube__face--3" title="WILD CARD!">
+                        <div class="dot" style="grid-area: 1/1"></div><div class="dot" style="grid-area: 2/2"></div><div class="dot" style="grid-area: 3/3"></div>
+                        <i class="absolute inset-0 flex items-center justify-center text-white/50 text-2xl font-black fa-solid fa-star"></i>
+                    </div>
+                    <div class="cube__face cube__face--4"><div class="dot" style="grid-area: 1/1"></div><div class="dot" style="grid-area: 1/3"></div><div class="dot" style="grid-area: 3/1"></div><div class="dot" style="grid-area: 3/3"></div></div>
+                    <div class="cube__face cube__face--5"><div class="dot" style="grid-area: 1/1"></div><div class="dot" style="grid-area: 1/3"></div><div class="dot" style="grid-area: 2/2"></div><div class="dot" style="grid-area: 3/1"></div><div class="dot" style="grid-area: 3/3"></div></div>
+                    <div class="cube__face cube__face--6"><div class="dot" style="grid-area: 1/1"></div><div class="dot" style="grid-area: 1/3"></div><div class="dot" style="grid-area: 2/1"></div><div class="dot" style="grid-area: 2/3"></div><div class="dot" style="grid-area: 3/1"></div><div class="dot" style="grid-area: 3/3"></div></div>
+                </div>
+            </div>
+
+            <div id="dice-topic-label" class="min-h-[2.75rem] flex flex-col items-center justify-center">
+                <span class="text-xs text-slate-400 font-medium">Ready to Roll Dice</span>
+            </div>
+
+            <button id="roll-btn" onclick="game.rollDice()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-black text-sm tracking-wider shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/60 hover:scale-105 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                ROLL DICE <i class="fa-solid fa-dice ml-2"></i>
+            </button>
+        </section>
+
+        <!-- Player 2 / AI Board -->
+        <section id="p2-card" class="lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 opacity-75 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/60">
+                <div class="flex items-center gap-3">
+                    <div id="p2-avatar-icon" class="w-10 h-10 rounded-full bg-pink-500/20 border-2 border-pink-400 flex items-center justify-center text-pink-300 font-bold shadow-lg shadow-pink-500/20">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h2 id="p2-name" class="font-extrabold text-lg text-pink-300 tracking-wide">AI COMPUTER</h2>
+                        <p class="text-xs text-slate-400" id="p2-status">Waiting for turn...</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl font-black text-pink-400" id="p2-score-total">0</span>
+                    <span class="text-xs text-slate-400 font-bold">/ 36 BLOCKS</span>
+                </div>
+            </div>
+
+            <!-- Player 2 Tactical Controls -->
+            <div class="bg-slate-900/90 p-3 rounded-2xl mb-4 border border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-shield-halved text-pink-400 mr-1"></i> SHIELDS:</span>
+                    <span id="p2-shields-count" class="px-2.5 py-0.5 rounded bg-pink-500/20 text-pink-300 font-extrabold text-xs">1</span>
+                </div>
+                <button id="p2-risk-ctrl-btn" onclick="game.toggleRiskMode(2)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> RISK 2X: <span id="p2-risk-status" class="text-slate-400">OFF</span>
+                </button>
+            </div>
+
+            <!-- 6 Topic Grid Player 2 -->
+            <div class="space-y-3" id="p2-topics-container"></div>
+        </section>
+    </main>
+
+    <div id="wild-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 border-2 border-amber-500/60 shadow-2xl animate-modal text-center">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center mx-auto mb-3 text-amber-400 text-2xl shadow-lg shadow-amber-500/30">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white mb-2">WILD ROLL (3)!</h3>
+            <p id="wild-modal-desc" class="text-xs text-slate-300 mb-6">You rolled a 3! Choose <strong class="text-amber-400">ANY</strong> topic category to answer.</p>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="wild-topics-grid"></div>
+        </div>
+    </div>
+
+    <div id="question-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="glass-panel max-w-xl w-full rounded-3xl p-6 sm:p-8 border-2 border-indigo-500/50 shadow-2xl animate-modal relative overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <span id="modal-category-badge" class="px-3.5 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i> SPORTS
+                </span>
+                <div class="flex items-center gap-2">
+                    <span id="modal-risk-badge" class="hidden px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40">RISK 2X ACTIVE</span>
+                    <span id="modal-timer" class="text-xs font-extrabold text-slate-400 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                        <i class="fa-solid fa-stopwatch text-amber-400 mr-1"></i> TIME: <span id="timer-sec" class="text-white">20</span>s
+                    </span>
+                </div>
+            </div>
+
+            <div id="modal-responder-banner" class="mb-3 text-xs font-bold text-cyan-400 uppercase tracking-widest">
+                PLAYER 1'S QUESTION
+            </div>
+
+            <h3 id="modal-question-text" class="text-lg sm:text-xl font-bold text-white mb-6 leading-relaxed">Loading question...</h3>
+
+            <div id="modal-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"></div>
+
+            <div id="modal-feedback" class="hidden p-4 rounded-2xl text-center text-sm font-bold border transition-all"></div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4 z-50">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border-2 border-indigo-500/60 shadow-2xl text-center animate-modal">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-cubes text-3xl text-white"></i>
+            </div>
+            
+            <h2 class="text-3xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 mb-2">FULL HOUSE</h2>
+            <p class="text-xs text-slate-300 mb-6 leading-relaxed">
+                Roll dice & fill 6 blocks across 6 categories. <strong class="text-amber-400">Roll 3 for Wild Choice!</strong> Use Shields and Risk 2X to win!
+            </p>
+
+            <div class="mb-5 text-left">
+                <label class="block text-xs font-extrabold text-slate-400 mb-2 uppercase tracking-wider">Select Game Mode</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="game.setGameMode('ai')" id="mode-ai" class="py-3 px-3 rounded-xl border font-bold text-xs transition border-cyan-500/50 bg-cyan-500/20 text-cyan-300 ring-2 ring-cyan-500">
+                        VS COMPUTER
+                    </button>
+                    <button onclick="game.setGameMode('pvp')" id="mode-pvp" class="py-3 px-3 rounded-xl border font-bold text-xs transition border-slate-700 bg-slate-800/50 text-slate-400 hover:bg-slate-700">
+                        2-PLAYER (PASS & PLAY)
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-6 text-left">
+                <label class="block text-xs font-extrabold text-slate-400 mb-2 uppercase tracking-wider">Select Difficulty</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="game.setDifficulty('easy')" id="diff-easy" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20">EASY</button>
+                    <button onclick="game.setDifficulty('medium')" id="diff-medium" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition border-indigo-500/50 bg-indigo-500/20 text-indigo-300 ring-2 ring-indigo-500">MEDIUM</button>
+                    <button onclick="game.setDifficulty('hard')" id="diff-hard" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition border-rose-500/50 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20">HARD</button>
+                </div>
+            </div>
+
+            <button onclick="game.startGame()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 text-white font-black text-base tracking-wider shadow-lg shadow-indigo-500/40 hover:scale-105 transition active:scale-95">
+                START GAME <i class="fa-solid fa-play ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="win-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-8 border-2 border-amber-500/70 shadow-2xl text-center animate-modal">
+            <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center mx-auto mb-4 text-amber-400 text-4xl shadow-xl shadow-amber-500/40">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 id="win-title" class="text-3xl font-black text-white mb-2">VICTORY!</h2>
+            <p id="win-subtitle" class="text-sm text-slate-300 mb-6">Full House achieved across all 36 blocks!</p>
+            <button onclick="game.restartGame()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-indigo-600 text-white font-black text-sm tracking-wider shadow-lg shadow-amber-500/30 hover:scale-105 transition active:scale-95">
+                PLAY AGAIN <i class="fa-solid fa-rotate-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <footer class="mt-6 text-center text-xs text-slate-500">
+        Full House Tactical Edition &bull; 6 Categories &bull; 6 Blocks &bull; AI & Pass-and-Play Modes.
+    </footer>
+
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            playDiceRoll() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                for (let i = 0; i < 5; i++) {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(140 + Math.random() * 220, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.06);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.06);
+                }
+            }
+            playCorrect() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.25);
+                });
+            }
+            playWrong() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+            playShield() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(640, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(now); osc.stop(now + 0.25);
+            }
+            playWin() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [440, 554.37, 659.25, 880, 659.25, 880].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.25, now + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.3);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.12); osc.stop(now + idx * 0.12 + 0.3);
+                });
+            }
+        }
+
+        const TRIVIA_DATABASE = {
+            1: { // Sports
+                easy: [
+                    { q: "How many players are on a standard soccer team on the pitch?", a: ["11", "9", "10", "12"], c: 0 },
+                    { q: "In which sport do you hit a shuttlecock over a net?", a: ["Badminton", "Tennis", "Squash", "Table Tennis"], c: 0 },
+                    { q: "What color jersey is traditionally awarded to the leader of the Tour de France?", a: ["Yellow", "Green", "Red", "Pink"], c: 0 },
+                    { q: "How long is a standard marathon in miles (approx)?", a: ["26.2 miles", "20 miles", "30 miles", "13.1 miles"], c: 0 }
+                ],
+                medium: [
+                    { q: "Which country won the FIFA Men's World Cup in 2018?", a: ["France", "Croatia", "Brazil", "Germany"], c: 0 },
+                    { q: "In tennis, what term denotes a score of 40-40?", a: ["Deuce", "Love", "Advantage", "Break"], c: 0 },
+                    { q: "How many dimples are typically on a standard golf ball?", a: ["300 to 500", "100 to 200", "600 to 700", "50 to 100"], c: 0 },
+                    { q: "Which Olympic sport includes 'snatch' and 'clean and jerk'?", a: ["Weightlifting", "Powerlifting", "Gymnastics", "Wrestling"], c: 0 }
+                ],
+                hard: [
+                    { q: "Which athlete won 7 Olympic gold medals in swimming at the 1972 Munich Games?", a: ["Mark Spitz", "Michael Phelps", "Ian Thorpe", "Ryan Lochte"], c: 0 },
+                    { q: "In cricket, what is the length of a regulation pitch between stumps?", a: ["22 yards", "20 yards", "24 yards", "18 yards"], c: 0 },
+                    { q: "Which NBA player scored 100 points in a single game in 1962?", a: ["Wilt Chamberlain", "Kobe Bryant", "Michael Jordan", "Bill Russell"], c: 0 },
+                    { q: "In curling, what is the central point of the target area called?", a: ["The Button", "The Pin", "The Eye", "The Spot"], c: 0 }
+                ]
+            },
+            2: { // History
+                easy: [
+                    { q: "Who was the first President of the United States?", a: ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"], c: 0 },
+                    { q: "In which year did World War II end?", a: ["1945", "1939", "1918", "1950"], c: 0 },
+                    { q: "Which ancient civilization built the Pyramids of Giza?", a: ["Egyptians", "Romans", "Greeks", "Mayans"], c: 0 },
+                    { q: "Who painted the Mona Lisa?", a: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], c: 0 }
+                ],
+                medium: [
+                    { q: "Who was the British Prime Minister during most of WWII?", a: ["Winston Churchill", "Neville Chamberlain", "Clement Attlee", "Harold Macmillan"], c: 0 },
+                    { q: "Which famous wall fell in 1989, marking the end of the Cold War era in Germany?", a: ["Berlin Wall", "Hadrian's Wall", "Great Wall", "Kremlin Wall"], c: 0 },
+                    { q: "Who was the first female Prime Minister of the United Kingdom?", a: ["Margaret Thatcher", "Theresa May", "Indira Gandhi", "Golda Meir"], c: 0 },
+                    { q: "The Magna Carta was signed in which year?", a: ["1215", "1066", "1314", "1492"], c: 0 }
+                ],
+                hard: [
+                    { q: "Which Byzantine Emperor codified Roman law into the Corpus Juris Civilis?", a: ["Justinian I", "Constantine Great", "Theodosius", "Basil II"], c: 0 },
+                    { q: "The Treaty of Utrecht (1713) concluded which European conflict?", a: ["War of the Spanish Succession", "Thirty Years' War", "Seven Years' War", "War of Austrian Succession"], c: 0 },
+                    { q: "In what year was the Battle of Hastings fought?", a: ["1066", "1086", "1016", "1100"], c: 0 },
+                    { q: "Who was the last Emperor of the Western Roman Empire?", a: ["Romulus Augustulus", "Julius Caesar", "Nero", "Tiberius"], c: 0 }
+                ]
+            },
+            3: { // Geography
+                easy: [
+                    { q: "What is the largest continent on Earth by area?", a: ["Asia", "Africa", "North America", "Antarctica"], c: 0 },
+                    { q: "What is the capital city of France?", a: ["Paris", "Lyon", "Marseille", "Nice"], c: 0 },
+                    { q: "Which river is the longest in the world?", a: ["Nile", "Amazon", "Mississippi", "Yangtze"], c: 0 },
+                    { q: "Which ocean is the largest on Earth?", a: ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"], c: 0 }
+                ],
+                medium: [
+                    { q: "What is the capital of Australia?", a: ["Canberra", "Sydney", "Melbourne", "Brisbane"], c: 0 },
+                    { q: "Which country has the longest coastline in the world?", a: ["Canada", "Russia", "Indonesia", "Australia"], c: 0 },
+                    { q: "Mount Kilimanjaro is located in which African nation?", a: ["Tanzania", "Kenya", "Uganda", "Ethiopia"], c: 0 },
+                    { q: "Which European country is divided into 26 cantons?", a: ["Switzerland", "Austria", "Belgium", "Norway"], c: 0 }
+                ],
+                hard: [
+                    { q: "What is the capital city of Kazakhstan?", a: ["Astana", "Almaty", "Tashkent", "Bishkek"], c: 0 },
+                    { q: "Which desert is the largest hot desert in the world?", a: ["Sahara Desert", "Gobi Desert", "Kalahari Desert", "Arabian Desert"], c: 0 },
+                    { q: "Which island nation is the most densely populated in the world?", a: ["Monaco", "Singapore", "Maldives", "Malta"], c: 0 },
+                    { q: "What river flows through the Grand Canyon?", a: ["Colorado River", "Rio Grande", "Columbia River", "Missouri River"], c: 0 }
+                ]
+            },
+            4: { // Science & Tech
+                easy: [
+                    { q: "What element does 'O' represent on the periodic table?", a: ["Oxygen", "Osmium", "Gold", "Hydrogen"], c: 0 },
+                    { q: "What planet is known as the Red Planet?", a: ["Mars", "Venus", "Jupiter", "Saturn"], c: 0 },
+                    { q: "What force keeps us grounded on Earth?", a: ["Gravity", "Magnetism", "Friction", "Tension"], c: 0 },
+                    { q: "What company developed the Windows operating system?", a: ["Microsoft", "Apple", "Google", "IBM"], c: 0 }
+                ],
+                medium: [
+                    { q: "What is the hardest natural substance on Earth?", a: ["Diamond", "Quartz", "Corundum", "Topaz"], c: 0 },
+                    { q: "What speed does light travel in a vacuum (approx)?", a: ["300,000 km/s", "150,000 km/s", "1,000,000 km/s", "30,000 km/s"], c: 0 },
+                    { q: "Who is considered the father of modern computer science?", a: ["Alan Turing", "Charles Babbage", "John von Neumann", "Ada Lovelace"], c: 0 },
+                    { q: "What gas do plants absorb during photosynthesis?", a: ["Carbon Dioxide", "Oxygen", "Nitrogen", "Methane"], c: 0 }
+                ],
+                hard: [
+                    { q: "What is the power center / powerhouse of the biological cell?", a: ["Mitochondria", "Ribosome", "Nucleus", "Endoplasmic Reticulum"], c: 0 },
+                    { q: "What particle carries a negative electric charge?", a: ["Electron", "Proton", "Neutron", "Positron"], c: 0 },
+                    { q: "Which scientist proposed the principle of quantum uncertainty?", a: ["Werner Heisenberg", "Niels Bohr", "Max Planck", "Erwin Schrödinger"], c: 0 },
+                    { q: "What is the chemical formula for table salt?", a: ["NaCl", "KCl", "NaOH", "CaCl2"], c: 0 }
+                ]
+            },
+            5: { // Entertainment
+                easy: [
+                    { q: "Who plays Iron Man in the Marvel Cinematic Universe?", a: ["Robert Downey Jr.", "Chris Evans", "Chris Hemsworth", "Mark Ruffalo"], c: 0 },
+                    { q: "Which streaming giant produced 'Stranger Things'?", a: ["Netflix", "Hulu", "Disney+", "HBO Max"], c: 0 },
+                    { q: "What animated film features the song 'Let It Go'?", a: ["Frozen", "Moana", "Tangled", "Brave"], c: 0 },
+                    { q: "Which pop singer is known as the 'Queen of Pop'?", a: ["Madonna", "Britney Spears", "Beyoncé", "Lady Gaga"], c: 0 }
+                ],
+                medium: [
+                    { q: "Which film won the Best Picture Oscar in 2020 (the first non-English winner)?", a: ["Parasite", "1917", "Joker", "Once Upon a Time in Hollywood"], c: 0 },
+                    { q: "In 'The Office' (US), what is the name of the paper company?", a: ["Dunder Mifflin", "Initech", "Sterling Cooper", "Sabre"], c: 0 },
+                    { q: "Who directed the sci-fi epic 'Inception'?", a: ["Christopher Nolan", "Steven Spielberg", "Denis Villeneuve", "James Cameron"], c: 0 },
+                    { q: "Which band sang 'Bohemian Rhapsody'?", a: ["Queen", "The Beatles", "Led Zeppelin", "Pink Floyd"], c: 0 }
+                ],
+                hard: [
+                    { q: "What was the highest-grossing film worldwide before Avatar passed it?", a: ["Titanic", "Jurassic Park", "Star Wars", "E.T."], c: 0 },
+                    { q: "In Game of Thrones, what is the ancestral house of Jon Snow's mother?", a: ["House Stark", "House Targaryen", "House Baratheon", "House Martell"], c: 0 },
+                    { q: "Which composer created the famous score for 'Star Wars' and 'Jaws'?", a: ["John Williams", "Hans Zimmer", "Ennio Morricone", "Howard Shore"], c: 0 },
+                    { q: "What year was the original Nintendo Entertainment System (NES) released in North America?", a: ["1985", "1983", "1987", "1989"], c: 0 }
+                ]
+            },
+            6: { // Literature & Arts
+                easy: [
+                    { q: "Who wrote 'Romeo and Juliet'?", a: ["William Shakespeare", "Charles Dickens", "Mark Twain", "Jane Austen"], c: 0 },
+                    { q: "Which famous artist cut off part of his own ear?", a: ["Vincent van Gogh", "Pablo Picasso", "Claude Monet", "Salvador Dalí"], c: 0 },
+                    { q: "What is the first book in the Harry Potter series?", a: ["Sorcerer's / Philosopher's Stone", "Chamber of Secrets", "Prisoner of Azkaban", "Goblet of Fire"], c: 0 },
+                    { q: "Which city is home to the Louvre museum?", a: ["Paris", "Rome", "London", "Florence"], c: 0 }
+                ],
+                medium: [
+                    { q: "Who painted 'The Starry Night'?", a: ["Vincent van Gogh", "Edvard Munch", "Paul Cézanne", "Henri Matisse"], c: 0 },
+                    { q: "What classic novel begins with the line 'Call me Ishmael'?", a: ["Moby-Disk", "Great Expectations", "To Kill a Mockingbird", "1984"], c: 0 },
+                    { q: "Who wrote the dystopian novel '1984'?", a: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"], c: 0 },
+                    { q: "Which architectural style features pointed arches, vaulted ceilings, and flying buttresses?", a: ["Gothic", "Romanesque", "Baroque", "Renaissance"], c: 0 }
+                ],
+                hard: [
+                    { q: "Who painted the ceiling of the Sistine Chapel?", a: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Titian"], c: 0 },
+                    { q: "Which French author wrote 'Les Misérables' and 'The Hunchback of Notre-Dame'?", a: ["Victor Hugo", "Alexandre Dumas", "Gustave Flaubert", "Émile Zola"], c: 0 },
+                    { q: "What epic poem tells the story of Dante's journey through Hell, Purgatory, and Paradise?", a: ["The Divine Comedy", "The Odyssey", "Paradise Lost", "The Iliad"], c: 0 },
+                    { q: "Who wrote the play 'Waiting for Godot'?", a: ["Samuel Beckett", "Harold Pinter", "Eugene Ionesco", "Arthur Miller"], c: 0 }
+                ]
+            }
+        };
+
+        const CATEGORY_META = {
+            1: { name: "Sports", icon: "fa-volleyball", color: "from-amber-500 to-orange-500", border: "border-amber-500", text: "text-amber-400" },
+            2: { name: "History", icon: "fa-landmark", color: "from-amber-700 to-yellow-600", border: "border-yellow-600", text: "text-yellow-400" },
+            3: { name: "Geography", icon: "fa-earth-americas", color: "from-emerald-500 to-teal-600", border: "border-emerald-500", text: "text-emerald-400" },
+            4: { name: "Science", icon: "fa-flask", color: "from-cyan-500 to-blue-600", border: "border-cyan-500", text: "text-cyan-400" },
+            5: { name: "Entertainment", icon: "fa-film", color: "from-pink-500 to-rose-600", border: "border-pink-500", text: "text-pink-400" },
+            6: { name: "Arts & Lit", icon: "fa-palette", color: "from-purple-500 to-indigo-600", border: "border-purple-500", text: "text-purple-400" }
+        };
+
+        class FullHouseGame {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.gameMode = 'ai'; // 'ai' or 'pvp'
+                this.difficulty = 'medium';
+                this.activePlayer = 1;
+                this.isRolling = false;
+                this.timerInterval = null;
+                this.timerSec = 20;
+
+                this.p1Blocks = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+                this.p2Blocks = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+                this.p1Shields = 1;
+                this.p2Shields = 1;
+                this.p1Risk = false;
+                this.p2Risk = false;
+
+                this.currentDiceRoll = 1;
+                this.activeQuestion = null;
+
+                this.diceRotations = {
+                    1: { x: 0, y: 0 },
+                    2: { x: 0, y: -90 },
+                    3: { x: 0, y: -180 },
+                    4: { x: 0, y: 90 },
+                    5: { x: -90, y: 0 },
+                    6: { x: 90, y: 0 }
+                };
+
+                this.initUI();
+            }
+
+            initUI() {
+                this.renderBoards();
+            }
+
+            setGameMode(mode) {
+                this.gameMode = mode;
+                ['ai', 'pvp'].forEach(m => {
+                    const btn = document.getElementById(`mode-${m}`);
+                    if (m === mode) {
+                        btn.className = "py-3 px-3 rounded-xl border font-bold text-xs transition border-cyan-500/50 bg-cyan-500/20 text-cyan-300 ring-2 ring-cyan-500";
+                    } else {
+                        btn.className = "py-3 px-3 rounded-xl border font-bold text-xs transition border-slate-700 bg-slate-800/50 text-slate-400 hover:bg-slate-700";
+                    }
+                });
+                document.getElementById('mode-badge').innerText = mode === 'ai' ? 'VS COMPUTER' : '2-PLAYER';
+                
+                // Update P2 name & avatar in UI
+                document.getElementById('p2-name').innerText = mode === 'ai' ? 'AI COMPUTER' : 'PLAYER 2';
+                document.getElementById('p2-avatar-icon').innerHTML = mode === 'ai' ? '<i class="fa-solid fa-robot"></i>' : '<i class="fa-solid fa-user-shield"></i>';
+            }
+
+            setDifficulty(diff) {
+                this.difficulty = diff;
+                ['easy', 'medium', 'hard'].forEach(d => {
+                    const btn = document.getElementById(`diff-${d}`);
+                    if (d === diff) {
+                        btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition border-indigo-500/50 bg-indigo-500/20 text-indigo-300 ring-2 ring-indigo-500";
+                    } else {
+                        btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition border-slate-700 bg-slate-800/50 text-slate-400 hover:bg-slate-700";
+                    }
+                });
+                document.getElementById('diff-badge').innerText = diff.toUpperCase();
+            }
+
+            toggleSound() {
+                this.sound.muted = !this.sound.muted;
+                const icon = document.getElementById('sound-icon');
+                icon.className = this.sound.muted ? "fa-solid fa-volume-xmark text-lg text-slate-500" : "fa-solid fa-volume-high text-lg text-cyan-400";
+            }
+
+            showSettingsModal() {
+                document.getElementById('settings-modal').classList.remove('hidden');
+            }
+
+            startGame() {
+                document.getElementById('settings-modal').classList.add('hidden');
+                this.restartGame();
+            }
+
+            restartGame() {
+                this.p1Blocks = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+                this.p2Blocks = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+                this.p1Shields = 1;
+                this.p2Shields = 1;
+                this.p1Risk = false;
+                this.p2Risk = false;
+                this.activePlayer = 1;
+                this.isRolling = false;
+                document.getElementById('win-modal').classList.add('hidden');
+                document.getElementById('question-modal').classList.add('hidden');
+                document.getElementById('wild-modal').classList.add('hidden');
+                this.updateTurnUI();
+                this.renderBoards();
+            }
+
+            toggleRiskMode(playerNum) {
+                if (this.isRolling) return;
+                if (this.gameMode === 'ai' && playerNum === 2) return; // AI controls its own risk
+                if (this.activePlayer !== playerNum) return;
+
+                if (playerNum === 1) {
+                    this.p1Risk = !this.p1Risk;
+                    const btn = document.getElementById('p1-risk-btn');
+                    const stat = document.getElementById('p1-risk-status');
+                    if (this.p1Risk) {
+                        btn.className = "px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-xs font-bold text-amber-300 transition flex items-center gap-1.5 ring-2 ring-amber-500/50";
+                        stat.innerText = "ON (2X)"; stat.className = "text-amber-300 font-extrabold";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition flex items-center gap-1.5";
+                        stat.innerText = "OFF"; stat.className = "text-slate-400";
+                    }
+                } else {
+                    this.p2Risk = !this.p2Risk;
+                    const btn = document.getElementById('p2-risk-ctrl-btn');
+                    const stat = document.getElementById('p2-risk-status');
+                    if (this.p2Risk) {
+                        btn.className = "px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-xs font-bold text-amber-300 transition flex items-center gap-1.5 ring-2 ring-amber-500/50";
+                        stat.innerText = "ON (2X)"; stat.className = "text-amber-300 font-extrabold";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition flex items-center gap-1.5";
+                        stat.innerText = "OFF"; stat.className = "text-slate-400";
+                    }
+                }
+            }
+
+            renderBoards() {
+                this.renderPlayerBoard(1, this.p1Blocks, 'p1-topics-container', 'p1-score-total', this.p1Shields);
+                this.renderPlayerBoard(2, this.p2Blocks, 'p2-topics-container', 'p2-score-total', this.p2Shields);
+            }
+
+            renderPlayerBoard(playerNum, blocksData, containerId, totalId, shieldsCount) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                let totalCount = 0;
+
+                document.getElementById(playerNum === 1 ? 'p1-shields-count' : 'p2-shields-count').innerText = shieldsCount;
+
+                for (let topicId = 1; topicId <= 6; topicId++) {
+                    const count = blocksData[topicId];
+                    totalCount += count;
+                    const meta = CATEGORY_META[topicId];
+
+                    const row = document.createElement('div');
+                    row.className = "p-2.5 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+
+                    const label = `
+                        <div class="flex items-center gap-2.5 w-32">
+                            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr ${meta.color} flex items-center justify-center text-white text-xs font-bold shadow-md">
+                                <i class="fa-solid ${meta.icon}"></i>
+                            </div>
+                            <span class="text-xs font-bold text-slate-200 truncate">${meta.name}</span>
+                        </div>
+                    `;
+
+                    let slotsHTML = '<div class="flex items-center gap-1.5 flex-1 justify-end">';
+                    for (let slot = 1; slot <= 6; slot++) {
+                        const isFilled = slot <= count;
+                        const filledStyle = isFilled 
+                            ? `bg-gradient-to-tr ${meta.color} ${meta.text} border-opacity-100 block-filled` 
+                            : 'bg-slate-800/80 border-slate-700/60 text-slate-600';
+
+                        slotsHTML += `
+                            <div class="block-slot h-6 flex-1 rounded-md border ${filledStyle} flex items-center justify-center text-[10px] font-black transition-all">
+                                ${isFilled ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </div>
+                        `;
+                    }
+                    slotsHTML += '</div>';
+
+                    row.innerHTML = label + slotsHTML;
+                    container.appendChild(row);
+                }
+
+                document.getElementById(totalId).innerText = totalCount;
+            }
+
+            rollDice() {
+                if (this.isRolling) return;
+                if (this.gameMode === 'ai' && this.activePlayer === 2) return;
+
+                this.isRolling = true;
+                document.getElementById('roll-btn').disabled = true;
+                this.sound.playDiceRoll();
+
+                const diceElem = document.getElementById('dice');
+                const targetRoll = Math.floor(Math.random() * 6) + 1;
+                this.currentDiceRoll = targetRoll;
+
+                const rot = this.diceRotations[targetRoll];
+                diceElem.style.transform = `rotateX(${rot.x + 1080}deg) rotateY(${rot.y + 1080}deg)`;
+
+                const meta = CATEGORY_META[targetRoll];
+                document.getElementById('dice-topic-label').innerHTML = `<span class="text-xs font-bold text-indigo-400 animate-pulse">ROLLING...</span>`;
+
+                setTimeout(() => {
+                    this.isRolling = false;
+
+                    if (targetRoll === 3) {
+                        this.sound.playShield();
+                        document.getElementById('dice-topic-label').innerHTML = `
+                            <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1.5 animate-bounce">
+                                <i class="fa-solid fa-star"></i> ROLL 3: WILD CHOICE!
+                            </span>
+                        `;
+                        setTimeout(() => this.openWildModal(), 700);
+                    } else {
+                        document.getElementById('dice-topic-label').innerHTML = `
+                            <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-800 ${meta.text} border border-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid ${meta.icon}"></i> TOPIC ${targetRoll}: ${meta.name.toUpperCase()}
+                            </span>
+                        `;
+                        setTimeout(() => this.openQuestionModal(targetRoll), 500);
+                    }
+                }, 1200);
+            }
+
+            openWildModal() {
+                const grid = document.getElementById('wild-topics-grid');
+                grid.innerHTML = '';
+                const pName = this.activePlayer === 1 ? 'Player 1' : (this.gameMode === 'ai' ? 'AI Computer' : 'Player 2');
+                document.getElementById('wild-modal-desc').innerHTML = `<strong class="text-amber-400">${pName}</strong> rolled a 3! Choose <strong class="text-amber-400">ANY</strong> topic category.`;
+
+                // If AI is playing and it's AI turn, AI auto-picks wild topic
+                if (this.gameMode === 'ai' && this.activePlayer === 2) {
+                    document.getElementById('wild-modal').classList.add('hidden');
+                    let lowestTopic = 1; let minBlocks = 6;
+                    for (let i = 1; i <= 6; i++) {
+                        if (this.p2Blocks[i] < minBlocks) { minBlocks = this.p2Blocks[i]; lowestTopic = i; }
+                    }
+                    this.openQuestionModal(lowestTopic);
+                    return;
+                }
+
+                for (let i = 1; i <= 6; i++) {
+                    const meta = CATEGORY_META[i];
+                    const btn = document.createElement('button');
+                    btn.className = `p-4 rounded-2xl bg-gradient-to-tr ${meta.color} text-white font-bold text-xs flex flex-col items-center justify-center gap-2 shadow-lg hover:scale-105 transition active:scale-95`;
+                    btn.innerHTML = `<i class="fa-solid ${meta.icon} text-xl"></i><span>${meta.name}</span>`;
+                    btn.onclick = () => {
+                        document.getElementById('wild-modal').classList.add('hidden');
+                        this.openQuestionModal(i);
+                    };
+                    grid.appendChild(btn);
+                }
+
+                document.getElementById('wild-modal').classList.remove('hidden');
+            }
+
+            openQuestionModal(topicId) {
+                const meta = CATEGORY_META[topicId];
+                const pool = TRIVIA_DATABASE[topicId][this.difficulty];
+                const questionObj = pool[Math.floor(Math.random() * pool.length)];
+                
+                const rawOptions = questionObj.a;
+                const correctAnswerText = rawOptions[questionObj.c];
+                const shuffledOptions = [...rawOptions].sort(() => Math.random() - 0.5);
+                const correctIndex = shuffledOptions.indexOf(correctAnswerText);
+
+                this.activeQuestion = {
+                    topicId: topicId,
+                    question: questionObj.q,
+                    options: shuffledOptions,
+                    correctIndex: correctIndex,
+                    isRisk: this.activePlayer === 1 ? this.p1Risk : this.p2Risk
+                };
+
+                const pName = this.activePlayer === 1 ? 'PLAYER 1' : (this.gameMode === 'ai' ? 'AI COMPUTER' : 'PLAYER 2');
+                document.getElementById('modal-responder-banner').innerText = `${pName}'S QUESTION`;
+
+                document.getElementById('modal-category-badge').className = `px-3.5 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-slate-900 ${meta.text} border ${meta.border} flex items-center gap-2`;
+                document.getElementById('modal-category-badge').innerHTML = `<i class="fa-solid ${meta.icon}"></i> ${meta.name.toUpperCase()}`;
+                document.getElementById('modal-question-text').innerText = questionObj.q;
+
+                const riskBadge = document.getElementById('modal-risk-badge');
+                if (this.activeQuestion.isRisk) riskBadge.classList.remove('hidden');
+                else riskBadge.classList.add('hidden');
+
+                const optionsContainer = document.getElementById('modal-options-grid');
+                optionsContainer.innerHTML = '';
+
+                shuffledOptions.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-left text-sm font-semibold text-slate-200 hover:border-indigo-500/50 hover:text-white transition-all flex items-center justify-between group";
+                    btn.innerHTML = `
+                        <span>${opt}</span>
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center text-xs font-bold transition">${String.fromCharCode(65 + idx)}</span>
+                    `;
+                    
+                    // If AI is playing and it's AI turn, disable manual clicking & execute automated AI answer
+                    if (this.gameMode === 'ai' && this.activePlayer === 2) {
+                        btn.disabled = true;
+                    } else {
+                        btn.onclick = () => this.handleAnswer(idx);
+                    }
+                    optionsContainer.appendChild(btn);
+                });
+
+                document.getElementById('modal-feedback').className = "hidden p-4 rounded-2xl text-center text-sm font-bold border transition-all";
+                document.getElementById('question-modal').classList.remove('hidden');
+
+                if (this.gameMode === 'ai' && this.activePlayer === 2) {
+                    this.executeAIAnswer();
+                } else {
+                    this.startTimer();
+                }
+            }
+
+            startTimer() {
+                this.timerSec = 20;
+                document.getElementById('timer-sec').innerText = this.timerSec;
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timerSec--;
+                    document.getElementById('timer-sec').innerText = this.timerSec;
+                    if (this.timerSec <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.handleAnswer(-1); // Time out counts as wrong
+                    }
+                }, 1000);
+            }
+
+            executeAIAnswer() {
+                // Simulate AI thinking time (1.5s to 2.5s)
+                const thinkTime = 1400 + Math.random() * 1000;
+                document.getElementById('timer-sec').innerText = "AI";
+
+                setTimeout(() => {
+                    // Determine if AI is correct based on difficulty
+                    let accuracy = 0.55;
+                    if (this.difficulty === 'medium') accuracy = 0.75;
+                    if (this.difficulty === 'hard') accuracy = 0.90;
+
+                    const isAIWillBeCorrect = Math.random() < accuracy;
+                    const chosenIdx = isAIWillBeCorrect ? this.activeQuestion.correctIndex : (this.activeQuestion.correctIndex === 0 ? 1 : 0);
+                    
+                    // AI Risk toggle decision on Hard mode
+                    this.p2Risk = (this.difficulty === 'hard' && Math.random() < 0.4);
+                    document.getElementById('p2-risk-status').innerText = this.p2Risk ? "ON (2X)" : "OFF";
+                    document.getElementById('p2-risk-status').className = this.p2Risk ? "text-amber-300 font-extrabold" : "text-slate-400";
+                    this.activeQuestion.isRisk = this.p2Risk;
+
+                    this.handleAnswer(chosenIdx);
+                }, thinkTime);
+            }
+
+            handleAnswer(selectedIndex) {
+                clearInterval(this.timerInterval);
+                const isCorrect = selectedIndex === this.activeQuestion.correctIndex;
+                const feedbackElem = document.getElementById('modal-feedback');
+                feedbackElem.classList.remove('hidden');
+
+                const btns = document.getElementById('modal-options-grid').getElementsByTagName('button');
+                for (let i = 0; i < btns.length; i++) {
+                    btns[i].disabled = true;
+                    if (i === this.activeQuestion.correctIndex) {
+                        btns[i].className = "p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500 text-left text-sm font-semibold text-emerald-300 flex items-center justify-between";
+                    } else if (i === selectedIndex && !isCorrect) {
+                        btns[i].className = "p-4 rounded-2xl bg-rose-500/20 border border-rose-500 text-left text-sm font-semibold text-rose-300 flex items-center justify-between";
+                    } else {
+                        btns[i].classList.add('opacity-50');
+                    }
+                }
+
+                const topicId = this.activeQuestion.topicId;
+                const isRisk = this.activeQuestion.isRisk;
+                const gainAmount = isRisk ? 2 : 1;
+                const lossAmount = isRisk ? 2 : 1;
+
+                if (this.activePlayer === 1) {
+                    if (isCorrect) {
+                        this.sound.playCorrect();
+                        feedbackElem.className = "p-4 rounded-2xl text-center text-sm font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-bounce";
+                        
+                        const added = Math.min(6 - this.p1Blocks[topicId], gainAmount);
+                        this.p1Blocks[topicId] += added;
+                        feedbackElem.innerHTML = `<i class="fa-solid fa-circle-check text-lg mr-2"></i> CORRECT! Gained ${added} Block(s) in ${CATEGORY_META[topicId].name}!`;
+                        this.triggerConfetti();
+                    } else {
+                        this.sound.playWrong();
+                        feedbackElem.className = "p-4 rounded-2xl text-center text-sm font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
+                        
+                        if (this.p1Shields > 0 && this.p1Blocks[topicId] > 0) {
+                            this.p1Shields--;
+                            this.sound.playShield();
+                            feedbackElem.innerHTML = `<i class="fa-solid fa-shield-halved text-lg mr-2 text-cyan-400"></i> SHIELD ACTIVATED! Block penalty blocked!`;
+                        } else {
+                            const deducted = Math.min(this.p1Blocks[topicId], lossAmount);
+                            this.p1Blocks[topicId] -= deducted;
+                            feedbackElem.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg mr-2"></i> INCORRECT! Lost ${deducted} Block(s).`;
+                        }
+                    }
+                    this.p1Risk = false;
+                    document.getElementById('p1-risk-status').innerText = "OFF";
+                    document.getElementById('p1-risk-status').className = "text-slate-400";
+                    document.getElementById('p1-risk-btn').className = "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition flex items-center gap-1.5";
+                } else {
+                    // Player 2 or AI
+                    if (isCorrect) {
+                        this.sound.playCorrect();
+                        feedbackElem.className = "p-4 rounded-2xl text-center text-sm font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                        const added = Math.min(6 - this.p2Blocks[topicId], gainAmount);
+                        this.p2Blocks[topicId] += added;
+                        feedbackElem.innerHTML = `<i class="fa-solid fa-circle-check text-lg mr-2"></i> CORRECT! Gained ${added} Block(s)!`;
+                        this.triggerConfetti();
+                    } else {
+                        this.sound.playWrong();
+                        feedbackElem.className = "p-4 rounded-2xl text-center text-sm font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
+                        if (this.p2Shields > 0 && this.p2Blocks[topicId] > 0) {
+                            this.p2Shields--;
+                            this.sound.playShield();
+                            feedbackElem.innerHTML = `<i class="fa-solid fa-shield-halved text-lg mr-2 text-pink-400"></i> SHIELD ACTIVATED! Block penalty blocked!`;
+                        } else {
+                            const deducted = Math.min(this.p2Blocks[topicId], lossAmount);
+                            this.p2Blocks[topicId] -= deducted;
+                            feedbackElem.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg mr-2"></i> INCORRECT! Lost ${deducted} Block(s).`;
+                        }
+                    }
+                    this.p2Risk = false;
+                    document.getElementById('p2-risk-status').innerText = "OFF";
+                    document.getElementById('p2-risk-status').className = "text-slate-400";
+                }
+
+                this.renderBoards();
+
+                const winner = this.checkFullHouse(this.p1Blocks) ? "PLAYER 1" : (this.checkFullHouse(this.p2Blocks) ? (this.gameMode === 'ai' ? "AI COMPUTER" : "PLAYER 2") : null);
+
+                if (winner) {
+                    setTimeout(() => {
+                        document.getElementById('question-modal').classList.add('hidden');
+                        this.showWinModal(`${winner} WINS!`, `Full House achieved! All 36 blocks filled!`);
+                    }, 1500);
+                    return;
+                }
+
+                setTimeout(() => {
+                    document.getElementById('question-modal').classList.add('hidden');
+                    this.activePlayer = this.activePlayer === 1 ? 2 : 1;
+                    this.updateTurnUI();
+
+                    if (this.gameMode === 'ai' && this.activePlayer === 2) {
+                        setTimeout(() => this.executeAITurn(), 1000);
+                    }
+                }, 1800);
+            }
+
+            executeAITurn() {
+                document.getElementById('p2-status').innerText = "AI is rolling dice...";
+                this.sound.playDiceRoll();
+
+                const diceElem = document.getElementById('dice');
+                const targetRoll = Math.floor(Math.random() * 6) + 1;
+                const rot = this.diceRotations[targetRoll];
+                diceElem.style.transform = `rotateX(${rot.x + 1080}deg) rotateY(${rot.y + 1080}deg)`;
+
+                const meta = CATEGORY_META[targetRoll];
+                document.getElementById('dice-topic-label').innerHTML = `<span class="text-xs font-bold text-pink-400 animate-pulse">AI ROLLING...</span>`;
+
+                setTimeout(() => {
+                    if (targetRoll === 3) {
+                        document.getElementById('dice-topic-label').innerHTML = `
+                            <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                <i class="fa-solid fa-star"></i> AI WILD CHOICE!
+                            </span>
+                        `;
+                        setTimeout(() => this.openWildModal(), 800);
+                    } else {
+                        document.getElementById('dice-topic-label').innerHTML = `
+                            <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-800 ${meta.text} border border-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid ${meta.icon}"></i> TOPIC ${targetRoll}: ${meta.name.toUpperCase()}
+                            </span>
+                        `;
+                        setTimeout(() => this.openQuestionModal(targetRoll), 800);
+                    }
+                }, 1200);
+            }
+
+            checkFullHouse(blocks) {
+                return Object.values(blocks).every(count => count === 6);
+            }
+
+            updateTurnUI() {
+                const p1Card = document.getElementById('p1-card');
+                const p2Card = document.getElementById('p2-card');
+                const banner = document.getElementById('turn-banner');
+                const rollBtn = document.getElementById('roll-btn');
+
+                if (this.activePlayer === 1) {
+                    p1Card.className = "lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 active-turn border-2 border-cyan-500/60";
+                    p2Card.className = "lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 opacity-75 border border-slate-700/50";
+                    
+                    banner.className = "px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse shadow-md";
+                    banner.innerText = "PLAYER 1'S TURN";
+                    rollBtn.disabled = false;
+                    document.getElementById('p1-status').innerText = "Your turn to roll!";
+                    document.getElementById('p2-status').innerText = "Waiting for turn...";
+                } else {
+                    p2Card.className = "lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 active-turn border-2 border-pink-500/60";
+                    p1Card.className = "lg:col-span-5 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl transition-all duration-300 opacity-75 border border-slate-700/50";
+                    
+                    const p2NameTitle = this.gameMode === 'ai' ? "AI COMPUTER'S TURN" : "PLAYER 2'S TURN";
+                    banner.className = "px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider bg-pink-500/20 text-pink-300 border border-pink-500/40 animate-pulse shadow-md";
+                    banner.innerText = p2NameTitle;
+                    
+                    if (this.gameMode === 'ai') {
+                        rollBtn.disabled = true;
+                    } else {
+                        rollBtn.disabled = false;
+                        document.getElementById('p2-status').innerText = "Your turn to roll!";
+                    }
+                    document.getElementById('p1-status').innerText = "Waiting for turn...";
+                }
+            }
+
+            triggerConfetti() {
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
+                }
+            }
+
+            showWinModal(title, subtitle) {
+                this.sound.playWin();
+                this.triggerConfetti();
+                document.getElementById('win-title').innerText = title;
+                document.getElementById('win-subtitle').innerText = subtitle;
+                document.getElementById('win-modal').classList.remove('hidden');
+            }
+        }
+
+        let game;
+        window.onload = function () {
+            game = new FullHouseGame();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#090b10">
+<title>BLACKWOOD MANOR — THE CYANIDE CIPHER</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#05070a;color:#e8e2d4;font-family:Georgia,"Times New Roman",serif}
+body{min-height:100vh;overflow-x:hidden}
+button{font:inherit}
+.app{min-height:100vh;background:
+radial-gradient(circle at 50% -10%,rgba(60,78,105,.22),transparent 42%),
+linear-gradient(180deg,#080b11 0%,#05070a 100%)}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E")}
+header{position:sticky;top:0;z-index:20;background:rgba(6,8,12,.94);border-bottom:1px solid #2b3038;backdrop-filter:blur(12px)}
+.header-inner{max-width:1180px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.logo{font-family:Arial,sans-serif;font-weight:900;letter-spacing:4px;color:#c9d5e5;font-size:13px}
+.case-no{font:11px Arial,sans-serif;color:#697381;letter-spacing:2px}
+.container{max-width:1180px;margin:auto;padding:24px 16px 70px}
+.hero{border:1px solid #343a43;background:linear-gradient(135deg,#11161e,#090c11);padding:28px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-100px;top:-120px;background:rgba(83,157,190,.08);filter:blur(2px)}
+.kicker{font:10px Arial,sans-serif;letter-spacing:4px;color:#6fa6bb;margin-bottom:12px}
+h1{font-size:clamp(30px,6vw,66px);line-height:.95;margin:0;color:#eee9dd;font-weight:700;max-width:800px}
+.subtitle{font:12px Arial,sans-serif;letter-spacing:2px;color:#7e8794;margin-top:15px}
+.statusbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.status{border:1px solid #303640;padding:7px 10px;font:10px Arial,sans-serif;color:#9ca6b4;letter-spacing:1px}
+.status strong{color:#b8d5df}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:5px 0 12px;scrollbar-width:thin}
+.tab{flex:0 0 auto;border:1px solid #303640;background:#0d1117;color:#7f8997;padding:11px 14px;cursor:pointer;font:10px Arial,sans-serif;letter-spacing:1.5px}
+.tab:hover,.tab.active{background:#19212a;color:#dbe8e8;border-color:#628a98}
+.panel{display:none}
+.panel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{border:1px solid #2d333c;background:#0c1016;padding:18px}
+.card h2,.card h3{margin:0 0 10px;color:#d9d2c4}
+.card p{color:#9ca4af;line-height:1.65;font-size:14px}
+.label{font:9px Arial,sans-serif;letter-spacing:2px;color:#64798a;text-transform:uppercase;margin-bottom:8px}
+.warning{border-left:3px solid #8f5e55;background:#161014;padding:15px;color:#c9a9a2;line-height:1.55;font-size:13px}
+.objective{border-left:3px solid #5c8d9b;background:#0d171b;padding:15px;color:#b9d1d4;line-height:1.55}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.room{min-height:145px;border:1px solid #303640;background:linear-gradient(145deg,#111720,#090c11);padding:15px;cursor:pointer;transition:.15s}
+.room:hover{transform:translateY(-2px);border-color:#6b8790}
+.room .icon{font-size:25px;margin-bottom:10px}
+.room h3{font-size:15px;margin:0 0 5px}
+.room p{font:11px Arial,sans-serif;color:#6f7987;line-height:1.45}
+.room.investigated{border-color:#587b70}
+.room.investigated:after{content:"INVESTIGATED";display:block;margin-top:9px;font:8px Arial,sans-serif;letter-spacing:1.5px;color:#76a795}
+.suspects{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.suspect{border:1px solid #303640;background:#0c1016}
+.suspect-head{padding:17px;border-bottom:1px solid #292e36}
+.suspect-head h3{margin:0 0 5px;font-size:19px}
+.role{font:10px Arial,sans-serif;color:#72808d;letter-spacing:1px}
+.suspect-body{padding:15px}
+.suspect-body p{font-size:13px;line-height:1.55;color:#a4abb4}
+.clues{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.clue{padding:5px 7px;border:1px solid #3a414b;background:#11161d;font:9px Arial,sans-serif;color:#91a5ae}
+.evidence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.evidence{border:1px solid #343a43;background:#0c1016;padding:16px;cursor:pointer}
+.evidence.found{border-color:#5b7d70}
+.evidence h3{margin:0 0 7px;font-size:15px}
+.evidence p{margin:0;color:#89929e;font-size:12px;line-height:1.5}
+.evidence .tag{margin-top:12px;font:8px Arial,sans-serif;letter-spacing:2px;color:#6e8590}
+.timeline{position:relative;padding-left:25px}
+.timeline:before{content:"";position:absolute;left:7px;top:0;bottom:0;width:1px;background:#39414b}
+.event{position:relative;border:1px solid #303640;background:#0c1016;margin-bottom:10px;padding:15px;cursor:pointer}
+.event:before{content:"";position:absolute;left:-22px;top:18px;width:9px;height:9px;border:2px solid #6f8890;background:#080b10}
+.event.correct{border-color:#52766a}
+.event.selected{outline:1px solid #8aa6ad;background:#111921}
+.event .time{font:10px Arial,sans-serif;letter-spacing:2px;color:#6f8790}
+.event h3{margin:7px 0 5px;font-size:15px}
+.event p{margin:0;color:#929aa5;font-size:12px;line-height:1.5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.btn{border:1px solid #46515c;background:#121820;color:#cbd2d7;padding:11px 14px;cursor:pointer;font:10px Arial,sans-serif;letter-spacing:1.2px}
+.btn:hover{background:#1b2630;border-color:#70909a}
+.btn.primary{border-color:#648b96;background:#17242a;color:#d8ebed}
+.btn.danger{border-color:#79534f;color:#d0aaa5}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.progress{height:5px;background:#1a1f26;margin:12px 0;overflow:hidden}
+.progress span{display:block;height:100%;background:#658995;width:0;transition:.3s}
+.dialogue{border:1px solid #343a43;background:#0b0f15;padding:20px;min-height:200px}
+.speaker{font:10px Arial,sans-serif;letter-spacing:2px;color:#7595a0;text-transform:uppercase}
+.quote{font-size:18px;line-height:1.6;color:#ddd7cb;margin:15px 0}
+.choice{display:block;width:100%;text-align:left;margin:7px 0;border:1px solid #343b44;background:#11161d;color:#aeb6be;padding:12px;cursor:pointer;font-size:12px;line-height:1.4}
+.choice:hover{border-color:#65858e;background:#172027}
+.accuse{max-width:700px;margin:auto}
+.select{width:100%;padding:13px;background:#0c1117;border:1px solid #3b444d;color:#d8d2c7;margin:7px 0 14px}
+.result{padding:20px;border:1px solid #4b565e;margin-top:18px;display:none}
+.result.show{display:block}
+.result.correct{border-color:#52796c;background:#0d1714}
+.result.wrong{border-color:#75534e;background:#180f10}
+.small{font:10px Arial,sans-serif;color:#65717d;line-height:1.5}
+footer{border-top:1px solid #252b32;margin-top:30px;padding:20px 0;color:#59636f;font:9px Arial,sans-serif;letter-spacing:1px;text-align:center}
+@media(max-width:760px){
+ .container{padding:12px 10px 50px}
+ .hero{padding:22px 16px}
+ .grid,.suspects,.evidence-grid{grid-template-columns:1fr}
+ .rooms{grid-template-columns:repeat(2,1fr)}
+ .room{min-height:130px}
+ .header-inner{padding:12px}
+ .case-no{display:none}
+ .quote{font-size:16px}
+}
+@media(max-width:430px){
+ .rooms{grid-template-columns:1fr}
+ .tab{padding:10px 11px;font-size:9px}
+ h1{font-size:35px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="noise"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">BLACKWOOD // INVESTIGATIONS</div>
+    <div class="case-no">CASE #1894 · CLOSED MANOR</div>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+  <div class="kicker">CASE FILE 1894 · NIGHT OF THE STORM</div>
+  <h1>THE CYANIDE<br>CIPHER</h1>
+  <div class="subtitle">THE DEATH OF LORD ARTHUR PENDELTON</div>
+  <div class="statusbar">
+    <div class="status">EVIDENCE <strong id="evidenceCount">2 / 7</strong></div>
+    <div class="status">ROOMS <strong id="roomCount">0 / 6</strong></div>
+    <div class="status">INTERROGATIONS <strong id="interrogateCount">0 / 4</strong></div>
+    <div class="status">AUDIO <strong id="audioStatus">OFF</strong></div>
+  </div>
+</section>
+
+<nav class="tabs">
+ <button class="tab active" data-tab="briefing">BRIEFING</button>
+ <button class="tab" data-tab="rooms">MANOR</button>
+ <button class="tab" data-tab="suspects">SUSPECTS</button>
+ <button class="tab" data-tab="evidence">EVIDENCE</button>
+ <button class="tab" data-tab="timeline">TIMELINE</button>
+ <button class="tab" data-tab="accusation">ACCUSE</button>
+</nav>
+
+<section id="briefing" class="panel active">
+ <div class="grid">
+  <div class="card">
+   <div class="label">THE INCIDENT</div>
+   <h2>Blackwood Manor, 11:47 PM</h2>
+   <p>Lord Arthur Pendelton, industrialist and owner of the estate, was discovered dead in his study during a violent thunderstorm.</p>
+   <p>The door was locked. The windows were closed. Four people were inside the manor.</p>
+   <div class="warning">The attending physician initially recorded cardiac arrest. A second examination revealed traces of cyanide.</div>
+  </div>
+  <div class="card">
+   <div class="label">YOUR ASSIGNMENT</div>
+   <h2>Find the murderer.</h2>
+   <p>Investigate the manor, examine the physical evidence, question every suspect and reconstruct the final hour.</p>
+   <div class="objective"><strong>OBJECTIVE</strong><br>Discover at least four pieces of evidence and determine who had the means, motive and opportunity.</div>
+  </div>
+ </div>
+ <div class="card" style="margin-top:12px">
+  <div class="label">INITIAL REPORT</div>
+  <p>Arthur had spent the evening entertaining four guests. At 10:30 PM he announced that someone had been stealing money from his company. At 11:15 PM the storm knocked out the manor lights. At 11:47 PM a crash was heard from the study.</p>
+  <p>The suspects claim they were elsewhere when Arthur died.</p>
+  <div class="actions">
+   <button class="btn primary" onclick="openTab('rooms')">ENTER THE MANOR →</button>
+   <button class="btn" onclick="toggleAudio()">ENABLE RAIN AUDIO</button>
+ </div>
+ </div>
+</section>
+
+<section id="rooms" class="panel">
+ <div class="card" style="margin-bottom:12px">
+  <div class="label">BLACKWOOD MANOR</div>
+  <h2>Investigate the rooms</h2>
+  <p>Search each location carefully. Some evidence only becomes meaningful when compared with testimony.</p>
+  <div class="progress"><span id="roomProgress"></span></div>
+ </div>
+ <div class="rooms" id="roomGrid"></div>
+ <div class="card" id="roomDetail" style="margin-top:12px;display:none"></div>
+</section>
+
+<section id="suspects" class="panel">
+ <div class="card" style="margin-bottom:12px">
+  <div class="label">PERSONS OF INTEREST</div>
+  <h2>Four people. Four stories.</h2>
+  <p>Question each suspect. Their answers can be revisited after new evidence is discovered.</p>
+ </div>
+ <div class="suspects" id="suspectGrid"></div>
+ <div id="dialogueBox" style="margin-top:12px"></div>
+</section>
+
+<section id="evidence" class="panel">
+ <div class="card" style="margin-bottom:12px">
+  <div class="label">EVIDENCE LOCKER</div>
+  <h2>What does the evidence say?</h2>
+  <p>Click an item to examine it. Evidence collected from the manor remains here.</p>
+ </div>
+ <div class="evidence-grid" id="evidenceGrid"></div>
+</section>
+
+<section id="timeline" class="panel">
+ <div class="card" style="margin-bottom:12px">
+  <div class="label">RECONSTRUCTION</div>
+  <h2>Put the night in order.</h2>
+  <p>Select the events in chronological order. Your reconstruction will determine whether the testimony can hold together.</p>
+  <div class="small">Select an event to add it to your reconstruction. Reset to try again.</div>
+  <div class="actions"><button class="btn" onclick="resetTimeline()">RESET TIMELINE</button></div>
+ </div>
+ <div class="timeline" id="timelineList"></div>
+ <div class="card" id="timelineResult" style="display:none;margin-top:12px"></div>
+</section>
+
+<section id="accusation" class="panel">
+ <div class="card accuse">
+  <div class="label">FINAL REPORT</div>
+  <h2>Make your accusation.</h2>
+  <p>Only accuse when you have enough evidence. The case file will record your conclusion.</p>
+
+  <label class="label" for="accused">WHO KILLED LORD ARTHUR?</label>
+  <select class="select" id="accused">
+   <option value="">Select suspect...</option>
+   <option value="eleanor">Lady Eleanor Pendelton</option>
+   <option value="julian">Dr. Julian Sterling</option>
+   <option value="marcus">Marcus Vance</option>
+   <option value="evelyn">Evelyn Reed</option>
+  </select>
+
+  <label class="label" for="weapon">METHOD</label>
+  <select class="select" id="weapon">
+   <option value="">Select method...</option>
+   <option value="cyanide">Cyanide poisoning</option>
+   <option value="gun">Gunshot</option>
+   <option value="strangulation">Strangulation</option>
+   <option value="overdose">Drug overdose</option>
+  </select>
+
+  <label class="label" for="motive">MOTIVE</label>
+  <select class="select" id="motive">
+   <option value="">Select motive...</option>
+   <option value="embezzlement">Financial embezzlement</option>
+   <option value="inheritance">Inheritance</option>
+   <option value="revenge">Revenge</option>
+   <option value="blackmail">Blackmail</option>
+  </select>
+
+  <button class="btn primary" style="width:100%" onclick="makeAccusation()">SUBMIT FINAL ACCUSATION</button>
+  <div class="result" id="accusationResult"></div>
+ </div>
+</section>
+
+<footer>
+ BLACKWOOD MANOR · CASE #1894 · THE CYANIDE CIPHER<br>
+A MICHAEL KENNEDY INTERACTIVE STORY
+</footer>
+
+</main>
+</div>
+
+<script>
+const state={
+ evidence:["watch","port"],
+ rooms:[],
+ interrogated:[],
+ timeline:[],
+ audio:false
+};
+
+const rooms=[
+ {id:"study",icon:"▣",name:"Arthur's Study",desc:"The scene of the crime.",text:"The study smells faintly of bitter almonds. Arthur's desk is immaculate except for an overturned Port glass. A pocket watch lies beneath the desk.",items:["watch","port"]},
+ {id:"doctor",icon:"⚕",name:"Doctor's Office",desc:"Dr. Sterling's private room.",text:"Medical books line the walls. A locked cabinet contains medical supplies. One ledger has been disturbed recently.",items:["ledger"]},
+ {id:"library",icon:"▤",name:"Manor Library",desc:"A quiet room overlooking the gardens.",text:"Behind a row of financial books you find folded blueprints. They show a concealed service passage connecting the library and study.",items:["blueprints"]},
+ {id:"cellar",icon:"◇",name:"Wine Cellar",desc:"Old bottles and darker secrets.",text:"Dust covers almost everything. One bottle has been opened recently, although its label is undisturbed.",items:[]},
+ {id:"conservatory",icon:"♧",name:"Glass Conservatory",desc:"Cold, wet and exposed to the storm.",text:"A handkerchief lies beneath a potting bench. Its initials are not immediately clear.",items:["handkerchief"]},
+ {id:"bedroom",icon:"□",name:"Master Bedroom",desc:"Arthur's private quarters.",text:"A termination notice sits inside Arthur's bedside drawer. Someone was about to lose their position at the company.",items:["termination"]}
+];
+
+const evidence={
+ watch:{title:"Arthur's Pocket Watch",desc:"Stopped at 11:32 PM. The glass is cracked but the mechanism still works.",detail:"The watch stopped several minutes before the reported crash at 11:47 PM. This suggests Arthur was incapacitated before the sound that brought everyone running.",tag:"TIME"},
+ port:{title:"Poisoned Port Glass",desc:"A thin residue clings to the bottom of the glass.",detail:"Laboratory analysis identifies cyanide. Arthur drank Port shortly before his death. The glass was found in the study.",tag:"TOXICOLOGY"},
+ ledger:{title:"Medical Ledger",desc:"A page has been removed from Dr. Sterling's records.",detail:"The missing entry concerns a shipment of pharmaceutical compounds. The remaining entries show Sterling had access to cyanide in his medical practice.",tag:"ACCESS"},
+ blueprints:{title:"Secret Blueprints",desc:"Plans reveal a concealed passage between the library and study.",detail:"The passage provides an alternative route into the study. It explains how somebody could approach Arthur without being seen in the corridor.",tag:"OPPORTUNITY"},
+ handkerchief:{title:"Embroidered Handkerchief",desc:"Found beneath a conservatory bench.",detail:"The initials are J.S. The cloth also carries a faint chemical smell.",tag:"TRACE"},
+ termination:{title:"Termination Notice",desc:"Arthur intended to terminate an employee immediately.",detail:"The notice concerns financial discrepancies involving company accounts. The employee named is Dr. Julian Sterling.",tag:"MOTIVE"}
+};
+
+const suspects=[
+ {id:"eleanor",name:"Lady Eleanor Pendelton",role:"Arthur's wife",desc:"Elegant, controlled and apparently exhausted by her husband's business affairs.",clues:["Inheritance","Marriage","Present at manor"],lines:[
+  ["INTRO","Arthur was difficult, but I did not kill him."],
+  ["WHERE WERE YOU?","In the master bedroom. I heard the crash and came downstairs."],
+  ["THE PORT","Arthur always drank Port after dinner. I did not pour it for him."],
+  ["STERLING","Julian was one of Arthur's oldest friends. They had business disagreements."],
+  ["FINAL","You seem determined to find a murderer. Be careful that you don't invent one."]
+ ]},
+ {id:"julian",name:"Dr. Julian Sterling",role:"Family physician",desc:"Arthur's physician and longtime business associate.",clues:["Medical access","Company accounts","Last medical examination"],lines:[
+  ["INTRO","Arthur's death was tragic. I examined him after the crash."],
+  ["WHERE WERE YOU?","I was in my office reviewing medical notes during the power outage."],
+  ["THE POISON","Cyanide can be lethal in tiny quantities. But possessing medical chemicals is hardly proof of murder."],
+  ["THE LEDGER","My medical records are private. Arthur had no right to interfere with them."],
+  ["FINAL","Someone wants you to believe the obvious answer. The obvious answer is often wrong."]
+ ]},
+ {id:"marcus",name:"Marcus Vance",role:"Business partner",desc:"A charming financier whose relationship with Arthur had deteriorated.",clues:["Money dispute","Business partner","Known argument"],lines:[
+  ["INTRO","Arthur and I argued. Businessmen argue. That doesn't make me a killer."],
+  ["WHERE WERE YOU?","The library. I was reading during the storm."],
+  ["THE ACCOUNTS","Arthur accused several people of taking money. He was obsessed with the books."],
+  ["THE PASSAGE","I knew nothing about a secret passage. If I had, I might have used it to avoid him."],
+  ["FINAL","Sterling knew more about Arthur's health than any of us."]
+ ]},
+ {id:"evelyn",name:"Evelyn Reed",role:"Private secretary",desc:"Arthur's secretary for seven years and keeper of his correspondence.",clues:["Company knowledge","Access to rooms","Dismissal fears"],lines:[
+  ["INTRO","Lord Arthur was demanding, but he gave me a position when nobody else would."],
+  ["WHERE WERE YOU?","I was in the conservatory checking the windows when the lights went out."],
+  ["THE NOTICE","I knew Arthur was preparing dismissals. I was afraid, yes, but I never touched his drink."],
+  ["THE STUDY","I had access to the study during the day. Not during the storm."],
+  ["FINAL","Dr. Sterling was the one person Arthur trusted with his medical affairs."]
+ ]}
+];
+
+const timelineEvents=[
+ {id:"e1",time:"10:30 PM",title:"Arthur announces an audit",text:"Arthur tells the guests that he has discovered financial discrepancies."},
+ {id:"e2",time:"11:05 PM",title:"Dr. Sterling enters the study",text:"Sterling is seen speaking privately with Arthur."},
+ {id:"e3",time:"11:15 PM",title:"The power fails",text:"A storm knocks out the manor lights."},
+ {id:"e4",time:"11:32 PM",title:"Arthur's watch stops",text:"The pocket watch stops while Arthur is already inside the study."},
+ {id:"e5",time:"11:47 PM",title:"The crash",text:"A loud crash is heard. The suspects converge on the study."}
+];
+
+function save(){localStorage.setItem("blackwood1894",JSON.stringify(state))}
+function load(){
+ try{
+  const x=JSON.parse(localStorage.getItem("blackwood1894"));
+  if(x){Object.assign(state,x)}
+ }catch(e){}
+}
+function updateStats(){
+ document.getElementById("evidenceCount").textContent=state.evidence.length+" / 7";
+ document.getElementById("roomCount").textContent=state.rooms.length+" / 6";
+ document.getElementById("interrogateCount").textContent=state.interrogated.length+" / 4";
+ document.getElementById("roomProgress").style.width=(state.rooms.length/6*100)+"%";
+}
+function openTab(id){
+ document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));
+ document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("active",x.id===id));
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(id==="rooms")renderRooms();
+ if(id==="suspects")renderSuspects();
+ if(id==="evidence")renderEvidence();
+ if(id==="timeline")renderTimeline();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>openTab(t.dataset.tab));
+
+function renderRooms(){
+ const grid=document.getElementById("roomGrid");
+ grid.innerHTML=rooms.map(r=>`
+ <div class="room ${state.rooms.includes(r.id)?"investigated":""}" onclick="inspectRoom('${r.id}')">
+  <div class="icon">${r.icon}</div><h3>${r.name}</h3><p>${r.desc}</p>
+ </div>`).join("");
+ updateStats();
+}
+function inspectRoom(id){
+ const r=rooms.find(x=>x.id===id);
+ if(!state.rooms.includes(id))state.rooms.push(id);
+ r.items.forEach(item=>{
+  if(!state.evidence.includes(item))state.evidence.push(item);
+ });
+ save();updateStats();renderRooms();
+ const box=document.getElementById("roomDetail");
+ box.style.display="block";
+ box.innerHTML=`
+  <div class="label">${r.name}</div>
+  <h2>${r.desc}</h2>
+  <p>${r.text}</p>
+  <div class="clues">${r.items.length?r.items.map(i=>`<span class="clue">${evidence[i].title}</span>`).join(""):"<span class='clue'>NOTHING OBVIOUS FOUND</span>"}</div>
+  <div class="actions"><button class="btn" onclick="openTab('evidence')">VIEW EVIDENCE</button></div>`;
+ box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function renderEvidence(){
+ const grid=document.getElementById("evidenceGrid");
+ grid.innerHTML=Object.keys(evidence).map(id=>{
+  const e=evidence[id],found=state.evidence.includes(id);
+  return `<div class="evidence ${found?"found":""}" onclick="${found?`examineEvidence('${id}')`:"lockedEvidence()"}">
+   <h3>${found?"◆":"◇"} ${e.title}</h3>
+   <p>${found?e.desc:"Evidence not yet discovered."}</p>
+   <div class="tag">${found?e.tag:"LOCKED"}</div>
+  </div>`;
+ }).join("");
+ updateStats();
+}
+function lockedEvidence(){alert("You have not discovered this evidence yet. Search the manor.");}
+function examineEvidence(id){
+ const e=evidence[id];
+ alert(e.title+"\\n\\n"+e.detail);
+}
+
+function renderSuspects(){
+ document.getElementById("suspectGrid").innerHTML=suspects.map(s=>`
+ <div class="suspect">
+  <div class="suspect-head"><h3>${s.name}</h3><div class="role">${s.role}</div></div>
+  <div class="suspect-body"><p>${s.desc}</p>
+   <div class="clues">${s.clues.map(c=>`<span class="clue">${c}</span>`).join("")}</div>
+   <div class="actions"><button class="btn primary" onclick="interrogate('${s.id}')">INTERROGATE</button></div>
+  </div>
+ </div>`).join("");
+ updateStats();
+}
+function interrogate(id){
+ const s=suspects.find(x=>x.id===id);
+ if(!state.interrogated.includes(id))state.interrogated.push(id);
+ save();updateStats();
+ const box=document.getElementById("dialogueBox");
+ box.innerHTML=`<div class="dialogue">
+  <div class="speaker">${s.name} · ${s.role}</div>
+  <div class="quote" id="quote">${s.lines[0][1]}</div>
+  <div id="choices"></div>
+ </div>`;
+ showDialogue(s,0);
+ box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function showDialogue(s,index){
+ const quote=document.getElementById("quote"),choices=document.getElementById("choices");
+ quote.textContent=s.lines[index][1];
+ if(index>=s.lines.length-1){
+  choices.innerHTML='<button class="btn" onclick="renderSuspects()">END INTERROGATION</button>';
+  return;
+ }
+ const next=index+1;
+ choices.innerHTML=`
+  <button class="choice" onclick="showDialogue(suspects.find(x=>x.id==='${s.id}'),${next})">Ask about: ${s.lines[next][0]}</button>
+  ${next+1<s.lines.length?`<button class="choice" onclick="showDialogue(suspects.find(x=>x.id==='${s.id}'),${Math.min(next+1,s.lines.length-1)})">Press harder</button>`:""}`;
+}
+
+function renderTimeline(){
+ const list=document.getElementById("timelineList");
+ list.innerHTML=timelineEvents.map(e=>`
+  <div class="event ${state.timeline.includes(e.id)?"selected":""}" onclick="selectEvent('${e.id}')">
+   <div class="time">${e.time}</div><h3>${e.title}</h3><p>${e.text}</p>
+  </div>`).join("");
+ if(state.timeline.length===5){
+  const correct=["e1","e2","e3","e4","e5"];
+  const good=JSON.stringify(state.timeline)===JSON.stringify(correct);
+  const box=document.getElementById("timelineResult");
+  box.style.display="block";
+  box.innerHTML=good?
+   `<div class="label">RECONSTRUCTION CONFIRMED</div><h2>The timeline holds.</h2><p>Arthur's watch stopped fifteen minutes before the crash. The reported time of discovery was therefore not the time of death.</p><button class="btn primary" onclick="openTab('accusation')">MAKE ACCUSATION →</button>`:
+   `<div class="label">RECONSTRUCTION INCONSISTENT</div><h2>Something is out of order.</h2><p>Compare the physical evidence with the witness statements and try again.</p><button class="btn" onclick="resetTimeline()">TRY AGAIN</button>`;
+ }
+}
+function selectEvent(id){
+ if(state.timeline.includes(id))return;
+ if(state.timeline.length>=5)return;
+ state.timeline.push(id);save();renderTimeline();
+}
+function resetTimeline(){state.timeline=[];save();document.getElementById("timelineResult").style.display="none";renderTimeline()}
+
+function makeAccusation(){
+ const accused=document.getElementById("accused").value;
+ const weapon=document.getElementById("weapon").value;
+ const motive=document.getElementById("motive").value;
+ const box=document.getElementById("accusationResult");
+ box.className="result show";
+ if(accused==="julian"&&weapon==="cyanide"&&motive==="embezzlement"){
+  box.classList.add("correct");
+  box.innerHTML=`<div class="label">CASE SOLVED</div><h2>Dr. Julian Sterling</h2>
+  <p>The evidence points to Sterling. He had access to cyanide, a concealed route into the study, and a financial motive after Arthur discovered irregularities in the company accounts.</p>
+  <p>The poisoned Port was the delivery method. Arthur's pocket watch shows that the fatal event occurred before the staged crash drew attention to the study.</p>
+  <div class="warning">FINAL FILE: STERLING USED HIS POSITION AS ARTHUR'S PHYSICIAN TO CREATE A PLAUSIBLE MEDICAL DEATH, THEN ATTEMPTED TO DISTRACT THE INVESTIGATION.</div>`;
+ }else{
+  box.classList.add("wrong");
+  box.innerHTML=`<div class="label">ACCUSATION REJECTED</div><h2>The case does not close.</h2>
+  <p>Your accusation does not account for all of the physical evidence. Revisit the manor, question the suspects again and reconstruct the timeline.</p>
+  <div class="actions"><button class="btn" onclick="openTab('rooms')">SEARCH AGAIN</button><button class="btn" onclick="openTab('timeline')">REBUILD TIMELINE</button></div>`;
+ }
+}
+
+let audioCtx=null,master=null;
+function toggleAudio(){
+ if(state.audio){
+  if(master)master.gain.value=0;
+  state.audio=false;
+  document.getElementById("audioStatus").textContent="OFF";
+  save();return;
+ }
+ try{
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  master=audioCtx.createGain();master.gain.value=.035;master.connect(audioCtx.destination);
+  const buffer=audioCtx.createBuffer(1,audioCtx.sampleRate*2,audioCtx.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.25;
+  const source=audioCtx.createBufferSource();source.buffer=buffer;source.loop=true;
+  const filter=audioCtx.createBiquadFilter();filter.type="lowpass";filter.frequency.value=900;
+  source.connect(filter);filter.connect(master);source.start();
+  state.audio=true;
+  document.getElementById("audioStatus").textContent="RAIN";
+  save();
+ }catch(e){alert("Audio could not be started on this browser.");}
+}
+
+load();
+renderRooms();
+renderEvidence();
+renderSuspects();
+renderTimeline();
+updateStats();
+</script>
+</body>
+</html>

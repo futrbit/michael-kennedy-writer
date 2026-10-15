@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crazy Golf Lane - Micro Pixel Style</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+        }
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            background-color: #0f0f19;
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.2);
+        }
+        #instructions {
+            position: absolute;
+            bottom: 12px;
+            text-align: center;
+            font-size: 11px;
+            color: #a0a0c0;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="instructions">
+            Desktop: Left-Click + Drag to Move | Right-Click + Drag to Rotate<br>
+            Mobile: Touch + Drag to Move | Tap with 2nd Finger to Rotate
+        </div>
+    </div>
+
+    <script>
+        const VIRTUAL_WIDTH = 25;
+        const VIRTUAL_HEIGHT = 19;
+
+        const NEON_YELLOW = '#ffff64';
+        const NEON_GREEN  = '#00ff64';
+        const NEON_PURPLE = '#c864ff';
+        const NEON_PINK   = '#ff64b4';
+        const NEON_RED    = '#ff5050';
+        const DARK_GRAY   = '#0f0f19';
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Virtual Canvas for pixel-perfect rendering
+        const virtualCanvas = document.createElement('canvas');
+        virtualCanvas.width = VIRTUAL_WIDTH;
+        virtualCanvas.height = VIRTUAL_HEIGHT;
+        const vCtx = virtualCanvas.getContext('2d');
+
+        const levels = [
+            {
+                walls: [
+                    { x: 1, y: 1, w: 1, h: 17 },
+                    { x: 23, y: 1, w: 1, h: 17 },
+                    { x: 1, y: 1, w: 23, h: 1 },
+                    { x: 1, y: 17, w: 23, h: 1 }
+                ],
+                sticks: [
+                    { pos: [7, 10], width: 4, height: 1, angle: 0 },
+                    { pos: [12, 15], width: 4, height: 1, angle: 45 },
+                    { pos: [17, 8], width: 4, height: 1, angle: -30 },
+                    { pos: [10, 5], width: 4, height: 1, angle: 90 },
+                    { pos: [20, 12], width: 4, height: 1, angle: -45 }
+                ],
+                coral: [
+                    { pos: [5, 4] },
+                    { pos: [22, 16] },
+                    { pos: [19, 3] }
+                ],
+                hole: { pos: [23, 10], radius: 1 },
+                magnet: { pos: [12, 9], radius: 1 }
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let level = levels[currentLevelIndex];
+
+        const ballRadius = 0.5;
+        let balls = [];
+
+        let selectedStick = null;
+        let draggingIndex = null;
+        let rotatingIndex = null;
+
+        const heavyPaddle = {
+            pos: [5, 10],
+            width: 2,
+            height: 0.5,
+            angle: 0,
+            color: NEON_RED,
+            dragging: false,
+            rotating: false
+        };
+
+        let gameState = "ready";
+        let lastTime = performance.now();
+
+        function spawnBall() {
+            balls.push({
+                pos: [3 + Math.random() * 2, 9 + (Math.random() * 2 - 1)],
+                vel: [0.2 + Math.random() * 0.1, (Math.random() * 0.1 - 0.05)],
+                radius: ballRadius,
+                active: true
+            });
+        }
+
+        spawnBall();
+
+        function resizeCanvas() {
+            const windowW = window.innerWidth;
+            const windowH = window.innerHeight;
+
+            const scaleX = windowW / VIRTUAL_WIDTH;
+            const scaleY = windowH / VIRTUAL_HEIGHT;
+            const scale = Math.floor(Math.min(scaleX, scaleY));
+
+            canvas.width = VIRTUAL_WIDTH * scale;
+            canvas.height = VIRTUAL_HEIGHT * scale;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function getVirtualMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const x = (clientX - rect.left) / (canvas.width / VIRTUAL_WIDTH);
+            const y = (clientY - rect.top) / (canvas.height / VIRTUAL_HEIGHT);
+            return [x, y];
+        }
+
+        function checkHit(px, py, item) {
+            const angleRad = (item.angle * Math.PI) / 180;
+            const dx = px - item.pos[0];
+            const dy = py - item.pos[1];
+            const dxRot = dx * Math.cos(angleRad) + dy * Math.sin(angleRad);
+            const dyRot = -dx * Math.sin(angleRad) + dy * Math.cos(angleRad);
+            return Math.abs(dxRot) < item.width / 2 + 0.5 && Math.abs(dyRot) < item.height / 2 + 0.5;
+        }
+
+        function handlePointerDown(x, y, isRightClick) {
+            if (gameState === "ready") {
+                gameState = "playing";
+                return;
+            }
+
+            if (gameState === "won") {
+                currentLevelIndex = (currentLevelIndex + 1) % levels.length;
+                level = levels[currentLevelIndex];
+                balls = [];
+                spawnBall();
+                gameState = "ready";
+                return;
+            }
+
+            if (checkHit(x, y, heavyPaddle)) {
+                if (isRightClick) heavyPaddle.rotating = true;
+                else heavyPaddle.dragging = true;
+                return;
+            }
+
+            level.sticks.forEach((stick, index) => {
+                if (checkHit(x, y, stick)) {
+                    if (isRightClick) rotatingIndex = index;
+                    else draggingIndex = index;
+                    selectedStick = index;
+                }
+            });
+        }
+
+        function handlePointerMove(x, y) {
+            const clampedX = Math.max(2, Math.min(VIRTUAL_WIDTH - 2, x));
+            const clampedY = Math.max(2, Math.min(VIRTUAL_HEIGHT - 2, y));
+
+            if (heavyPaddle.dragging) {
+                heavyPaddle.pos = [clampedX, clampedY];
+            } else if (heavyPaddle.rotating) {
+                const dx = x - heavyPaddle.pos[0];
+                const dy = y - heavyPaddle.pos[1];
+                heavyPaddle.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+            } else if (draggingIndex !== null) {
+                level.sticks[draggingIndex].pos = [clampedX, clampedY];
+            } else if (rotatingIndex !== null) {
+                const dx = x - level.sticks[rotatingIndex].pos[0];
+                const dy = y - level.sticks[rotatingIndex].pos[1];
+                level.sticks[rotatingIndex].angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+            }
+        }
+
+        function handlePointerUp() {
+            heavyPaddle.dragging = false;
+            heavyPaddle.rotating = false;
+            draggingIndex = null;
+            rotatingIndex = null;
+        }
+
+        window.addEventListener('mousedown', (e) => {
+            const [x, y] = getVirtualMousePos(e);
+            handlePointerDown(x, y, e.button === 2);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const [x, y] = getVirtualMousePos(e);
+            handlePointerMove(x, y);
+        });
+
+        window.addEventListener('mouseup', handlePointerUp);
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const [x, y] = getVirtualMousePos(e);
+            const isTwoFinger = e.touches.length > 1;
+            handlePointerDown(x, y, isTwoFinger);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const [x, y] = getVirtualMousePos(e);
+            handlePointerMove(x, y);
+        });
+
+        window.addEventListener('touchend', handlePointerUp);
+
+        function update(dt) {
+            if (gameState !== "playing") return;
+
+            // Wobble Hole
+            let hx = level.hole.pos[0] + (Math.random() * 0.02 - 0.01);
+            let hy = level.hole.pos[1] + (Math.random() * 0.02 - 0.01);
+            hx = Math.max(2, Math.min(VIRTUAL_WIDTH - 2, hx));
+            hy = Math.max(2, Math.min(VIRTUAL_HEIGHT - 2, hy));
+            level.hole.pos = [hx, hy];
+
+            for (let i = balls.length - 1; i >= 0; i--) {
+                const ball = balls[i];
+                if (!ball.active) continue;
+
+                // Magnet physics
+                const mx = level.magnet.pos[0];
+                const my = level.magnet.pos[1];
+                const dx = ball.pos[0] - mx;
+                const dy = ball.pos[1] - my;
+                const dist = Math.max(Math.hypot(dx, dy), 0.5);
+                const force = 100 / (dist * dist);
+                const angle = Math.atan2(dy, dx);
+                ball.vel[0] += force * Math.cos(angle) * dt;
+                ball.vel[1] += force * Math.sin(angle) * dt;
+
+                ball.pos[0] += ball.vel[0];
+                ball.pos[1] += ball.vel[1];
+
+                // Wall Collisions
+                level.walls.forEach((wall) => {
+                    const bx = ball.pos[0];
+                    const by = ball.pos[1];
+                    const r = ball.radius;
+
+                    if (bx + r > wall.x && bx - r < wall.x + wall.w && by + r > wall.y && by - r < wall.y + wall.h) {
+                        if (bx < wall.x || bx > wall.x + wall.w) {
+                            ball.pos[0] = Math.max(wall.x + r, Math.min(wall.x + wall.w - r, bx));
+                            ball.vel[0] = -ball.vel[0] * 0.4;
+                            if (Math.abs(ball.vel[0]) < 0.005) ball.vel[0] = 0;
+                        }
+                        if (by < wall.y || by > wall.y + wall.h) {
+                            ball.pos[1] = Math.max(wall.y + r, Math.min(wall.y + wall.h - r, by));
+                            ball.vel[1] = -ball.vel[1] * 0.4;
+                            if (Math.abs(ball.vel[1]) < 0.005) ball.vel[1] = 0;
+                        }
+                    }
+                });
+
+                // Stick Collisions
+                level.sticks.forEach((stick) => {
+                    const angleRad = (stick.angle * Math.PI) / 180;
+                    const sdx = ball.pos[0] - stick.pos[0];
+                    const sdy = ball.pos[1] - stick.pos[1];
+                    const dxRot = sdx * Math.cos(angleRad) + sdy * Math.sin(angleRad);
+                    const dyRot = -sdx * Math.sin(angleRad) + sdy * Math.cos(angleRad);
+
+                    if (Math.abs(dxRot) < stick.width / 2 + ball.radius && Math.abs(dyRot) < stick.height / 2 + ball.radius) {
+                        let velAngle = Math.atan2(ball.vel[1], ball.vel[0]) - angleRad;
+                        let velMag = Math.hypot(ball.vel[0], ball.vel[1]);
+                        velAngle = Math.PI - velAngle;
+                        velMag = Math.max(velMag * 0.95, 0.2) * 1.2;
+
+                        ball.vel[0] = velMag * Math.cos(velAngle + angleRad);
+                        ball.vel[1] = velMag * Math.sin(velAngle + angleRad);
+
+                        const penetration = stick.height / 2 + ball.radius - Math.abs(dyRot) + 0.2;
+                        const pushAngle = angleRad + (dyRot > 0 ? Math.PI / 2 : -Math.PI / 2);
+                        ball.pos[0] += penetration * Math.cos(pushAngle);
+                        ball.pos[1] += penetration * Math.sin(pushAngle);
+                    }
+                });
+
+                // Heavy Paddle Collisions
+                const angleRad = (heavyPaddle.angle * Math.PI) / 180;
+                const pdx = ball.pos[0] - heavyPaddle.pos[0];
+                const pdy = ball.pos[1] - heavyPaddle.pos[1];
+                const dxRot = pdx * Math.cos(angleRad) + pdy * Math.sin(angleRad);
+                const dyRot = -pdx * Math.sin(angleRad) + pdy * Math.cos(angleRad);
+
+                if (Math.abs(dxRot) < heavyPaddle.width / 2 + ball.radius && Math.abs(dyRot) < heavyPaddle.height / 2 + ball.radius) {
+                    const dirX = Math.cos(angleRad);
+                    const dirY = Math.sin(angleRad);
+                    const speed = 0.3;
+                    ball.vel[0] = dirX * speed + ball.vel[0] * 0.5;
+                    ball.vel[1] = dirY * speed + ball.vel[1] * 0.5;
+                }
+
+                // Out of Bounds check
+                let outOfBounds = false;
+                level.walls.forEach((wall) => {
+                    const r = ball.radius;
+                    if (ball.pos[0] < wall.x + r || ball.pos[0] > wall.x + wall.w - r ||
+                        ball.pos[1] < wall.y + r || ball.pos[1] > wall.y + wall.h - r) {
+                        const speed = Math.hypot(ball.vel[0], ball.vel[1]);
+                        if (speed > 0.7) outOfBounds = true;
+                    }
+                });
+
+                if (outOfBounds) {
+                    balls.splice(i, 1);
+                    spawnBall();
+                    continue;
+                }
+
+                // Hole Check
+                if (Math.hypot(ball.pos[0] - level.hole.pos[0], ball.pos[1] - level.hole.pos[1]) < level.hole.radius) {
+                    gameState = "won";
+                }
+            }
+        }
+
+        function drawNeonCircle(ctx, color, pos, radius) {
+            const x = pos[0];
+            const y = pos[1];
+
+            ctx.fillStyle = '#1e1e1e';
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, Math.max(0.1, radius - 0.2), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawStick(ctx, stick, color) {
+            ctx.save();
+            ctx.translate(stick.pos[0], stick.pos[1]);
+            ctx.rotate((stick.angle * Math.PI) / 180);
+            ctx.fillStyle = color;
+            ctx.fillRect(-stick.width / 2, -stick.height / 2, stick.width, Math.max(0.2, stick.height));
+            ctx.restore();
+        }
+
+        function drawCoral(ctx, x, y) {
+            ctx.fillStyle = NEON_PINK;
+            ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+            const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+            dirs.forEach(([dx, dy]) => {
+                const nx = Math.floor(x + dx);
+                const ny = Math.floor(y + dy);
+                if (nx >= 0 && nx < VIRTUAL_WIDTH && ny >= 0 && ny < VIRTUAL_HEIGHT) {
+                    ctx.fillRect(nx, ny, 1, 1);
+                }
+            });
+        }
+
+        function render() {
+            vCtx.fillStyle = DARK_GRAY;
+            vCtx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+            // Draw Walls
+            vCtx.fillStyle = NEON_GREEN;
+            level.walls.forEach((wall) => {
+                vCtx.fillRect(wall.x, wall.y, wall.w, wall.h);
+            });
+
+            // Draw Coral
+            level.coral.forEach((c) => {
+                drawCoral(vCtx, c.pos[0], c.pos[1]);
+            });
+
+            // Draw Hole
+            drawNeonCircle(vCtx, NEON_GREEN, level.hole.pos, level.hole.radius);
+
+            // Draw Sticks
+            level.sticks.forEach((stick, i) => {
+                const color = i === selectedStick ? NEON_PURPLE : NEON_PINK;
+                drawStick(vCtx, stick, color);
+            });
+
+            // Draw Heavy Paddle
+            drawStick(vCtx, heavyPaddle, heavyPaddle.color);
+
+            // Draw Balls
+            balls.forEach((ball) => {
+                if (ball.active) {
+                    drawNeonCircle(vCtx, NEON_YELLOW, ball.pos, ball.radius);
+                }
+            });
+
+            // Render Virtual Surface to Main Screen Canvas
+            ctx.imageSmoothingEnabled = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(virtualCanvas, 0, 0, canvas.width, canvas.height);
+
+            // Draw Text Overlay
+            if (gameState === "ready" || gameState === "won") {
+                ctx.fillStyle = NEON_YELLOW;
+                ctx.font = 'bold 20px "Courier New", monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const text = gameState === "ready" ? "CLICK TO START" : "HOLE IN! CLICK FOR NEXT LEVEL";
+                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            }
+        }
+
+        function gameLoop(now) {
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            update(dt);
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

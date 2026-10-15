@@ -1,0 +1,493 @@
+cd "C:\Users\leebu\Desktop\michael-kennedy-writer-v1"; @'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KEN — Crypto Monkey Smash</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#08000f;color:#00ffff;font-family:"Courier New",monospace;overflow-x:hidden}
+body{display:flex;justify-content:center;align-items:center;padding:14px}
+#app{width:min(100%,720px);position:relative}
+.header{display:flex;justify-content:space-between;align-items:end;border-bottom:2px solid #00ffff;padding:0 4px 10px;margin-bottom:10px}
+.logo{font-size:clamp(28px,7vw,48px);font-weight:900;letter-spacing:5px;color:#ff1493;text-shadow:0 0 12px #ff1493}
+.subtitle{font-size:11px;letter-spacing:2px;color:#00ffff;text-align:right}
+#gameWrap{position:relative;width:100%;background:#13001f;border:3px solid #00ffff;box-shadow:0 0 20px rgba(0,255,255,.25),inset 0 0 30px rgba(75,0,130,.5)}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:none}
+.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(255,255,255,.035) 4px)}
+#hud{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:10px}
+.stat{border:1px solid #4b0082;background:#100018;padding:7px;text-align:center}
+.stat small{display:block;color:#777;font-size:9px;letter-spacing:1px}
+.stat strong{display:block;font-size:18px;color:#00ffff;margin-top:2px}
+#controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px;margin-top:10px}
+button{font:900 18px "Courier New",monospace;color:#00ffff;background:#140020;border:2px solid #00ffff;min-height:58px;cursor:pointer;touch-action:manipulation;box-shadow:0 0 10px rgba(0,255,255,.15)}
+button:active{transform:scale(.97);background:#26003b}
+#smash{color:#ff1493;border-color:#ff1493;box-shadow:0 0 12px rgba(255,20,147,.2)}
+#message{text-align:center;min-height:24px;padding-top:8px;font-size:11px;letter-spacing:1px;color:#aaa}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,0,15,.88);z-index:10}
+.panel{text-align:center;padding:28px 20px;width:85%;border:2px solid #00ffff;background:#100018;box-shadow:0 0 30px rgba(0,255,255,.25)}
+.panel h1{font-size:clamp(30px,9vw,58px);margin:0 0 6px;color:#ff1493;text-shadow:0 0 15px #ff1493}
+.panel h2{font-size:15px;color:#00ffff;letter-spacing:3px;margin:0 0 20px}
+.panel p{font-size:12px;line-height:1.7;color:#bbb}
+.panel button{width:100%;margin-top:12px}
+.hidden{display:none!important}
+@media(max-width:520px){
+ body{padding:6px}
+ .header{padding-bottom:7px}
+ .subtitle{font-size:8px}
+ #hud{grid-template-columns:repeat(2,1fr)}
+ button{min-height:62px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="logo">KEN</div>
+      <div class="subtitle" style="text-align:left">CRYPTO MONKEY SMASH</div>
+    </div>
+    <div class="subtitle">MOBILE EDITION<br>GRID SYSTEM // 08×09</div>
+  </div>
+
+  <div id="gameWrap">
+    <canvas id="game"></canvas>
+    <div class="scanlines"></div>
+
+    <div id="start" class="overlay">
+      <div class="panel">
+        <h1>🐵 KEN</h1>
+        <h2>CRYPTO MONKEY SMASH</h2>
+        <p>
+          CATCH THE COINS.<br>
+          SMASH THE BOMBS.<br>
+          SURVIVE THE FALL.
+        </p>
+        <button id="startBtn">TAP TO START</button>
+      </div>
+    </div>
+
+    <div id="gameOver" class="overlay hidden">
+      <div class="panel">
+        <h1>GAME OVER</h1>
+        <h2 id="finalScore">SCORE 0000</h2>
+        <p id="finalText">THE MONKEY HAS LEFT THE GRID.</p>
+        <button id="restartBtn">PLAY AGAIN</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="hud">
+    <div class="stat"><small>SCORE</small><strong id="score">0000</strong></div>
+    <div class="stat"><small>LIVES</small><strong id="lives">♥♥♥</strong></div>
+    <div class="stat"><small>LEVEL</small><strong id="level">01</strong></div>
+    <div class="stat"><small>COMBO</small><strong id="combo">x0</strong></div>
+  </div>
+
+  <div id="controls">
+    <button id="left">◀ LEFT</button>
+    <button id="right">RIGHT ▶</button>
+    <button id="smash">⚡ SMASH!</button>
+  </div>
+
+  <div id="message">MOVE WITH ← → OR A / D • SMASH WITH SPACE</div>
+</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+ctx.imageSmoothingEnabled=false;
+
+const COLS=8, ROWS=9;
+const W=640, H=720;
+canvas.width=W; canvas.height=H;
+
+const NEON_CYAN="#00ffff";
+const NEON_PINK="#ff1493";
+const PURPLE="#4b0082";
+const DARK="#13001f";
+const CELL=W/COLS;
+
+let state="landing";
+let playerX=3;
+let score=0;
+let lives=3;
+let level=1;
+let combo=0;
+let comboTimer=0;
+let items=[];
+let particles=[];
+let last=0;
+let spawnTimer=0;
+let smashTimer=0;
+let shake=0;
+let flash=0;
+
+const scoreEl=document.getElementById("score");
+const livesEl=document.getElementById("lives");
+const levelEl=document.getElementById("level");
+const comboEl=document.getElementById("combo");
+const messageEl=document.getElementById("message");
+const start=document.getElementById("start");
+const gameOver=document.getElementById("gameOver");
+
+function reset(){
+  playerX=3;
+  score=0;
+  lives=3;
+  level=1;
+  combo=0;
+  comboTimer=0;
+  items=[];
+  particles=[];
+  spawnTimer=0;
+  smashTimer=0;
+  shake=0;
+  flash=0;
+  state="playing";
+  start.classList.add("hidden");
+  gameOver.classList.add("hidden");
+  messageEl.textContent="CATCH COINS • SMASH BOMBS • STAY ALIVE";
+  updateHud();
+}
+
+function updateHud(){
+  scoreEl.textContent=String(score).padStart(4,"0");
+  livesEl.textContent="♥".repeat(lives)+"♡".repeat(3-lives);
+  levelEl.textContent=String(level).padStart(2,"0");
+  comboEl.textContent="x"+combo;
+}
+
+function move(dir){
+  if(state!=="playing")return;
+  playerX=Math.max(0,Math.min(COLS-1,playerX+dir));
+}
+
+function smash(){
+  if(state!=="playing")return;
+  smashTimer=.18;
+
+  let hit=false;
+  for(let i=items.length-1;i>=0;i--){
+    const item=items[i];
+    if(item.x===playerX && item.y>ROWS-2.4){
+      if(item.type==="bad"){
+        addScore(25);
+        messageEl.textContent="BOMB SMASHED! +25";
+        burst(item.x*CELL+CELL/2,item.y*CELL+CELL/2,NEON_PINK);
+      }else{
+        addScore(10);
+        messageEl.textContent="COIN SMASHED! +10";
+        burst(item.x*CELL+CELL/2,item.y*CELL+CELL/2,NEON_CYAN);
+      }
+      items.splice(i,1);
+      hit=true;
+    }
+  }
+
+  if(!hit){
+    combo=0;
+    messageEl.textContent="MISS!";
+    shake=.08;
+  }
+  updateHud();
+}
+
+function addScore(points){
+  combo++;
+  comboTimer=2;
+  score+=points+(combo>1?(combo-1)*5:0);
+  level=Math.floor(score/250)+1;
+  flash=.08;
+}
+
+function spawn(){
+  const x=Math.floor(Math.random()*COLS);
+  const bad=Math.random()<.3;
+  items.push({
+    x,
+    y:-1,
+    type:bad?"bad":"good",
+    speed:1.8+level*.22+Math.random()*.55,
+    rot:Math.random()*Math.PI
+  });
+}
+
+function loseLife(){
+  lives--;
+  combo=0;
+  shake=.25;
+  flash=.18;
+  messageEl.textContent="OUCH! LIFE LOST";
+  burst(playerX*CELL+CELL/2,ROWS*CELL-CELL/2,NEON_PINK);
+  updateHud();
+
+  if(lives<=0){
+    state="gameover";
+    document.getElementById("finalScore").textContent="SCORE "+String(score).padStart(4,"0");
+    document.getElementById("finalText").textContent="THE MONKEY HAS LEFT THE GRID.";
+    gameOver.classList.remove("hidden");
+  }
+}
+
+function update(dt){
+  if(state!=="playing")return;
+
+  const interval=Math.max(.32,.95-(level-1)*.045);
+  spawnTimer+=dt;
+
+  if(spawnTimer>=interval){
+    spawn();
+    spawnTimer=0;
+  }
+
+  for(let i=items.length-1;i>=0;i--){
+    const item=items[i];
+    item.y+=item.speed*dt;
+    item.rot+=dt*4;
+
+    if(item.y>=ROWS-.55){
+      if(item.x===playerX){
+        if(item.type==="good"){
+          addScore(10);
+          messageEl.textContent="COIN CAUGHT! +10";
+          burst(item.x*CELL+CELL/2,ROWS*CELL-CELL/2,NEON_CYAN);
+        }else{
+          loseLife();
+        }
+        items.splice(i,1);
+      }else if(item.y>ROWS){
+        items.splice(i,1);
+      }
+    }
+  }
+
+  if(comboTimer>0){
+    comboTimer-=dt;
+    if(comboTimer<=0){
+      combo=0;
+      updateHud();
+    }
+  }
+
+  if(smashTimer>0)smashTimer-=dt;
+  if(shake>0)shake-=dt;
+  if(flash>0)flash-=dt;
+
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*dt;
+    p.y+=p.vy*dt;
+    p.life-=dt;
+    p.vy+=80*dt;
+    if(p.life<=0)particles.splice(i,1);
+  }
+
+  updateHud();
+}
+
+function burst(x,y,color){
+  for(let i=0;i<14;i++){
+    const a=Math.random()*Math.PI*2;
+    const s=60+Math.random()*150;
+    particles.push({
+      x,y,
+      vx:Math.cos(a)*s,
+      vy:Math.sin(a)*s,
+      life:.35+Math.random()*.4,
+      color
+    });
+  }
+}
+
+function draw(){
+  ctx.save();
+
+  if(shake>0){
+    ctx.translate((Math.random()-.5)*12,(Math.random()-.5)*12);
+  }
+
+  ctx.fillStyle=DARK;
+  ctx.fillRect(0,0,W,H);
+
+  drawGrid();
+  drawItems();
+  drawPlayer();
+  drawParticles();
+
+  if(flash>0){
+    ctx.fillStyle="rgba(0,255,255,.12)";
+    ctx.fillRect(0,0,W,H);
+  }
+
+  ctx.restore();
+}
+
+function drawGrid(){
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const px=x*CELL, py=y*CELL;
+
+      if(x===3||x===4){
+        ctx.fillStyle="#250044";
+      }else{
+        ctx.fillStyle="#071d25";
+      }
+      ctx.fillRect(px,py,CELL,CELL);
+
+      ctx.strokeStyle=x===3||x===4?"rgba(255,20,147,.3)":"rgba(0,255,255,.16)";
+      ctx.lineWidth=2;
+      ctx.strokeRect(px+1,py+1,CELL-2,CELL-2);
+
+      if(x===0||x===7){
+        ctx.fillStyle="rgba(0,255,255,.05)";
+        ctx.fillRect(px,py,CELL,CELL);
+      }
+    }
+  }
+
+  ctx.fillStyle="rgba(255,20,147,.12)";
+  ctx.fillRect(3*CELL,0,CELL,H);
+  ctx.fillRect(4*CELL,0,CELL,H);
+
+  ctx.strokeStyle="rgba(0,255,255,.35)";
+  ctx.beginPath();
+  ctx.moveTo(0,H-CELL);
+  ctx.lineTo(W,H-CELL);
+  ctx.stroke();
+}
+
+function drawItems(){
+  for(const item of items){
+    const cx=item.x*CELL+CELL/2;
+    const cy=item.y*CELL+CELL/2;
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(Math.sin(item.rot)*.12);
+
+    if(item.type==="good"){
+      ctx.shadowBlur=18;
+      ctx.shadowColor=NEON_CYAN;
+      ctx.fillStyle="#00ffff";
+      ctx.beginPath();
+      ctx.arc(0,0,20,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle="#003b44";
+      ctx.font="bold 25px monospace";
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+      ctx.fillText("$",0,1);
+    }else{
+      ctx.shadowBlur=18;
+      ctx.shadowColor=NEON_PINK;
+      ctx.fillStyle=NEON_PINK;
+      ctx.beginPath();
+      ctx.moveTo(0,-23);
+      ctx.lineTo(22,18);
+      ctx.lineTo(-22,18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle="#240016";
+      ctx.font="bold 24px monospace";
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+      ctx.fillText("!",0,7);
+    }
+
+    ctx.restore();
+  }
+}
+
+function drawPlayer(){
+  const cx=playerX*CELL+CELL/2;
+  const cy=ROWS*CELL-CELL/2;
+
+  ctx.save();
+  ctx.shadowBlur=25;
+  ctx.shadowColor=NEON_CYAN;
+
+  if(smashTimer>0){
+    ctx.strokeStyle=NEON_PINK;
+    ctx.lineWidth=7;
+    ctx.beginPath();
+    ctx.arc(cx,cy,38+smashTimer*80,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle="#00ffff";
+  ctx.beginPath();
+  ctx.arc(cx,cy,25,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.shadowBlur=0;
+  ctx.fillStyle="#071d25";
+  ctx.beginPath();
+  ctx.arc(cx-9,cy-3,4,0,Math.PI*2);
+  ctx.arc(cx+9,cy-3,4,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle="#071d25";
+  ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.arc(cx,cy+4,10,0,Math.PI);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawParticles(){
+  for(const p of particles){
+    ctx.globalAlpha=Math.max(0,p.life/.7);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x-3,p.y-3,6,6);
+  }
+  ctx.globalAlpha=1;
+}
+
+function loop(t){
+  const dt=Math.min(.05,(t-last)/1000||0);
+  last=t;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.getElementById("startBtn").addEventListener("click",reset);
+document.getElementById("restartBtn").addEventListener("click",reset);
+
+document.getElementById("left").addEventListener("pointerdown",e=>{e.preventDefault();move(-1)});
+document.getElementById("right").addEventListener("pointerdown",e=>{e.preventDefault();move(1)});
+document.getElementById("smash").addEventListener("pointerdown",e=>{e.preventDefault();smash()});
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a"){
+    e.preventDefault();
+    move(-1);
+  }
+  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d"){
+    e.preventDefault();
+    move(1);
+  }
+  if(e.code==="Space"){
+    e.preventDefault();
+    if(state==="landing")reset();
+    else if(state==="gameover")reset();
+    else smash();
+  }
+});
+
+canvas.addEventListener("pointerdown",e=>{
+  if(state==="landing")reset();
+  else if(state==="gameover")reset();
+});
+
+updateHud();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
+'@ | Set-Content -Encoding UTF8 ".\games\ken.html"

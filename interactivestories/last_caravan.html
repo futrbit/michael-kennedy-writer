@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>THE LAST CARAVAN — Interactive Silk Road Grimoire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --parchment-bg: #f2e6ce;
+      --parchment-dark: #1e1915;
+      --ink-primary: #2b2118;
+      --ink-blood: #7a1c1c;
+      --ink-gold: #8c6328;
+      --amber-accent: #d97706;
+      --cyan-accent: #0284c7;
+    }
+
+    body {
+      font-family: 'IM Fell English', Georgia, serif;
+      background-color: #0c0a09;
+      color: var(--ink-primary);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+
+    /* Parchment Aesthetic Texture & Shadow */
+    .parchment-container {
+      background: radial-gradient(circle at center, #f5ebd7 0%, #e6d3b0 100%);
+      box-shadow: inset 0 0 40px rgba(74, 52, 28, 0.35);
+      border: 1px solid #73593a;
+    }
+
+    /* CRT / Vintage Texture Vignette Overlay */
+    .vignette-overlay {
+      background: radial-gradient(circle at center, transparent 40%, rgba(12, 10, 9, 0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* Custom Scrollbar for Historical Feel */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(43, 33, 24, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8c6328;
+      border-radius: 3px;
+    }
+
+    /* Pulse & Transition Animations */
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-gold {
+      animation: pulse-subtle 2.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center p-0 m-0 select-none">
+
+  <!-- App Mobile Container Frame -->
+  <div id="app-shell" class="w-full max-w-md h-full max-h-[920px] flex flex-col relative overflow-hidden bg-stone-950 shadow-2xl rounded-none sm:rounded-xl border border-stone-800">
+    
+    <!-- CRT Vignette Overlay -->
+    <div class="vignette-overlay absolute inset-0 z-40"></div>
+
+    <!-- TOP HUD STATUS BAR -->
+    <header class="h-16 bg-stone-900 border-b border-amber-900/40 text-amber-100 flex items-center justify-between px-3 text-xs z-30 font-mono-custom">
+      <div class="flex flex-col">
+        <span class="text-[10px] text-stone-400">LOCATION</span>
+        <span id="hud-location" class="font-cinzel text-amber-400 font-bold truncate max-w-[90px]">Samarkand</span>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2 text-center text-[11px]">
+        <div class="flex flex-col">
+          <span class="text-[9px] text-stone-400">DINARS</span>
+          <span id="hud-money" class="text-amber-300 font-semibold">120</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[9px] text-stone-400">WATER</span>
+          <span id="hud-water" class="text-cyan-400 font-semibold">10/10</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[9px] text-stone-400">FOOD</span>
+          <span id="hud-food" class="text-emerald-400 font-semibold">12/12</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[9px] text-stone-400">DAY</span>
+          <span id="hud-day" class="text-stone-300 font-semibold">1</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE BOOK VIEWPORT -->
+    <main id="main-viewport" class="flex-1 parchment-container relative p-4 flex flex-col justify-between overflow-y-auto z-20">
+      
+      <section id="view-story" class="flex-1 flex flex-col justify-between">
+        <div id="story-scroll-area" class="overflow-y-auto pr-1">
+          <div class="flex justify-between items-center border-b border-stone-800/20 pb-1 mb-3">
+            <span id="story-chapter" class="text-[10px] font-cinzel font-bold tracking-widest text-amber-900">ACT I — THE OASIS OF REGISTAN</span>
+            <span id="story-date" class="text-[10px] font-mono-custom text-stone-600">SPRING, 751 AD</span>
+          </div>
+          
+          <div id="story-text" class="text-sm sm:text-base leading-relaxed text-stone-900 space-y-3">
+            <!-- Dynamic story content injected here -->
+          </div>
+        </div>
+
+        <!-- Choice Controls / Actions Deck -->
+        <div id="choice-container" class="mt-4 pt-3 border-t border-amber-900/30 flex flex-col gap-2">
+          <!-- Dynamic Action Buttons injected here -->
+        </div>
+      </section>
+
+      <section id="view-map" class="hidden flex-1 flex-col justify-between">
+        <div class="text-center pb-2 border-b border-stone-800/20">
+          <h2 class="font-cinzel text-lg font-bold text-amber-950">THE SILK ROAD ROUTE</h2>
+          <p class="text-xs text-stone-600">Plan your route carefully. Desert hazards consume water; mountain passes demand food.</p>
+        </div>
+
+        <div class="my-auto py-4 relative flex flex-col items-center gap-6">
+          <!-- Node Map Path Line -->
+          <div class="absolute left-1/2 top-4 bottom-4 w-1 bg-amber-900/30 -translate-x-1/2 z-0"></div>
+
+          <!-- Map Nodes -->
+          <div id="node-samarkand" class="relative z-10 w-full max-w-[260px] p-2 bg-stone-900 text-amber-100 rounded border border-amber-500/80 text-center cursor-pointer shadow-md">
+            <div class="font-cinzel text-sm font-bold">1. SAMARKAND</div>
+            <div class="text-[10px] text-stone-400">Starting Oasis • Rich Markets</div>
+          </div>
+
+          <div id="node-panjakent" class="relative z-10 w-full max-w-[260px] p-2 bg-stone-800/80 text-stone-300 rounded border border-stone-600 text-center opacity-70">
+            <div class="font-cinzel text-sm font-bold">2. PANJAKENT</div>
+            <div class="text-[10px] text-stone-400">Mountain Foothills • Silver Mines (2 Days)</div>
+          </div>
+
+          <div id="node-khujand" class="relative z-10 w-full max-w-[260px] p-2 bg-stone-800/80 text-stone-300 rounded border border-stone-600 text-center opacity-70">
+            <div class="font-cinzel text-sm font-bold">3. KHUJAND</div>
+            <div class="text-[10px] text-stone-400">River Crossing • Scholar Academies (3 Days)</div>
+          </div>
+
+          <div id="node-kashgar" class="relative z-10 w-full max-w-[260px] p-2 bg-stone-800/80 text-stone-300 rounded border border-stone-600 text-center opacity-70">
+            <div class="font-cinzel text-sm font-bold">4. KASHGAR</div>
+            <div class="text-[10px] text-stone-400">Eastern Gate • The Great Bazaar (4 Days)</div>
+          </div>
+        </div>
+
+        <button onclick="app.showView('story')" class="w-full py-2 bg-stone-900 text-amber-200 font-cinzel text-xs rounded border border-amber-700">RETURN TO JOURNAL</button>
+      </section>
+
+      <section id="view-trade" class="hidden flex-1 flex-col justify-between">
+        <div class="border-b border-stone-800/20 pb-2 flex justify-between items-center">
+          <div>
+            <h2 class="font-cinzel text-base font-bold text-amber-950">BAZAAR MARKET</h2>
+            <p class="text-[11px] text-stone-600">Buy low in production cities; sell high in distant hubs.</p>
+          </div>
+          <span id="bazaar-currency" class="font-mono-custom text-xs font-bold text-amber-900">120 Dinars</span>
+        </div>
+
+        <!-- Inventory Market Grid -->
+        <div id="trade-items-list" class="flex-1 my-3 overflow-y-auto space-y-2 pr-1">
+          <!-- Dynamic Trade Cards Injected Here -->
+        </div>
+
+        <button onclick="app.showView('story')" class="w-full py-2 bg-stone-900 text-amber-200 font-cinzel text-xs rounded border border-amber-700">LEAVE BAZAAR</button>
+      </section>
+
+      <section id="view-ledger" class="hidden flex-1 flex-col justify-between">
+        <div class="border-b border-stone-800/20 pb-2">
+          <h2 class="font-cinzel text-base font-bold text-amber-950">KNOWLEDGE LEDGER & PERSONA</h2>
+          <p class="text-[11px] text-stone-600">Knowledge is currency. Forgotten facts lead to ruin.</p>
+        </div>
+
+        <!-- Archetype Persona Breakdown -->
+        <div class="my-2 p-3 bg-stone-900/10 rounded border border-amber-900/20 text-xs space-y-2">
+          <div class="font-cinzel font-bold text-amber-900">PRIMARY ARCHETYPE: <span id="archetype-label" class="text-amber-700">UNDECIDED</span></div>
+          <div class="grid grid-cols-5 gap-1 text-[10px] text-center font-mono-custom">
+            <div class="p-1 bg-stone-900/20 rounded">MER<br><span id="stat-merchant">0</span></div>
+            <div class="p-1 bg-stone-900/20 rounded">SCH<br><span id="stat-scholar">0</span></div>
+            <div class="p-1 bg-stone-900/20 rounded">DIP<br><span id="stat-diplomat">0</span></div>
+            <div class="p-1 bg-stone-900/20 rounded">EXP<br><span id="stat-explorer">0</span></div>
+            <div class="p-1 bg-stone-900/20 rounded">SUR<br><span id="stat-survivor">0</span></div>
+          </div>
+        </div>
+
+        <!-- Learned Clues & Facts Stack -->
+        <div class="flex-1 overflow-y-auto my-2 pr-1 space-y-2">
+          <h3 class="font-cinzel text-xs font-bold text-stone-800">RECOLLECTED KNOWLEDGE</h3>
+          <div id="ledger-entries-list" class="space-y-2 text-xs">
+            <div class="text-stone-500 italic text-[11px]">No critical historical knowledge recorded yet. Speak to scholars and elders in towns.</div>
+          </div>
+        </div>
+
+        <button onclick="app.showView('story')" class="w-full py-2 bg-stone-900 text-amber-200 font-cinzel text-xs rounded border border-amber-700">CLOSE LEDGER</button>
+      </section>
+
+      <section id="view-puzzle" class="hidden flex-1 flex-col justify-between">
+        <div class="border-b border-stone-800/20 pb-2">
+          <h2 id="puzzle-title" class="font-cinzel text-base font-bold text-amber-950">HISTORICAL EXAMINATION</h2>
+          <p id="puzzle-subtitle" class="text-[11px] text-stone-600">Inspect carefully before rendering your judgment.</p>
+        </div>
+
+        <div id="puzzle-canvas-area" class="flex-1 my-3 bg-stone-900/10 rounded border border-amber-900/30 p-3 flex flex-col items-center justify-center text-center">
+          <!-- Dynamic Puzzle Mechanics rendered here -->
+        </div>
+
+        <div id="puzzle-controls" class="flex flex-col gap-2">
+          <!-- Dynamic Puzzle Option Buttons -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION DECK BAR -->
+    <nav class="h-16 bg-stone-900 border-t border-amber-900/40 text-amber-200/80 flex items-center justify-around px-2 z-30 font-cinzel text-[10px]">
+      <button onclick="app.showView('story')" id="nav-story" class="flex flex-col items-center gap-1 p-2 text-amber-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <span>JOURNAL</span>
+      </button>
+
+      <button onclick="app.showView('map')" id="nav-map" class="flex flex-col items-center gap-1 p-2 hover:text-amber-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+        <span>ROUTE MAP</span>
+      </button>
+
+      <button onclick="app.showView('trade')" id="nav-trade" class="flex flex-col items-center gap-1 p-2 hover:text-amber-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path></svg>
+        <span>BAZAAR</span>
+      </button>
+
+      <button onclick="app.showView('ledger')" id="nav-ledger" class="flex flex-col items-center gap-1 p-2 hover:text-amber-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M96 64h320v384H96zM12 14h12v24H12z"></path><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" fill="none"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3"></path></svg>
+        <span>LEDGER</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    /* Web Audio API Synthesizer Engine for Tactile Sound Feedback */
+    class AudioEngine {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+
+      playPageTurn() {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const bufferSize = this.ctx.sampleRate * 0.15;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+        
+        noise.connect(filter);
+        filter.connect(this.ctx.destination);
+        noise.start();
+      }
+
+      playCoinClink() {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+    }
+
+    const sound = new AudioEngine();
+
+    const appState = {
+      location: "Samarkand",
+      locationIndex: 0,
+      money: 120,
+      water: 10,
+      maxWater: 10,
+      food: 12,
+      maxFood: 12,
+      day: 1,
+      knowledge: [],
+      inventory: [
+        { id: "silk", name: "Sogdian Raw Silk", qty: 2, buyPrice: 20 },
+        { id: "spices", name: "Fergana Dried Saffron", qty: 1, buyPrice: 15 }
+      ],
+      scores: {
+        merchant: 0,
+        scholar: 0,
+        diplomat: 0,
+        explorer: 0,
+        survivor: 0
+      },
+      currentScriptId: "samarkand_arrival"
+    };
+
+    const SILK_ROAD_NODES = ["Samarkand", "Panjakent", "Khujand", "Kashgar"];
+
+    const STORY_NODES = {
+      samarkand_arrival: {
+        chapter: "ACT I — THE OASIS OF REGISTAN",
+        location: "Samarkand",
+        text: `
+          <p class="first-letter:text-3xl first-letter:font-cinzel first-letter:font-bold first-letter:float-left first-letter:mr-2">The dust of the Registan market settles upon your shoulders. As a young merchant leaving your ancestral home in 751 AD, your pack holds limited silver Dinars, precious water skins, and one sealed parchment given by your grandfather.</p>
+          <p>Before you lies the great road eastward across the Pamir Mountains toward Kashgar. In the courtyard of the Observatory, an astronomer sits adjusting a brass astrolabe.</p>
+        `,
+        actions: [
+          { text: "READ: Examine your Grandfather's Sealed Letter", id: "read_letter", archetype: "scholar" },
+          { text: "TALK: Speak to Astronomer Al-Sofi at the Courtyard", id: "talk_astronomer", archetype: "scholar" },
+          { text: "TRADE: Visit the Silk Merchants Guild", id: "open_trade", archetype: "merchant" },
+          { text: "CONTINUE: Depart Samarkand toward Panjakent Pass", id: "travel_panjakent", archetype: "explorer" }
+        ]
+      },
+
+      read_letter: {
+        chapter: "ACT I — THE FAMILY LEGACY",
+        location: "Samarkand",
+        text: `
+          <p>You break the red wax seal. The parchment carries a stern warning:</p>
+          <p class="italic border-l-2 border-amber-900/50 pl-3 my-2 text-stone-800">"Beware of silver coins minted in the eastern valleys. Counterfeiters dilute pure silver with lead. Sound them on marble: pure silver rings high; lead thuds like dead earth."</p>
+          <p>This knowledge has been added to your <b>Knowledge Ledger</b>.</p>
+        `,
+        onEnter: () => {
+          app.addKnowledge("Coin Purity Rule: Pure silver rings with a clear high tone on marble; lead thuds dead.");
+        },
+        actions: [
+          { text: "TALK: Speak to Astronomer Al-Sofi", id: "talk_astronomer", archetype: "scholar" },
+          { text: "RETURN: Back to Market Square", id: "samarkand_arrival" }
+        ]
+      },
+
+      talk_astronomer: {
+        chapter: "ACT I — OBSERVATIONS OF THE HEAVENS",
+        location: "Samarkand",
+        text: `
+          <p>Astronomer Al-Sofi points his brass sights toward the night sky. "Traveler, listen closely," he says softly. "Three weeks from now, on the night of the full moon after crossing the Zarafshan River, a shadow will devour the moon. An eclipse."</p>
+          <p>He grips your arm: "Nomad tribes in the eastern pass revere lunar eclipses as divine omens. Remember this date well."</p>
+        `,
+        onEnter: () => {
+          app.addKnowledge("Celestial Date: Lunar eclipse occurs precisely 21 days after departing Samarkand.");
+        },
+        actions: [
+          { text: "LEARN: Ask him to teach you Star Navigation", id: "puzzle_astrolabe", archetype: "explorer" },
+          { text: "RETURN: Back to Market Square", id: "samarkand_arrival" }
+        ]
+      },
+
+      puzzle_astrolabe: {
+        chapter: "MINI-PUZZLE — NAVIGATION BY THE STARS",
+        location: "Samarkand",
+        type: "puzzle",
+        puzzleType: "stars",
+        text: "Align the Astrolabe index with the North Star (Polaris) to calculate your latitude before mountain travel.",
+        actions: []
+      },
+
+      travel_panjakent: {
+        chapter: "ACT II — MOUNTAIN FOOTHILLS",
+        location: "Panjakent",
+        text: `
+          <p>Two days of arduous trekking brings your caravan to Panjakent, nestling near silver mines. The mountain air is sharp and bitter.</p>
+          <p>At the guard outpost, a local silver factor offers to exchange your foreign dinars for local Sogdian coins for mountain tolls.</p>
+        `,
+        onEnter: () => {
+          appState.day += 2;
+          appState.water = Math.max(0, appState.water - 2);
+          appState.food = Math.max(0, appState.food - 2);
+          appState.location = "Panjakent";
+          appState.locationIndex = 1;
+        },
+        actions: [
+          { text: "EXAMINE: Test the factor's exchange coins for purity", id: "puzzle_coins", archetype: "merchant" },
+          { text: "EXPLORE: Talk to the mountain guides about weather", id: "talk_guides", archetype: "survivor" },
+          { text: "CONTINUE: Press forward toward Khujand River", id: "travel_khujand", archetype: "explorer" }
+        ]
+      },
+
+      puzzle_coins: {
+        chapter: "MINI-PUZZLE — COUNTERFEIT INSPECTION",
+        location: "Panjakent",
+        type: "puzzle",
+        puzzleType: "coin",
+        text: "Inspect the merchant's offered silver coin batch to identify if it is pure or lead-diluted.",
+        actions: []
+      },
+
+      talk_guides: {
+        chapter: "ACT II — MOUNTAIN WEATHER WARNINGS",
+        location: "Panjakent",
+        text: `
+          <p>A veteran Sogdian guide sips dark tea by the fire. "If heavy rain falls in the high pass before Khujand, mudslides seal the gorge for five days. Only those who read the cloud banks above Mount Cholpan cross safely."</p>
+        `,
+        onEnter: () => {
+          app.addKnowledge("Weather Warning: Cloud banks on Mount Cholpan signal imminent mudslides in the Khujand Gorge.");
+        },
+        actions: [
+          { text: "CONTINUE: Depart for Khujand", id: "travel_khujand", archetype: "explorer" }
+        ]
+      },
+
+      travel_khujand: {
+        chapter: "ACT III — THE CROSSING OF KHUJAND",
+        location: "Khujand",
+        text: `
+          <p>You arrive at Khujand where the Syr Darya river flows wide. Rain clouds gather darkly over Mount Cholpan in the west. A local warlord demands a heavy toll or critical astronomical advice to grant safe passage through the river gates.</p>
+        `,
+        onEnter: () => {
+          appState.day += 3;
+          appState.water = Math.max(0, appState.water - 2);
+          appState.food = Math.max(0, appState.food - 3);
+          appState.location = "Khujand";
+          appState.locationIndex = 2;
+        },
+        actions: [
+          { text: "TALK: Answer the Warlord using your Knowledge Ledger", id: "warlord_confrontation", archetype: "diplomat" },
+          { text: "TRADE: Buy food supplies at Khujand market", id: "open_trade", archetype: "merchant" },
+          { text: "CONTINUE: Final leg across desert to Kashgar", id: "travel_kashgar", archetype: "survivor" }
+        ]
+      },
+
+      warlord_confrontation: {
+        chapter: "ACT III — THE WARLORD'S DEMAND",
+        location: "Khujand",
+        text: `
+          <p>The Warlord steps forward: "Traveler, my astrologers argue when the coming lunar omen shall fall upon our battle troops. Tell me the truth, or pay 80 Dinars toll."</p>
+        `,
+        actions: [
+          { 
+            text: "KNOWLEDGE CHECK: 'The eclipse falls in 21 days from Samarkand's moon.'", 
+            id: "warlord_success", 
+            archetype: "diplomat",
+            requiresKnowledge: "Celestial Date: Lunar eclipse occurs precisely 21 days after departing Samarkand."
+          },
+          { text: "PAY TOLL: Pay 80 Dinars", id: "pay_warlord_toll", archetype: "survivor" }
+        ]
+      },
+
+      warlord_success: {
+        chapter: "ACT III — DIPLOMATIC TRIUMPH",
+        location: "Khujand",
+        text: `
+          <p>The Warlord marvels at your exact celestial knowledge. "You carry the wisdom of the great observatories!" He waives your toll completely and gifts your caravan 4 extra Water skins and 50 Dinars.</p>
+        `,
+        onEnter: () => {
+          appState.money += 50;
+          appState.water = Math.min(appState.maxWater, appState.water + 4);
+          appState.scores.diplomat += 3;
+        },
+        actions: [
+          { text: "CONTINUE: Embark on the final crossing to Kashgar", id: "travel_kashgar", archetype: "explorer" }
+        ]
+      },
+
+      pay_warlord_toll: {
+        chapter: "ACT III — HEAVY TOLL",
+        location: "Khujand",
+        text: `<p>You count 80 Dinars into the captain's hand. Your coin pouch feels light, but the gates open.</p>`,
+        onEnter: () => {
+          appState.money = Math.max(0, appState.money - 80);
+        },
+        actions: [
+          { text: "CONTINUE: Embark on the final crossing to Kashgar", id: "travel_kashgar", archetype: "explorer" }
+        ]
+      },
+
+      travel_kashgar: {
+        chapter: "ACT IV — THE GREAT BAZAAR OF KASHGAR",
+        location: "Kashgar",
+        text: `
+          <p>After weeks of enduring dust, steep mountain gorges, and desert winds, the eastern towers of Kashgar rise above the green poplar trees!</p>
+          <p>You have survived the Silk Road journey. The Great Bazaar bustles with Persian, Chinese, and Sogdian traders hungry for silk, saffron, and news of the west.</p>
+        `,
+        onEnter: () => {
+          appState.day += 4;
+          appState.water = Math.max(0, appState.water - 3);
+          appState.food = Math.max(0, appState.food - 3);
+          appState.location = "Kashgar";
+          appState.locationIndex = 3;
+        },
+        actions: [
+          { text: "RESOLVE: Calculate your Caravan's Final Legacy", id: "game_conclusion", archetype: "scholar" }
+        ]
+      },
+
+      game_conclusion: {
+        chapter: "FINALE — THE CARAVAN'S LEGACY",
+        location: "Kashgar",
+        text: () => {
+          // Determine Highest Archetype Score
+          let topArchetype = "THE SURVIVOR";
+          let maxScore = -1;
+          for (let key in appState.scores) {
+            if (appState.scores[key] > maxScore) {
+              maxScore = appState.scores[key];
+              topArchetype = key.toUpperCase();
+            }
+          }
+
+          return `
+            <p class="font-cinzel font-bold text-amber-900 text-base">CARAVAN JOURNEY COMPLETE</p>
+            <p>You reached the eastern gates of Kashgar in <b>${appState.day} Days</b> with <b>${appState.money} Dinars</b> remaining.</p>
+            <p class="my-2 p-2 bg-stone-900 text-amber-100 rounded text-center border border-amber-500 font-cinzel">ARCHETYPE ACHIEVED: THE ${topArchetype}</p>
+            <p>History recorded the rise and fall of empires along this path, but your journey ensured the stories, wealth, and truths of the common people endured.</p>
+          `;
+        },
+        actions: [
+          { text: "RESTART CARAVAN JOURNEY", id: "restart_game", archetype: "explorer" }
+        ]
+      }
+    };
+
+    const TRADE_CATALOG = {
+      Samarkand: [
+        { id: "silk", name: "Sogdian Raw Silk", price: 25 },
+        { id: "spices", name: "Fergana Dried Saffron", price: 15 },
+        { id: "food_pack", name: "Rations (3 Days)", price: 10, isConsumable: true, type: "food" }
+      ],
+      Panjakent: [
+        { id: "silver_ore", name: "Unrefined Silver Ore", price: 30 },
+        { id: "spices", name: "Fergana Dried Saffron", price: 28 },
+        { id: "water_skin", name: "Water Refill (Full)", price: 8, isConsumable: true, type: "water" }
+      ],
+      Khujand: [
+        { id: "silk", name: "Sogdian Raw Silk", price: 50 },
+        { id: "paper", name: "Samarkand Rag Paper", price: 20 },
+        { id: "food_pack", name: "Rations (3 Days)", price: 12, isConsumable: true, type: "food" }
+      ],
+      Kashgar: [
+        { id: "silk", name: "Sogdian Raw Silk", price: 85 },
+        { id: "spices", name: "Fergana Dried Saffron", price: 60 },
+        { id: "paper", name: "Samarkand Rag Paper", price: 45 }
+      ]
+    };
+
+    const app = {
+      init() {
+        this.renderHUD();
+        this.loadScriptNode("samarkand_arrival");
+      },
+
+      showView(viewName) {
+        sound.playPageTurn();
+        document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        document.getElementById(`view-${viewName}`).classList.add('flex');
+
+        // Update active nav button glow
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('text-amber-400'));
+        const activeNav = document.getElementById(`nav-${viewName}`);
+        if (activeNav) activeNav.classList.add('text-amber-400');
+
+        if (viewName === 'trade') this.renderTradeView();
+        if (viewName === 'ledger') this.renderLedgerView();
+      },
+
+      renderHUD() {
+        document.getElementById('hud-location').innerText = appState.location;
+        document.getElementById('hud-money').innerText = appState.money;
+        document.getElementById('hud-water').innerText = `${appState.water}/${appState.maxWater}`;
+        document.getElementById('hud-food').innerText = `${appState.food}/${appState.maxFood}`;
+        document.getElementById('hud-day').innerText = appState.day;
+      },
+
+      addKnowledge(fact) {
+        if (!appState.knowledge.includes(fact)) {
+          appState.knowledge.push(fact);
+          sound.playCoinClink();
+        }
+      },
+
+      loadScriptNode(nodeId) {
+        sound.playPageTurn();
+        if (nodeId === "restart_game") {
+          window.location.reload();
+          return;
+        }
+
+        if (nodeId === "open_trade") {
+          this.showView('trade');
+          return;
+        }
+
+        const script = STORY_NODES[nodeId];
+        if (!script) return;
+
+        appState.currentScriptId = nodeId;
+        if (script.onEnter) script.onEnter();
+
+        this.renderHUD();
+        this.showView('story');
+
+        document.getElementById('story-chapter').innerText = script.chapter;
+        
+        const storyTextContainer = document.getElementById('story-text');
+        const rawText = typeof script.text === 'function' ? script.text() : script.text;
+        storyTextContainer.innerHTML = rawText;
+
+        const choiceContainer = document.getElementById('choice-container');
+        choiceContainer.innerHTML = '';
+
+        if (script.type === 'puzzle') {
+          this.renderPuzzleView(script.puzzleType);
+          return;
+        }
+
+        // Render Action Buttons
+        script.actions.forEach(action => {
+          // Check for Knowledge Check Requirement
+          if (action.requiresKnowledge && !appState.knowledge.includes(action.requiresKnowledge)) {
+            return; // Hide options player hasn't discovered
+          }
+
+          const btn = document.createElement('button');
+          btn.className = "w-full py-2.5 px-3 bg-stone-900/90 hover:bg-stone-800 text-amber-100 font-cinzel text-xs text-left rounded border border-amber-900/50 transition flex items-center justify-between shadow";
+          btn.innerHTML = `<span>${action.text}</span> <span class="text-[9px] text-amber-500/70 uppercase">${action.archetype}</span>`;
+          btn.onclick = () => {
+            if (action.archetype && appState.scores[action.archetype] !== undefined) {
+              appState.scores[action.archetype]++;
+            }
+            this.loadScriptNode(action.id);
+          };
+          choiceContainer.appendChild(btn);
+        });
+      },
+
+      renderTradeView() {
+        document.getElementById('bazaar-currency').innerText = `${appState.money} Dinars`;
+        const listContainer = document.getElementById('trade-items-list');
+        listContainer.innerHTML = '';
+
+        const currentCatalog = TRADE_CATALOG[appState.location] || [];
+
+        currentCatalog.forEach(item => {
+          const card = document.createElement('div');
+          card.className = "p-2 bg-stone-900/10 rounded border border-amber-900/30 flex items-center justify-between text-xs";
+          card.innerHTML = `
+            <div>
+              <div class="font-cinzel font-bold text-stone-900">${item.name}</div>
+              <div class="text-[10px] text-stone-600">Price: ${item.price} Dinars</div>
+            </div>
+            <button class="px-3 py-1 bg-stone-900 text-amber-200 rounded font-cinzel text-[10px] border border-amber-700">BUY</button>
+          `;
+
+          card.querySelector('button').onclick = () => {
+            if (appState.money >= item.price) {
+              sound.playCoinClink();
+              appState.money -= item.price;
+              if (item.isConsumable) {
+                if (item.type === 'food') appState.food = Math.min(appState.maxFood, appState.food + 3);
+                if (item.type === 'water') appState.water = appState.maxWater;
+              } else {
+                appState.inventory.push(item);
+              }
+              this.renderHUD();
+              this.renderTradeView();
+            }
+          };
+
+          listContainer.appendChild(card);
+        });
+      },
+
+      renderLedgerView() {
+        // Render Archetype Stats
+        document.getElementById('stat-merchant').innerText = appState.scores.merchant;
+        document.getElementById('stat-scholar').innerText = appState.scores.scholar;
+        document.getElementById('stat-diplomat').innerText = appState.scores.diplomat;
+        document.getElementById('stat-explorer').innerText = appState.scores.explorer;
+        document.getElementById('stat-survivor').innerText = appState.scores.survivor;
+
+        // Determine Dominant Archetype Title
+        let topKey = "merchant";
+        for (let k in appState.scores) {
+          if (appState.scores[k] > appState.scores[topKey]) topKey = k;
+        }
+        document.getElementById('archetype-label').innerText = topKey.toUpperCase();
+
+        // Render Learned Facts
+        const list = document.getElementById('ledger-entries-list');
+        list.innerHTML = '';
+
+        if (appState.knowledge.length === 0) {
+          list.innerHTML = `<div class="text-stone-500 italic text-[11px]">No critical historical knowledge recorded yet.</div>`;
+        } else {
+          appState.knowledge.forEach(fact => {
+            const entry = document.createElement('div');
+            entry.className = "p-2 bg-stone-900/10 rounded border-l-2 border-amber-800 text-stone-900 text-xs";
+            entry.innerText = fact;
+            list.appendChild(entry);
+          });
+        }
+      },
+
+      renderPuzzleView(type) {
+        this.showView('puzzle');
+        const canvasArea = document.getElementById('puzzle-canvas-area');
+        const controlsArea = document.getElementById('puzzle-controls');
+        canvasArea.innerHTML = '';
+        controlsArea.innerHTML = '';
+
+        if (type === 'coin') {
+          document.getElementById('puzzle-title').innerText = "COIN PURITY TEST";
+          document.getElementById('puzzle-subtitle').innerText = "Tap to strike coin against marble plate. Sound reveals pure silver or lead.";
+
+          canvasArea.innerHTML = `
+            <div id="coin-graphic" class="w-20 h-20 rounded-full bg-amber-600/80 border-4 border-amber-300 flex items-center justify-center font-cinzel font-bold text-amber-100 shadow-lg cursor-pointer transform active:scale-95 transition">
+              SOGD
+            </div>
+            <p id="coin-feedback" class="mt-3 text-xs text-stone-700 italic">Tap coin to test chime resonance...</p>
+          `;
+
+          let struck = false;
+          document.getElementById('coin-graphic').onclick = () => {
+            struck = true;
+            sound.playCoinClink();
+            document.getElementById('coin-feedback').innerText = "AUDIO: A crisp, ringing high tone lingers in the air like clear crystal!";
+          };
+
+          const btnAccept = document.createElement('button');
+          btnAccept.className = "w-full py-2 bg-stone-900 text-amber-200 font-cinzel text-xs rounded border border-amber-700";
+          btnAccept.innerText = "ACCEPT COINAGE (PURE SILVER)";
+          btnAccept.onclick = () => {
+            if (struck) {
+              appState.scores.merchant += 2;
+              this.loadScriptNode('travel_khujand');
+            }
+          };
+          controlsArea.appendChild(btnAccept);
+        }
+
+        if (type === 'stars') {
+          document.getElementById('puzzle-title').innerText = "ASTROLABE CELESTIAL ALIGNMENT";
+          document.getElementById('puzzle-subtitle').innerText = "Rotate the index ring until the sight aligns with Polaris.";
+
+          canvasArea.innerHTML = `
+            <div class="w-32 h-32 rounded-full border-4 border-dashed border-amber-800 flex items-center justify-center relative">
+              <div id="astrolabe-needle" class="w-1 h-28 bg-amber-600 transform rotate-45 transition-transform duration-300"></div>
+              <div class="w-4 h-4 rounded-full bg-amber-400 absolute"></div>
+            </div>
+            <p class="mt-2 text-xs text-stone-700">Current Angle: <span id="angle-val">45°</span></p>
+          `;
+
+          let angle = 45;
+          const btnRotate = document.createElement('button');
+          btnRotate.className = "w-full py-2 bg-stone-900 text-amber-200 font-cinzel text-xs rounded border border-amber-700";
+          btnRotate.innerText = "ROTATE INDEX (+45°)";
+          btnRotate.onclick = () => {
+            angle = (angle + 45) % 360;
+            document.getElementById('astrolabe-needle').style.transform = `rotate(${angle}deg)`;
+            document.getElementById('angle-val').innerText = `${angle}°`;
+
+            if (angle === 0 || angle === 360) {
+              sound.playCoinClink();
+              setTimeout(() => {
+                appState.scores.scholar += 2;
+                this.loadScriptNode('samarkand_arrival');
+              }, 400);
+            }
+          };
+          controlsArea.appendChild(btnRotate);
+        }
+      }
+    };
+
+    window.onload = () => {
+      app.init();
+    };
+  </script>
+</body>
+</html>
+```
+
+I have generated the interactive mobile book application for **THE LAST CARAVAN**.
+
+### Key Features Included
+1. **Interactive Silk Road Mechanics:** Dynamic navigation across historical cities (*Samarkand*, *Panjakent*, *Khujand*, *Kashgar*) with real resource decay (*Water*, *Food*, *Dinars*).
+2. **Knowledge Ledger System:** Crucial facts acquired in earlier cities unlock branching options later (e.g., predicting the 21-day eclipse timing to waive the Khujand Warlord's 80 Dinar toll).
+3. **Tactile Mobile & Audio Design:** Parchment aesthetic with CRT scanline subtle vignette, custom typography, and Web Audio API synthesizer for paper turns and silver coin strikes.
+4. **Interactive Historical Mini-Puzzles:** Built-in coin audio resonance tester and Astrolabe Polaris star aligner.
+5. **Multi-Archetype Progression Engine:** Real-time tracking of *Merchant*, *Scholar*, *Diplomat*, *Explorer*, and *Survivor* playstyles.

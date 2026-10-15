@@ -1,0 +1,8 @@
+﻿BACKUP*/
+BACKUPS/
+index-backup*
+index.before*
+script-backup*
+script.before*
+style-backup*
+style.before*

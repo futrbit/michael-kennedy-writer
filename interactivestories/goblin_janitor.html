@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>THE GOBLIN JANITOR OF BORMATH</title>
+  <style>
+    :root {
+      --bg-dark: #0a0c0b;
+      --paper: #18221b;
+      --paper-light: #243329;
+      --green-glow: #39ff14;
+      --acid-yellow: #ccff00;
+      --toxic-purple: #b026ff;
+      --blood-red: #ff2a2a;
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-serif: 'Georgia', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #d0e6d5;
+      font-family: var(--font-serif);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* CRT Overlay Effect */
+    body::after {
+      content: " ";
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      max-height: 920px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #0f1411;
+      box-shadow: 0 0 40px rgba(0,255,100,0.1);
+      border: 1px solid #1a2e22;
+      overflow: hidden;
+    }
+
+    /* HUD Bar */
+    #hud {
+      height: 52px;
+      background: #080a09;
+      border-bottom: 2px solid #1c3024;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 14px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      z-index: 10;
+    }
+
+    .hud-metric {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-label {
+      color: #537d61;
+      font-size: 0.6rem;
+    }
+
+    .hud-val {
+      color: var(--green-glow);
+      font-weight: bold;
+    }
+
+    /* Page Viewport */
+    #book-viewport {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at center, #142118 0%, #080c09 100%);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    #page-card {
+      background: var(--paper);
+      border: 1px solid #2d4536;
+      border-radius: 6px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .page-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--acid-yellow);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-bottom: 1px dashed #2d4536;
+      padding-bottom: 6px;
+    }
+
+    .page-story {
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: #c0d8c7;
+    }
+
+    .page-story b {
+      color: var(--green-glow);
+    }
+
+    /* Interactive Hazard Canvas */
+    #spill-container {
+      width: 100%;
+      height: 140px;
+      background: #0a0d0b;
+      border: 1px solid #233b2c;
+      border-radius: 4px;
+      position: relative;
+      margin: 8px 0;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    #spill-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .spill-overlay-text {
+      position: absolute;
+      top: 6px; left: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: #6a9c78;
+      pointer-events: none;
+    }
+
+    /* Tool Selector Deck */
+    #tool-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tool-btn {
+      background: #101a13;
+      border: 1px solid #233b2c;
+      color: #8bb396;
+      padding: 8px 4px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .tool-btn.selected {
+      background: #1d3325;
+      border-color: var(--green-glow);
+      color: var(--green-glow);
+      font-weight: bold;
+    }
+
+    /* Choices Area */
+    #choice-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .choice-btn {
+      background: #101a13;
+      border: 1px solid #284232;
+      color: #b0d4b8;
+      padding: 10px;
+      font-family: var(--font-serif);
+      font-size: 0.8rem;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .choice-btn:active {
+      background: var(--green-glow);
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-metric">
+        <span class="hud-label">DUNGEON LEVEL</span>
+        <span class="hud-val" id="level-display">SUB-LEVEL 7 (BOSS ARENA)</span>
+      </div>
+      <div class="hud-metric">
+        <span class="hud-label">INSPECTOR ARRIVAL</span>
+        <span class="hud-val" id="timer-display" style="color:var(--acid-yellow);">04:30 MINS</span>
+      </div>
+      <div class="hud-metric">
+        <span class="hud-label">CLEANLINESS</span>
+        <span class="hud-val" id="clean-display">12%</span>
+      </div>
+    </div>
+
+    <!-- MAIN BOOK PAGE VIEWPORT -->
+    <div id="book-viewport">
+      <div id="page-card">
+        <div class="page-title" id="page-num">CHAPTER 1: AFTER THE RAID</div>
+        <div class="page-story" id="story-body">
+          The heroes departed three minutes ago, leaving behind a dead High Demon, three shattered potion vials, and a puddle of highly volatile <b>Demon Blood</b> sizzling through the stone floor.
+          <br><br>
+          If Inspector Vane sees this hazard, your mop license will be revoked permanently.
+        </div>
+
+        <!-- HAZARD CLEANING CANVAS -->
+        <div id="spill-container">
+          <span class="spill-overlay-text">HAZARD ZONE: TAP/DRAG SELECTED TOOL TO CLEAN</span>
+          <canvas id="spill-canvas"></canvas>
+        </div>
+
+        <!-- TOOL DECK -->
+        <div id="tool-deck">
+          <button class="tool-btn selected" id="tool-mop" onclick="selectTool('mop')">🧹 BASIC MOP</button>
+          <button class="tool-btn" id="tool-acid" onclick="selectTool('acid')">🧪 NEUTRALIZER</button>
+          <button class="tool-btn" id="tool-sponge" onclick="selectTool('sponge')">🧽 HOLY SPONGE</button>
+          <button class="tool-btn" id="tool-vac" onclick="selectTool('vac')">🌀 ARCANE VAC</button>
+        </div>
+
+        <!-- DECISION CHOICE PROMPTS -->
+        <div id="choice-box">
+          <button class="choice-btn" onclick="proceedStory(1)">Sweeping demon ashes under the throne rug before proceeding.</button>
+          <button class="choice-btn" onclick="proceedStory(2)">Mix Holy Water with Acid Neutralizer to scrub the altar clean.</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- GAME STATE ---
+    const gameState = {
+      cleanliness: 12,
+      activeTool: 'mop',
+      currentStage: 1,
+      spillPixels: []
+    };
+
+    // --- HAZARD CANVAS ENGINE ---
+    const canvas = document.getElementById('spill-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function initCanvas() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      // Draw initial toxic spill blotches
+      ctx.fillStyle = '#0a0d0b';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Acid Spill (Yellow-Green)
+      ctx.fillStyle = '#ccff00';
+      ctx.beginPath();
+      ctx.arc(80, 70, 35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Demon Blood (Red)
+      ctx.fillStyle = '#ff2a2a';
+      ctx.beginPath();
+      ctx.arc(180, 50, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ectoplasm (Purple)
+      ctx.fillStyle = '#b026ff';
+      ctx.beginPath();
+      ctx.arc(280, 80, 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    initCanvas();
+
+    function selectTool(tool) {
+      gameState.activeTool = tool;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById(`tool-${tool}`).classList.add('selected');
+    }
+
+    // Clean interaction logic
+    let isCleaning = false;
+
+    function scrub(e) {
+      if (!isCleaning) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Increment Cleanliness Progress
+      if (gameState.cleanliness < 95) {
+        gameState.cleanliness += 0.4;
+        document.getElementById('clean-display').innerText = `${Math.floor(gameState.cleanliness)}%`;
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => { isCleaning = true; scrub(e); });
+    canvas.addEventListener('mousemove', scrub);
+    window.addEventListener('mouseup', () => { isCleaning = false; });
+
+    canvas.addEventListener('touchstart', (e) => { isCleaning = true; scrub(e); });
+    canvas.addEventListener('touchmove', scrub);
+    window.addEventListener('touchend', () => { isCleaning = false; });
+
+    // --- STORY BRANCHING ENGINE ---
+    function proceedStory(choiceId) {
+      const storyElem = document.getElementById('story-body');
+      const pageTitle = document.getElementById('page-num');
+      const choiceBox = document.getElementById('choice-box');
+
+      if (gameState.currentStage === 1) {
+        gameState.currentStage = 2;
+        pageTitle.innerText = "CHAPTER 2: THE SUB-LEVEL 7 CORRIDOR";
+
+        if (choiceId === 1) {
+          storyElem.innerHTML = "You stuff the ashes under the rug. The rug begins to float and burp quietly. <b>Cleanliness efficiency reduced!</b><br><br>You move down the corridor where a broken frost-trap has frozen the door hinge shut.";
+        } else {
+          storyElem.innerHTML = "The holy solution neutralizes the demon blood with a satisfying hiss! The floor tile sparkles suspiciously.<br><br>Ahead in the corridor, a broken frost-trap has frozen the door hinge shut.";
+        }
+
+        initCanvas(); // Reset canvas with ice hazard
+
+        choiceBox.innerHTML = `
+          <button class="choice-btn" onclick="proceedStory(3)">Use the Arcane Vac on high reverse heat to melt the ice.</button>
+          <button class="choice-btn" onclick="proceedStory(4)">Scrape the frost off with your Goblin Mop handle.</button>
+        `;
+      } else {
+        pageTitle.innerText = "CHAPTER 3: INSPECTOR VANE ARRIVES";
+        storyElem.innerHTML = `Inspector Vane adjusts his monocle, inspecting Sub-Level 7. <br><br><b>FINAL CLEANLINESS RATING: ${Math.floor(gameState.cleanliness)}%</b><br><br>` +
+          (gameState.cleanliness >= 75 
+            ? "<span style='color:var(--green-glow)'>PASSED! You are awarded Senior Goblin Janitor honors and a 2-copper pay raise.</span>" 
+            : "<span style='color:var(--blood-red)'>FAILED! You have been reassigned to clean the Dragon Stables without gloves.</span>");
+
+        choiceBox.innerHTML = `<button class="choice-btn" onclick="location.reload()">REPLAY DUNGEON CLEANUP</button>`;
+      }
+    }
+  </script>
+</body>
+</html>

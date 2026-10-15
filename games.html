@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MICHAEL KENNEDY // GAMES</title>
+
+  <style>
+
+    :root{
+      --paper:#fffdf7;
+      --ink:#111111;
+      --yellow:#ffd21a;
+      --red:#ed3426;
+      --blue:#155dcc;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    a{
+      color:inherit;
+    }
+
+    .page{
+      max-width:1500px;
+      margin:auto;
+      padding:0 32px 60px;
+    }
+
+    header{
+      min-height:76px;
+      border-bottom:3px solid var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .brand{
+      font-size:clamp(18px,2vw,28px);
+      font-weight:900;
+      letter-spacing:.08em;
+    }
+
+    .back{
+      text-decoration:none;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      border:2px solid var(--ink);
+      padding:9px 12px;
+    }
+
+    .back:hover{
+      background:var(--yellow);
+    }
+
+    .intro{
+      padding:70px 0 50px;
+      border-bottom:3px solid var(--ink);
+    }
+
+    .kicker{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.2em;
+      color:var(--red);
+    }
+
+    h1{
+      margin:18px 0 10px;
+      font-size:clamp(58px,10vw,150px);
+      line-height:.82;
+      letter-spacing:-.07em;
+    }
+
+    .intro p{
+      max-width:760px;
+      font-size:20px;
+      line-height:1.35;
+    }
+
+    .count{
+      display:inline-block;
+      margin-top:15px;
+      background:var(--yellow);
+      padding:8px 12px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.1em;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:0;
+      margin-top:50px;
+      border-top:3px solid var(--ink);
+      border-left:3px solid var(--ink);
+    }
+
+    .card{
+      min-height:260px;
+      border-right:3px solid var(--ink);
+      border-bottom:3px solid var(--ink);
+      padding:24px;
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      transition:transform .2s ease,background .2s ease;
+    }
+
+    .card:hover{
+      background:var(--yellow);
+      transform:translateY(-5px);
+    }
+
+    .number{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.15em;
+    }
+
+    .title{
+      font-size:clamp(25px,2.5vw,40px);
+      font-weight:900;
+      line-height:.95;
+      letter-spacing:-.04em;
+    }
+
+    .launch{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      color:var(--red);
+    }
+
+    /* WORLD */
+
+    .world{
+      background:var(--blue);
+      color:#fff;
+    }
+
+    .world:hover{
+      background:var(--red);
+      color:#fff;
+    }
+
+    .world .number{
+      color:var(--yellow);
+    }
+
+    .world .launch{
+      color:var(--yellow);
+    }
+
+    .world:hover .number,
+    .world:hover .launch{
+      color:#fff;
+    }
+
+    @media(max-width:900px){
+
+      .grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+    }
+
+    @media(max-width:600px){
+
+      .page{
+        padding:0 18px 40px;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .intro{
+        padding:48px 0 35px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="page">
+
+    <header>
+
+      <div class="brand">
+        MICHAEL KENNEDY
+      </div>
+
+      <a class="back" href="index.html">
+        ← BACK HOME
+      </a>
+
+    </header>
+
+    <section class="intro">
+
+      <div class="kicker">
+        THE ARCADE / DIGITAL EXPERIMENTS
+      </div>
+
+      <h1>GAMES</h1>
+
+      <p>
+        A growing collection of small worlds, strange mechanics,
+        experiments and playable ideas.
+      </p>
+
+      <div class="count">
+        09 CURRENT EXPERIENCES
+      </div>
+
+    </section>
+
+    <section class="grid" aria-label="Games">
+
+      <a class="card" href="games/crazygolflane.html">
+        <span class="number">01 / GAME</span>
+        <span class="title">CRAZY GOLF LANE</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/crossword.html">
+        <span class="number">02 / GAME</span>
+        <span class="title">CROSSWORD</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/full_house.html">
+        <span class="number">03 / GAME</span>
+        <span class="title">FULL HOUSE</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/gridrammer.html">
+        <span class="number">04 / GAME</span>
+        <span class="title">GRID RAMMER</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/islandzero.html">
+        <span class="number">05 / GAME</span>
+        <span class="title">ISLAND ZERO</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/ken.html">
+        <span class="number">06 / GAME</span>
+        <span class="title">KEN</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/mountainclimb.html">
+        <span class="number">07 / GAME</span>
+        <span class="title">MOUNTAIN CLIMB</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card" href="games/trillionaire.html">
+        <span class="number">08 / GAME</span>
+        <span class="title">TRILLIONAIRE</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+      <a class="card world" href="games/world.html">
+        <span class="number">09 / GAME / NEW</span>
+        <span class="title">WORLD</span>
+        <span class="launch">PLAY ↗</span>
+      </a>
+
+    </section>
+
+  </main>
+
+</body>
+
+</html>

@@ -1,0 +1,1576 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Michael Kennedy // Dumb to Smart</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <style>
+
+        :root {
+            --paper: #F4F4F0;
+            --black: #121212;
+            --red: #E63946;
+            --yellow: #FFB703;
+            --blue: #1D3557;
+            --gray: #E5E5E0;
+            --white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--black);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+
+            background-image:
+                linear-gradient(
+                    to right,
+                    rgba(18,18,18,.045) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    to bottom,
+                    rgba(18,18,18,.045) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+        }
+
+        .font-archivo {
+            font-family: 'Archivo Black', sans-serif;
+        }
+
+        .font-mono-bauhaus {
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* --------------------------------
+           SHADOW SYSTEM
+        -------------------------------- */
+
+        .bauhaus-shadow {
+            box-shadow: 6px 6px 0 var(--black);
+            transition:
+                transform .15s ease,
+                box-shadow .15s ease;
+        }
+
+        .bauhaus-shadow:hover {
+            transform: translate(-2px,-2px);
+            box-shadow: 9px 9px 0 var(--black);
+        }
+
+        .bauhaus-shadow-lg {
+            box-shadow: 10px 10px 0 var(--black);
+        }
+
+        /* --------------------------------
+           BUTTONS
+        -------------------------------- */
+
+        .bauhaus-button {
+            border: 3px solid var(--black);
+            font-family: 'Archivo Black', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            transition: all .15s ease;
+            cursor: pointer;
+        }
+
+        .bauhaus-button:hover {
+            transform: translate(-3px,-3px);
+            box-shadow: 9px 9px 0 var(--black);
+        }
+
+        .bauhaus-button:active {
+            transform: translate(2px,2px);
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        /* --------------------------------
+           KINETIC TITLE
+        -------------------------------- */
+
+        .kinetic-viewport {
+            perspective: 1000px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .kinetic-wrapper {
+            transform-style: preserve-3d;
+            transition:
+                transform .12s cubic-bezier(.1,.5,.1,1);
+            will-change: transform;
+        }
+
+        .kinetic-char {
+            display: inline-block;
+            transition:
+                transform .08s ease-out,
+                color .2s ease;
+            will-change: transform;
+        }
+
+        /* --------------------------------
+           TEXTAREAS
+        -------------------------------- */
+
+        textarea {
+            font-family: 'Space Mono', monospace;
+            resize: vertical;
+            min-height: 300px;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        /* --------------------------------
+           SMART OUTPUT
+        -------------------------------- */
+
+        #smartOutput {
+            min-height: 300px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* --------------------------------
+           SLIDER
+        -------------------------------- */
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 12px;
+            background: var(--gray);
+            border: 2px solid var(--black);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+
+            width: 20px;
+            height: 28px;
+
+            margin-top: -10px;
+
+            background: var(--red);
+            border: 2px solid var(--black);
+
+            cursor: pointer;
+
+            box-shadow: 2px 2px 0 var(--black);
+        }
+
+        input[type=range]::-moz-range-track {
+            height: 12px;
+            background: var(--gray);
+            border: 2px solid var(--black);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 28px;
+
+            background: var(--red);
+            border: 2px solid var(--black);
+
+            border-radius: 0;
+
+            cursor: pointer;
+        }
+
+        /* --------------------------------
+           MODE BUTTONS
+        -------------------------------- */
+
+        .mode-button {
+            border: 2px solid var(--black);
+            background: var(--paper);
+            padding: 8px 12px;
+
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                background .15s ease,
+                color .15s ease,
+                transform .15s ease;
+        }
+
+        .mode-button:hover {
+            background: var(--yellow);
+            transform: translateY(-2px);
+        }
+
+        .mode-button.active {
+            background: var(--black);
+            color: white;
+        }
+
+        /* --------------------------------
+           DECORATION
+        -------------------------------- */
+
+        .red-square {
+            position: fixed;
+            top: 0;
+            right: 0;
+
+            width: 180px;
+            height: 180px;
+
+            background: var(--red);
+
+            border-left: 4px solid var(--black);
+            border-bottom: 4px solid var(--black);
+
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .yellow-circle {
+            position: fixed;
+            bottom: -70px;
+            left: -70px;
+
+            width: 220px;
+            height: 220px;
+
+            background: var(--yellow);
+
+            border: 4px solid var(--black);
+            border-radius: 50%;
+
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --------------------------------
+           MOBILE
+        -------------------------------- */
+
+        @media(max-width:700px) {
+
+            body {
+                background-size: 30px 30px;
+            }
+
+            .red-square {
+                width: 100px;
+                height: 100px;
+            }
+
+            .yellow-circle {
+                width: 140px;
+                height: 140px;
+            }
+
+            textarea,
+            #smartOutput {
+                min-height: 250px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body class="min-h-screen p-4 md:p-8">
+
+
+    <!-- DECORATION -->
+
+    <div class="red-square"></div>
+
+    <div class="yellow-circle"></div>
+
+
+    <!-- HEADER -->
+
+    <header class="max-w-6xl mx-auto relative z-10">
+
+        <div
+            class="flex flex-wrap items-center justify-between border-b-4 border-black pb-4 mb-8"
+        >
+
+            <div class="flex items-center gap-3">
+
+                <span class="w-6 h-6 bg-[#E63946] border-2 border-black"></span>
+
+                <span class="w-6 h-6 bg-[#FFB703] border-2 border-black rounded-full"></span>
+
+                <span class="w-6 h-6 bg-[#1D3557] border-2 border-black"></span>
+
+                <span
+                    class="font-mono-bauhaus font-bold text-xs md:text-sm uppercase tracking-widest ml-2"
+                >
+                    MICHAEL KENNEDY
+                </span>
+
+            </div>
+
+
+            <a
+                href="index.html"
+                class="font-mono-bauhaus text-xs font-bold bg-black text-white px-3 py-2 uppercase tracking-wider hover:bg-[#E63946] transition"
+            >
+                ← BACK HOME
+            </a>
+
+        </div>
+
+
+        <!-- KINETIC TITLE -->
+
+        <div class="kinetic-viewport py-4 text-center">
+
+            <div
+                id="kineticTitle"
+                class="kinetic-wrapper cursor-crosshair py-2"
+            >
+
+                <div
+                    id="line1"
+                    class="font-archivo text-5xl sm:text-7xl md:text-8xl lg:text-9xl uppercase tracking-tighter leading-none text-black"
+                ></div>
+
+                <div
+                    id="line2"
+                    class="font-archivo text-5xl sm:text-7xl md:text-8xl lg:text-9xl uppercase tracking-tighter leading-none text-[#E63946]"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="max-w-2xl mx-auto mt-4 bg-[#FFB703] border-2 border-black p-3 text-center font-mono-bauhaus text-xs md:text-sm font-bold uppercase tracking-wider shadow-[4px_4px_0px_#121212]"
+        >
+            Say what you mean. Let the machine make it intelligent.
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main
+        class="max-w-6xl mx-auto relative z-10 mt-10"
+    >
+
+
+        <!-- INTRO -->
+
+        <section class="mb-8">
+
+            <div
+                class="font-mono-bauhaus text-xs font-bold uppercase tracking-widest text-[#E63946]"
+            >
+                LANGUAGE INTELLIGENCE LAB / 001
+            </div>
+
+            <h1
+                class="font-archivo text-5xl md:text-7xl uppercase tracking-tighter leading-none mt-3"
+            >
+                DUMB → SMART
+            </h1>
+
+            <p
+                class="max-w-3xl text-lg md:text-xl mt-4 leading-relaxed"
+            >
+                Write it badly. Write it bluntly. Write it exactly how it
+                comes into your head. The machine preserves what you mean
+                and transforms how you say it.
+            </p>
+
+        </section>
+
+
+        <!-- MAIN WORKSPACE -->
+
+        <section
+            class="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
+
+
+            <!-- DUMB SIDE -->
+
+            <div
+                class="bg-white border-4 border-black p-6 md:p-8 bauhaus-shadow-lg"
+            >
+
+                <div
+                    class="flex justify-between items-center border-b-4 border-black pb-3 mb-6"
+                >
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-5 h-5 bg-[#E63946]"></div>
+
+                        <h2
+                            class="font-archivo text-xl md:text-2xl uppercase"
+                        >
+                            DUMB
+                        </h2>
+
+                    </div>
+
+                    <span
+                        class="font-mono-bauhaus text-xs font-bold text-[#E63946]"
+                    >
+                        INPUT.01
+                    </span>
+
+                </div>
+
+
+                <p
+                    class="font-mono-bauhaus text-xs uppercase font-bold mb-3"
+                >
+                    SAY IT HOW YOU ACTUALLY SAY IT
+                </p>
+
+
+                <textarea
+                    id="dumbInput"
+                    class="w-full bg-[#F4F4F0] border-3 border-black p-4 text-sm leading-relaxed"
+                    placeholder="Example:
+
+I don't know what the hell is going on with this project and nobody seems to be doing anything."
+                ></textarea>
+
+
+                <!-- QUICK EXAMPLES -->
+
+                <div class="mt-5">
+
+                    <div
+                        class="font-mono-bauhaus text-xs font-bold uppercase mb-3"
+                    >
+                        QUICK EXAMPLES
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        <button
+                            class="mode-button"
+                            onclick="setExample('I don\\'t know what the hell is going on with this project and nobody seems to be doing anything.')"
+                        >
+                            PROJECT
+                        </button>
+
+                        <button
+                            class="mode-button"
+                            onclick="setExample('We are wasting loads of money on this and I don\\'t think it is working.')"
+                        >
+                            MONEY
+                        </button>
+
+                        <button
+                            class="mode-button"
+                            onclick="setExample('This meeting is going nowhere and we are all just talking rubbish.')"
+                        >
+                            MEETING
+                        </button>
+
+                        <button
+                            class="mode-button"
+                            onclick="setExample('I think this idea could work but we need to stop messing around and actually build it.')"
+                        >
+                            IDEA
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SMART SIDE -->
+
+            <div
+                class="bg-[#FFB703] border-4 border-black p-6 md:p-8 bauhaus-shadow-lg"
+            >
+
+                <div
+                    class="flex justify-between items-center border-b-4 border-black pb-3 mb-6"
+                >
+
+                    <div class="flex items-center gap-3">
+
+                        <div
+                            class="w-5 h-5 bg-[#1D3557] rounded-full"
+                        ></div>
+
+                        <h2
+                            class="font-archivo text-xl md:text-2xl uppercase"
+                        >
+                            SMART
+                        </h2>
+
+                    </div>
+
+                    <span
+                        class="font-mono-bauhaus text-xs font-bold text-[#1D3557]"
+                    >
+                        OUTPUT.02
+                    </span>
+
+                </div>
+
+
+                <p
+                    class="font-mono-bauhaus text-xs uppercase font-bold mb-3"
+                >
+                    SAY IT LIKE YOU MEAN IT
+                </p>
+
+
+                <div
+                    id="smartOutput"
+                    class="w-full bg-white border-3 border-black p-4 font-mono-bauhaus text-sm leading-relaxed"
+                >
+                    Your intelligent version will appear here.
+                </div>
+
+
+                <!-- OUTPUT ACTIONS -->
+
+                <div class="flex flex-wrap gap-2 mt-5">
+
+                    <button
+                        onclick="copySmart()"
+                        class="mode-button bg-white"
+                        title="Copy smart version"
+                    >
+                        <i class="fa-regular fa-copy"></i>
+                        COPY
+                    </button>
+
+
+                    <button
+                        onclick="speakSmart()"
+                        class="mode-button bg-white"
+                        title="Read smart version aloud"
+                    >
+                        <i class="fa-solid fa-volume-high"></i>
+                        READ
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- INTELLIGENCE CONTROL -->
+
+        <section
+            class="mt-8 bg-white border-4 border-black p-6 md:p-8 bauhaus-shadow"
+        >
+
+            <div
+                class="flex flex-wrap justify-between items-center gap-4 border-b-4 border-black pb-4 mb-6"
+            >
+
+                <div>
+
+                    <div
+                        class="font-archivo text-xl uppercase"
+                    >
+                        INTELLIGENCE LEVEL
+                    </div>
+
+                    <div
+                        class="font-mono-bauhaus text-xs uppercase mt-1"
+                    >
+                        How far should the machine take it?
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="intelligenceLabel"
+                    class="font-mono-bauhaus text-xs font-bold bg-[#1D3557] text-white px-3 py-2 border-2 border-black"
+                >
+                    03 / INTELLIGENT
+                </div>
+
+            </div>
+
+
+            <input
+                type="range"
+                id="intelligenceSlider"
+                min="1"
+                max="5"
+                step="1"
+                value="3"
+                oninput="updateIntelligence()"
+                class="w-full mb-5"
+            >
+
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+
+                <button
+                    id="level1"
+                    onclick="setIntelligence(1)"
+                    class="mode-button"
+                >
+                    01 / CLEAN
+                </button>
+
+                <button
+                    id="level2"
+                    onclick="setIntelligence(2)"
+                    class="mode-button"
+                >
+                    02 / POLISHED
+                </button>
+
+                <button
+                    id="level3"
+                    onclick="setIntelligence(3)"
+                    class="mode-button active"
+                >
+                    03 / INTELLIGENT
+                </button>
+
+                <button
+                    id="level4"
+                    onclick="setIntelligence(4)"
+                    class="mode-button"
+                >
+                    04 / BRILLIANT
+                </button>
+
+                <button
+                    id="level5"
+                    onclick="setIntelligence(5)"
+                    class="mode-button"
+                >
+                    05 / EXTRAORDINARY
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- STYLE CONTROL -->
+
+        <section
+            class="mt-8 bg-[#1D3557] text-white border-4 border-black p-6 md:p-8 bauhaus-shadow"
+        >
+
+            <div class="mb-5">
+
+                <div
+                    class="font-archivo text-xl uppercase"
+                >
+                    EXPRESSION MODE
+                </div>
+
+                <div
+                    class="font-mono-bauhaus text-xs uppercase mt-1"
+                >
+                    Choose how the intelligence should sound.
+                </div>
+
+            </div>
+
+
+            <div class="flex flex-wrap gap-2">
+
+                <button
+                    onclick="setStyle('clear')"
+                    class="mode-button active"
+                    id="styleClear"
+                >
+                    CLEAR
+                </button>
+
+                <button
+                    onclick="setStyle('professional')"
+                    class="mode-button"
+                    id="styleProfessional"
+                >
+                    PROFESSIONAL
+                </button>
+
+                <button
+                    onclick="setStyle('academic')"
+                    class="mode-button"
+                    id="styleAcademic"
+                >
+                    ACADEMIC
+                </button>
+
+                <button
+                    onclick="setStyle('literary')"
+                    class="mode-button"
+                    id="styleLiterary"
+                >
+                    LITERARY
+                </button>
+
+                <button
+                    onclick="setStyle('philosophical')"
+                    class="mode-button"
+                    id="stylePhilosophical"
+                >
+                    PHILOSOPHICAL
+                </button>
+
+                <button
+                    onclick="setStyle('poetic')"
+                    class="mode-button"
+                    id="stylePoetic"
+                >
+                    POETIC
+                </button>
+
+                <button
+                    onclick="setStyle('witty')"
+                    class="mode-button"
+                    id="styleWitty"
+                >
+                    WITTY
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- TRANSLATE -->
+
+        <section class="mt-8">
+
+            <button
+                id="translateButton"
+                onclick="translateText()"
+                class="w-full py-5 bg-[#E63946] text-white border-4 border-black font-archivo text-xl uppercase tracking-wider bauhaus-shadow-lg hover:bg-[#FFB703] hover:text-black transition"
+            >
+
+                <i class="fa-solid fa-arrow-right mr-2"></i>
+
+                <span id="translateTextLabel">
+                    MAKE IT SMART
+                </span>
+
+            </button>
+
+        </section>
+
+
+        <!-- STATUS -->
+
+        <section
+            class="mt-8 bg-white border-4 border-black p-5"
+        >
+
+            <div class="flex flex-wrap justify-between gap-3">
+
+                <span
+                    class="font-mono-bauhaus text-xs font-bold uppercase"
+                >
+                    MACHINE STATUS
+                </span>
+
+                <span
+                    id="status"
+                    class="font-mono-bauhaus text-xs font-bold uppercase text-[#E63946]"
+                >
+                    READY / AI ENGINE NOT CONNECTED
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- HISTORY -->
+
+        <section
+            class="mt-8 bg-white border-4 border-black p-6 bauhaus-shadow"
+        >
+
+            <div
+                class="flex justify-between items-center border-b-2 border-black pb-3 mb-4"
+            >
+
+                <div
+                    class="font-archivo text-lg uppercase"
+                >
+                    TRANSFORMATION LOG
+                </div>
+
+                <span
+                    id="historyCount"
+                    class="font-mono-bauhaus text-xs font-bold"
+                >
+                    0 TRANSFORMATIONS
+                </span>
+
+            </div>
+
+
+            <div
+                id="history"
+                class="space-y-3"
+            >
+
+                <div
+                    class="font-mono-bauhaus text-xs text-gray-400 italic"
+                >
+                    Nothing transformed yet.
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer
+        class="max-w-6xl mx-auto w-full relative z-10 border-t-4 border-black pt-5 mt-12 mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 font-mono-bauhaus text-xs font-bold"
+    >
+
+        <div>
+            MICHAEL KENNEDY // DUMB → SMART
+        </div>
+
+        <div
+            class="bg-black text-white px-3 py-1"
+        >
+            LANGUAGE INTELLIGENCE LAB
+        </div>
+
+    </footer>
+
+
+    <script>
+
+        /* ==========================================
+           STATE
+        ========================================== */
+
+        let currentSmartText = "";
+
+        let history = [];
+
+        let intelligenceLevel = 3;
+
+        let expressionStyle = "clear";
+
+
+        /* ==========================================
+           KINETIC TITLE
+        ========================================== */
+
+        const titleLine1 = "DUMB";
+
+        const titleLine2 = "SMART";
+
+
+        function renderTitle() {
+
+            const line1 =
+                document.getElementById("line1");
+
+            const line2 =
+                document.getElementById("line2");
+
+
+            line1.innerHTML =
+                titleLine1
+                    .split("")
+                    .map(
+                        (char, index) =>
+                            `<span class="kinetic-char">${char}</span>`
+                    )
+                    .join("");
+
+
+            line2.innerHTML =
+                titleLine2
+                    .split("")
+                    .map(
+                        (char) =>
+                            `<span class="kinetic-char">${char}</span>`
+                    )
+                    .join("");
+
+        }
+
+
+        /* ==========================================
+           MOUSE KINETIC EFFECT
+        ========================================== */
+
+        document.addEventListener(
+            "mousemove",
+            (event) => {
+
+                const width =
+                    window.innerWidth;
+
+                const height =
+                    window.innerHeight;
+
+
+                const mouseX =
+                    (event.clientX / width) * 2 - 1;
+
+                const mouseY =
+                    (event.clientY / height) * 2 - 1;
+
+
+                const wrapper =
+                    document.getElementById(
+                        "kineticTitle"
+                    );
+
+
+                if (wrapper) {
+
+                    wrapper.style.transform =
+                        `rotateX(${mouseY * -12}deg) rotateY(${mouseX * 15}deg)`;
+
+                }
+
+
+                document
+                    .querySelectorAll(".kinetic-char")
+                    .forEach((char) => {
+
+                        const rect =
+                            char.getBoundingClientRect();
+
+
+                        const charX =
+                            rect.left +
+                            rect.width / 2;
+
+                        const charY =
+                            rect.top +
+                            rect.height / 2;
+
+
+                        const distance =
+                            Math.hypot(
+                                event.clientX - charX,
+                                event.clientY - charY
+                            );
+
+
+                        const maxDistance = 280;
+
+
+                        if (distance < maxDistance) {
+
+                            const factor =
+                                1 -
+                                distance /
+                                maxDistance;
+
+
+                            char.style.transform =
+                                `translateY(${-factor * 12}px) scale(${1 + factor * .3},${1 - factor * .12})`;
+
+
+                            char.style.color =
+                                factor > .55
+                                    ? "#1D3557"
+                                    : "";
+
+                        }
+
+                        else {
+
+                            char.style.transform =
+                                "translateY(0) scale(1)";
+
+                            char.style.color = "";
+
+                        }
+
+                    });
+
+            }
+        );
+
+
+        /* ==========================================
+           EXAMPLES
+        ========================================== */
+
+        function setExample(text) {
+
+            document.getElementById(
+                "dumbInput"
+            ).value = text;
+
+        }
+
+
+        /* ==========================================
+           INTELLIGENCE
+        ========================================== */
+
+        function setIntelligence(value) {
+
+            document.getElementById(
+                "intelligenceSlider"
+            ).value = value;
+
+            updateIntelligence();
+
+        }
+
+
+        function updateIntelligence() {
+
+            intelligenceLevel =
+                Number(
+                    document.getElementById(
+                        "intelligenceSlider"
+                    ).value
+                );
+
+
+            const labels = {
+
+                1: "01 / CLEAN",
+
+                2: "02 / POLISHED",
+
+                3: "03 / INTELLIGENT",
+
+                4: "04 / BRILLIANT",
+
+                5: "05 / EXTRAORDINARY"
+
+            };
+
+
+            document.getElementById(
+                "intelligenceLabel"
+            ).textContent =
+                labels[intelligenceLevel];
+
+
+            for (
+                let i = 1;
+                i <= 5;
+                i++
+            ) {
+
+                const button =
+                    document.getElementById(
+                        `level${i}`
+                    );
+
+
+                button.classList.toggle(
+                    "active",
+                    i === intelligenceLevel
+                );
+
+            }
+
+        }
+
+
+        /* ==========================================
+           EXPRESSION STYLE
+        ========================================== */
+
+        function setStyle(style) {
+
+            expressionStyle = style;
+
+
+            const styles = [
+                "clear",
+                "professional",
+                "academic",
+                "literary",
+                "philosophical",
+                "poetic",
+                "witty"
+            ];
+
+
+            styles.forEach((name) => {
+
+                const button =
+                    document.getElementById(
+                        `style${name.charAt(0).toUpperCase() + name.slice(1)}`
+                    );
+
+
+                if (button) {
+
+                    button.classList.toggle(
+                        "active",
+                        name === style
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        /* ==========================================
+           TRANSLATION / AI ENGINE
+        ========================================== */
+
+        async function translateText() {
+
+            const input =
+                document
+                    .getElementById("dumbInput")
+                    .value
+                    .trim();
+
+
+            if (!input) {
+
+                alert(
+                    "Write something first."
+                );
+
+                return;
+
+            }
+
+
+            const button =
+                document.getElementById(
+                    "translateButton"
+                );
+
+            const buttonLabel =
+                document.getElementById(
+                    "translateTextLabel"
+                );
+
+            const status =
+                document.getElementById(
+                    "status"
+                );
+
+
+            button.disabled = true;
+
+            buttonLabel.textContent =
+                "THINKING...";
+
+            status.textContent =
+                "PROCESSING / AI ENGINE READY";
+
+
+            /*
+             *
+             * REAL AI CONNECTION
+             * ------------------
+             *
+             * This is where we will connect
+             * the actual AI backend.
+             *
+             * The AI will receive:
+             *
+             * 1. Original text
+             * 2. Intelligence level
+             * 3. Expression style
+             *
+             * It must preserve the original
+             * meaning and improve the language.
+             *
+             */
+
+
+            setTimeout(() => {
+
+                let result;
+
+
+                if (intelligenceLevel === 1) {
+
+                    result =
+                        "I am currently unable to determine what is happening with this project, and progress appears to be limited.";
+
+                }
+
+                else if (intelligenceLevel === 2) {
+
+                    result =
+                        "I am unclear about the current direction of the project, and there appears to be limited progress or coordination.";
+
+                }
+
+                else if (intelligenceLevel === 3) {
+
+                    result =
+                        "The project currently lacks clear direction and coordinated execution, making it difficult to understand what is progressing and who is responsible for moving it forward.";
+
+                }
+
+                else if (intelligenceLevel === 4) {
+
+                    result =
+                        "The project appears to be suffering from a combination of unclear direction, insufficient ownership, and fragmented execution, resulting in a level of inactivity that is preventing meaningful progress.";
+
+                }
+
+                else {
+
+                    result =
+                        "The central difficulty is not necessarily a lack of effort, but an absence of coherent direction, accountable ownership, and coordinated execution; without these foundations, activity becomes indistinguishable from progress and the project risks remaining permanently trapped in a state of organised inertia.";
+
+                }
+
+
+                displayResult(
+                    result,
+                    input
+                );
+
+
+                button.disabled = false;
+
+                buttonLabel.textContent =
+                    "MAKE IT SMART";
+
+                status.textContent =
+                    "READY / AI ENGINE NOT CONNECTED";
+
+
+            }, 650);
+
+        }
+
+
+        /* ==========================================
+           DISPLAY
+        ========================================== */
+
+        function displayResult(
+            result,
+            original
+        ) {
+
+            currentSmartText =
+                result;
+
+
+            document.getElementById(
+                "smartOutput"
+            ).textContent =
+                result;
+
+
+            history.unshift({
+
+                original:
+                    original,
+
+                result:
+                    result,
+
+                level:
+                    intelligenceLevel,
+
+                style:
+                    expressionStyle,
+
+                time:
+                    new Date().toLocaleTimeString(
+                        [],
+                        {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        }
+                    )
+
+            });
+
+
+            if (history.length > 8) {
+
+                history.pop();
+
+            }
+
+
+            renderHistory();
+
+        }
+
+
+        /* ==========================================
+           HISTORY
+        ========================================== */
+
+        function renderHistory() {
+
+            const container =
+                document.getElementById(
+                    "history"
+                );
+
+
+            document.getElementById(
+                "historyCount"
+            ).textContent =
+                `${history.length} TRANSFORMATIONS`;
+
+
+            if (!history.length) {
+
+                container.innerHTML = `
+                    <div class="font-mono-bauhaus text-xs text-gray-400 italic">
+                        Nothing transformed yet.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML =
+                history
+                    .map(
+                        (item) => `
+
+                        <div class="border-2 border-black bg-[#F4F4F0] p-4">
+
+                            <div class="flex justify-between gap-3 mb-2">
+
+                                <span class="font-mono-bauhaus text-[10px] font-bold text-[#E63946] uppercase">
+                                    LEVEL ${item.level} / ${escapeHTML(item.style)}
+                                </span>
+
+                                <span class="font-mono-bauhaus text-[10px] font-bold">
+                                    ${escapeHTML(item.time)}
+                                </span>
+
+                            </div>
+
+                            <div class="font-mono-bauhaus text-xs italic text-gray-600 mb-3">
+                                "${escapeHTML(item.original)}"
+                            </div>
+
+                            <div class="border-l-4 border-[#1D3557] pl-3 font-bold text-sm">
+                                "${escapeHTML(item.result)}"
+                            </div>
+
+                        </div>
+
+                    `
+                    )
+                    .join("");
+
+        }
+
+
+        /* ==========================================
+           COPY
+        ========================================== */
+
+        async function copySmart() {
+
+            if (!currentSmartText) {
+
+                return;
+
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    currentSmartText
+                );
+
+            }
+
+            catch {
+
+                const temporary =
+                    document.createElement(
+                        "textarea"
+                    );
+
+                temporary.value =
+                    currentSmartText;
+
+                document.body.appendChild(
+                    temporary
+                );
+
+                temporary.select();
+
+                document.execCommand(
+                    "copy"
+                );
+
+                temporary.remove();
+
+            }
+
+
+            const status =
+                document.getElementById(
+                    "status"
+                );
+
+
+            status.textContent =
+                "COPIED / SMART TEXT";
+
+        }
+
+
+        /* ==========================================
+           SPEECH
+        ========================================== */
+
+        function speakSmart() {
+
+            if (
+                !currentSmartText ||
+                !("speechSynthesis" in window)
+            ) {
+
+                return;
+
+            }
+
+
+            window.speechSynthesis.cancel();
+
+
+            const speech =
+                new SpeechSynthesisUtterance(
+                    currentSmartText
+                );
+
+
+            speech.rate = .9;
+
+            speech.pitch = .95;
+
+
+            window.speechSynthesis.speak(
+                speech
+            );
+
+        }
+
+
+        /* ==========================================
+           HTML ESCAPE
+        ========================================== */
+
+        function escapeHTML(value) {
+
+            return String(value)
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /* ==========================================
+           START
+        ========================================== */
+
+        window.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                renderTitle();
+
+                updateIntelligence();
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

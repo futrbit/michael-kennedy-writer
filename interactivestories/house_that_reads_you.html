@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>THE HOUSE THAT READS YOU</title>
+  <style>
+    :root {
+      --bg-dark: #050404;
+      --paper: #e2d7c5;
+      --paper-dark: #1a1614;
+      --ink: #14100e;
+      --ink-blood: #7a1414;
+      --ink-dim: #5c534c;
+      --gold-dim: #8c734b;
+      --font-serif: 'Georgia', 'Times New Roman', serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--paper);
+      font-family: var(--font-serif);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient Vignette Overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* Mobile Container Frame */
+    #app-container {
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      max-height: 920px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #0d0b0a;
+      box-shadow: 0 0 50px rgba(0,0,0,0.9);
+      overflow: hidden;
+    }
+
+    /* HUD Header */
+    #hud {
+      height: 48px;
+      background: #080706;
+      border-bottom: 1px solid #26201c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--gold-dim);
+      z-index: 10;
+    }
+
+    .hud-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sanity-bar {
+      width: 60px;
+      height: 6px;
+      background: #2a221d;
+      border: 1px solid #4a3c33;
+      overflow: hidden;
+    }
+
+    .sanity-fill {
+      width: 100%;
+      height: 100%;
+      background: var(--ink-blood);
+      transition: width 0.5s ease;
+    }
+
+    /* Book / Room Display Area */
+    #book-wrapper {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle at center, #241d18 0%, #0d0b0a 100%);
+    }
+
+    /* Tactile Page Container */
+    #page {
+      flex: 1;
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 4px;
+      padding: 24px 20px;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.3), 0 10px 25px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: background 0.8s, color 0.8s, transform 0.4s;
+      overflow-y: auto;
+    }
+
+    /* Lights Out Dark State */
+    #page.dark-mode {
+      background: var(--paper-dark);
+      color: #8a8078;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.9), 0 10px 25px rgba(0,0,0,0.9);
+    }
+
+    .page-header {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: var(--ink-dim);
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dark-mode .page-header {
+      color: #4a423c;
+      border-color: rgba(255,255,255,0.05);
+    }
+
+    .page-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .page-body p {
+      margin-bottom: 12px;
+    }
+
+    .page-body .blood-ink {
+      color: var(--ink-blood);
+      font-weight: bold;
+      font-style: italic;
+    }
+
+    /* Interactive Choices & Inputs */
+    #choice-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .choice-btn {
+      background: transparent;
+      border: 1px solid var(--ink-dim);
+      color: var(--ink);
+      padding: 12px 14px;
+      font-family: var(--font-serif);
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .choice-btn:active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .dark-mode .choice-btn {
+      border-color: #3d352e;
+      color: #a89f95;
+    }
+
+    .dark-mode .choice-btn:active {
+      background: #a89f95;
+      color: var(--paper-dark);
+    }
+
+    .text-input {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--ink-blood);
+      color: var(--ink);
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      padding: 6px 0;
+      width: 100%;
+      outline: none;
+    }
+
+    .dark-mode .text-input {
+      color: #d1c7bd;
+    }
+
+    /* Evidence / Photo Viewer */
+    #photo-card {
+      width: 100%;
+      height: 180px;
+      background: #111;
+      border: 8px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      margin: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #photo-card .photo-img {
+      width: 100%;
+      height: 140px;
+      background-size: cover;
+      background-position: center;
+      filter: sepia(0.6) contrast(1.2) grayscale(0.2);
+    }
+
+    #photo-card .photo-caption {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #333;
+      margin-top: 4px;
+    }
+
+    /* Navigation / Map Footer */
+    #footer-nav {
+      height: 60px;
+      background: #080706;
+      border-top: 1px solid #26201c;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding: 8px;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .nav-btn {
+      background: #14110e;
+      border: 1px solid #332a24;
+      color: #8c7f73;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+    }
+
+    .nav-btn:active {
+      border-color: var(--gold-dim);
+      color: var(--paper);
+    }
+
+    .nav-btn.active {
+      background: #241d18;
+      border-color: var(--gold-dim);
+      color: var(--gold-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-stat">
+        <span>ROOM:</span>
+        <span id="room-display" style="color:var(--paper);">FOYER</span>
+      </div>
+      <div class="hud-stat">
+        <span>SANITY:</span>
+        <div class="sanity-bar"><div class="sanity-fill" id="sanity-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- BOOK / ROOM VIEWPORT -->
+    <div id="book-wrapper">
+      <div id="page">
+        <div class="page-header" id="page-num">PAGE 1 OF ???</div>
+        <div class="page-body" id="page-content">
+          <!-- Dynamic Content Rendered Here -->
+        </div>
+        <div id="choice-container">
+          <!-- Dynamic Choices Rendered Here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION FOOTER -->
+    <div id="footer-nav">
+      <button class="nav-btn active" id="btn-read" onclick="switchView('read')">GRIMOIRE</button>
+      <button class="nav-btn" id="btn-map" onclick="switchView('map')">HOUSE MAP</button>
+      <button class="nav-btn" id="btn-evidence" onclick="switchView('evidence')">EVIDENCE (0)</button>
+    </div>
+  </div>
+
+  <script>
+    // --- GAME STATE & PSYCHOLOGICAL PROFILE ---
+    const state = {
+      playerName: "Visitor",
+      traits: {
+        afraidOfDark: null, // true / false
+        cameAlone: null,    // true / false
+        reason: ""          // user text input
+      },
+      currentRoom: "foyer",
+      sanity: 100,
+      evidenceFound: [],
+      memoryLog: {
+        chairInStudy: true // The house will gaslight this later
+      },
+      currentView: "read" // 'read', 'map', 'evidence'
+    };
+
+    // --- AUDIO SYNTHESIZER (No external audio files required) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playCreakSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.8);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.8);
+    }
+
+    function playWhisperSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const bufferSize = audioCtx.sampleRate * 0.5;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      noise.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+    }
+
+    // --- ROOM & PAGE DATABASE ---
+    const script = {
+      start: {
+        pageNum: "PAGE 1",
+        room: "ENTRANCE",
+        text: "<p>The heavy oak door slams behind you with a dull thud. No handle exists on the inside.</p><p>On a pedestal in the center of the foyer lies a bound leather book. The current page is blank except for two handwritten words:</p><p class='blood-ink'>Write your name.</p>",
+        type: "input",
+        placeholder: "Type your name...",
+        action: (val) => {
+          state.playerName = val || "Visitor";
+          playCreakSound();
+          loadPage('reason');
+        }
+      },
+      reason: {
+        pageNum: "PAGE 2",
+        room: "FOYER",
+        text: () => `<p>The ink absorbs into the parchment. Below your name (<b>${state.playerName}</b>), fresh handwriting emerges:</p><p class='blood-ink'>Why did you come here?</p>`,
+        choices: [
+          { text: "\"I came here alone looking for answers.\"", action: () => { state.traits.cameAlone = true; loadPage('fearCheck'); } },
+          { text: "\"Someone invited me. I am not alone.\"", action: () => { state.traits.cameAlone = false; loadPage('fearCheck'); } }
+        ]
+      },
+      fearCheck: {
+        pageNum: "PAGE 3",
+        room: "FOYER",
+        text: "<p>The page flips on its own with a crisp, dry rustle.</p><p class='blood-ink'>Are you afraid of the dark?</p>",
+        choices: [
+          { text: "\"I am not afraid of the dark.\"", action: () => { state.traits.afraidOfDark = false; loadPage('hallway'); } },
+          { text: "\"Yes, turn back before the lights fail.\"", action: () => { state.traits.afraidOfDark = true; loadPage('hallway'); } }
+        ]
+      },
+      hallway: {
+        pageNum: "PAGE 7",
+        room: "GRAND HALLWAY",
+        text: () => {
+          let extra = "";
+          if (state.traits.afraidOfDark === false) {
+            // Reaction to lie/claim of bravery
+            extra = "<p class='blood-ink'>You claimed you were not afraid of the dark. Let us test that.</p><p>Without a sound, every candle in the hall is extinguished simultaneously. Darkness swallows you whole.</p>";
+            document.getElementById('page').classList.add('dark-mode');
+            playWhisperSound();
+          } else {
+            extra = "<p>A single candle flickering in a sconce casts long, jittery shadows along the wallpaper.</p>";
+          }
+
+          if (state.traits.cameAlone === true) {
+            extra += "<p class='blood-ink'>\"I came here alone,\" you wrote on Page 2.</p><p>A cold breath touches the back of your neck. A faint voice whispers behind your ear: <i>\"No... you didn't.\"</i></p>";
+            playWhisperSound();
+          }
+
+          return `<p>You walk down the Grand Hallway. The walls seem narrower than when you entered.</p>${extra}`;
+        },
+        choices: [
+          { text: "Enter the Study on the left.", action: () => { playCreakSound(); loadPage('studyFirstVisit'); } },
+          { text: "Examine the framed photograph on the wall.", action: () => { loadPage('photo1'); } }
+        ]
+      },
+      photo1: {
+        pageNum: "PAGE 8",
+        room: "GRAND HALLWAY",
+        text: "<p>You lift the dusty picture frame. It contains a black-and-white photograph of a bedroom inside this exact house.</p><p>Standing near the window is a figure. You inspect it closely. The hair, the facial structure... <b>it is you</b>.</p><p>The timestamp stamped at the bottom corner reads: <b>OCTOBER 14, 2009</b> (17 years ago).</p>",
+        choices: [
+          { text: "Pocket the photograph as Evidence.", action: () => {
+            if(!state.evidenceFound.includes("Photograph (2009)")) {
+              state.evidenceFound.push("Photograph (2009)");
+              document.getElementById('btn-evidence').innerText = `EVIDENCE (${state.evidenceFound.length})`;
+            }
+            loadPage('studyFirstVisit');
+          }}
+        ]
+      },
+      studyFirstVisit: {
+        pageNum: "PAGE 12",
+        room: "THE STUDY",
+        text: "<p>You step into the Study. A heavy mahogany desk sits in the center. Opposite it stands a high-backed plush velvet arm chair near a crackling fireplace.</p><p>You distinctly note the red velvet chair resting under the window.</p>",
+        choices: [
+          { text: "Inspect the desk drawers.", action: () => loadPage('deskInspection') },
+          { text: "Return to the Hallway.", action: () => loadPage('hallwayReturn') }
+        ]
+      },
+      deskInspection: {
+        pageNum: "PAGE 13",
+        room: "THE STUDY",
+        text: "<p>Inside the drawer lies a diary page written in faded blue ink:</p><p><i>\"October 14, 2009 — The visitor has taken up residence in the study. They sit in the velvet chair for hours reading the same page.\"</i></p>",
+        choices: [
+          { text: "Return to the Hallway.", action: () => loadPage('hallwayReturn') }
+        ]
+      },
+      hallwayReturn: {
+        pageNum: "PAGE 18",
+        room: "GRAND HALLWAY",
+        text: "<p>You step back into the hallway. The air feels colder. The house is shifting.</p><p>Something compels you to step back into the Study once more.</p>",
+        choices: [
+          { text: "Re-enter the Study.", action: () => loadPage('studyGaslight') }
+        ]
+      },
+      studyGaslight: {
+        pageNum: "PAGE 19",
+        room: "THE STUDY",
+        text: () => {
+          // Decrement Sanity
+          state.sanity = Math.max(state.sanity - 30, 10);
+          document.getElementById('sanity-fill').style.width = `${state.sanity}%`;
+
+          return "<p>You step back into the Study. You look toward the window under which the plush velvet arm chair rested moments ago.</p><p>The floorboards are bare. Dust covers the wood evenly, undisturbed.</p><p>You flip the page in the book. The ink bleeds fresh onto the paper:</p><p class='blood-ink'>\"There has never been a chair in this room, " + state.playerName + ". Why do you persist in lying to yourself?\"</p>";
+        },
+        choices: [
+          { text: "[TRUST YOUR MEMORY]: \"I saw the velvet chair here!\"", action: () => loadPage('endingMemory') },
+          { text: "[TRUST THE BOOK]: \"I must have misremembered...\"", action: () => loadPage('endingBook') }
+        ]
+      },
+      endingMemory: {
+        pageNum: "PAGE 99",
+        room: "THE VOID",
+        text: "<p>You refuse to accept the book's rewrite. You reach out into the empty air where the chair was—and your hands collide with velvet brass tacks.</p><p>The house screams as your memory forces reality back into alignment. The pages of the book burst into ash.</p><p class='blood-ink'>THE END — YOU PRESERVED YOUR MIND.</p>",
+        choices: []
+      },
+      endingBook: {
+        pageNum: "PAGE 99",
+        room: "THE VOID",
+        text: "<p>You bow your head and accept the text. The moment you surrender your memory, the outline of your own hands begins to fade from your sight.</p><p>The book turns its own page and writes your final line:</p><p class='blood-ink'>\"And so the house absorbed another who forgot who they were.\"</p><p class='blood-ink'>THE END — YOU BECAME A PAGE IN THE BOOK.</p>",
+        choices: []
+      }
+    };
+
+    // --- ENGINE LOGIC ---
+    function loadPage(pageKey) {
+      const pageData = script[pageKey];
+      if (!pageData) return;
+
+      document.getElementById('page-num').innerText = pageData.pageNum;
+      document.getElementById('room-display').innerText = pageData.room;
+
+      const contentElem = document.getElementById('page-content');
+      const choiceElem = document.getElementById('choice-container');
+
+      const rawText = typeof pageData.text === 'function' ? pageData.text() : pageData.text;
+      contentElem.innerHTML = rawText;
+      choiceElem.innerHTML = '';
+
+      if (pageData.type === 'input') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'text-input';
+        input.placeholder = pageData.placeholder;
+        input.onkeydown = (e) => {
+          if (e.key === 'Enter') pageData.action(input.value);
+        };
+        choiceElem.appendChild(input);
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'choice-btn';
+        confirmBtn.innerText = 'Confirm';
+        confirmBtn.onclick = () => pageData.action(input.value);
+        choiceElem.appendChild(confirmBtn);
+      } else if (pageData.choices) {
+        pageData.choices.forEach(c => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.innerHTML = c.text;
+          btn.onclick = c.action;
+          choiceElem.appendChild(btn);
+        });
+      }
+    }
+
+    // --- TAB SWITCHING (GRIMOIRE / MAP / EVIDENCE) ---
+    function switchView(view) {
+      state.currentView = view;
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`btn-${view}`).classList.add('active');
+
+      const contentElem = document.getElementById('page-content');
+      const choiceElem = document.getElementById('choice-container');
+
+      if (view === 'map') {
+        contentElem.innerHTML = `
+          <p><b>HOUSE LAYOUT (CURRENT ITERATION)</b></p>
+          <div style="font-family:var(--font-mono); font-size:0.75rem; border:1px solid var(--ink-dim); padding:12px; margin-top:10px;">
+            [ ENTRANCE ] ─── [ FOYER ] ─── [ GRAND HALLWAY ]
+                                                     │
+                                             [ THE STUDY ]
+          </div>
+          <p style="margin-top:12px; font-size:0.8rem; color:var(--ink-dim);">Note: Rooms subject to spontaneous spatial reconfiguration based on logged responses.</p>
+        `;
+        choiceElem.innerHTML = '';
+      } else if (view === 'evidence') {
+        let evidenceHtml = "<p><b>COLLECTED EVIDENCE</b></p>";
+        if (state.evidenceFound.length === 0) {
+          evidenceHtml += "<p style='font-size:0.85rem; color:var(--ink-dim); margin-top:10px;'>No items collected yet.</p>";
+        } else {
+          state.evidenceFound.forEach(item => {
+            evidenceHtml += `
+              <div id="photo-card">
+                <div class="photo-img" style="background-color:#332;"></div>
+                <div class="photo-caption">${item}</div>
+              </div>
+            `;
+          });
+        }
+        contentElem.innerHTML = evidenceHtml;
+        choiceElem.innerHTML = '';
+      } else {
+        loadPage('start');
+      }
+    }
+
+    // Initialize Game
+    loadPage('start');
+  </script>
+</body>
+</html>

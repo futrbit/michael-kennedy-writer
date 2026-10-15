@@ -1,0 +1,5078 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Global Strategy â€“ Own the World</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  user-select:none;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+
+body{
+  background:#0d1117;
+  color:#c9d1d9;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+button{
+  font:inherit;
+}
+
+#app{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  width:100vw;
+  max-width:560px;
+  margin:0 auto;
+  background:#161b22;
+  position:relative;
+  border-left:1px solid #30363d;
+  border-right:1px solid #30363d;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.top-bar{
+  height:54px;
+  min-height:54px;
+  background:#21262d;
+  border-bottom:1px solid #30363d;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+  font-size:14px;
+  font-weight:bold;
+  z-index:20;
+}
+
+.top-title{
+  color:#f0f6fc;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.info-btn{
+  background:#30363d;
+  border:none;
+  color:#c9d1d9;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.badge{
+  background:#238636;
+  color:white;
+  padding:4px 9px;
+  border-radius:12px;
+  font-size:11px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.viewport{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  padding:8px;
+  gap:8px;
+  position:relative;
+}
+
+/* =========================================================
+   BOARD
+========================================================= */
+
+.board-wrapper{
+  flex:none;
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:8px;
+  padding:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+#boardCanvas{
+  background:#161b22;
+  border:1px solid #30363d;
+  border-radius:4px;
+  width:min(100%,500px);
+  height:auto;
+  aspect-ratio:1/1;
+  display:block;
+}
+
+.p-turn{
+  position:absolute;
+  top:12px;
+  left:12px;
+  font-size:11px;
+  color:#8b949e;
+  background:#21262d;
+  padding:5px 8px;
+  border-radius:4px;
+  font-family:monospace;
+  z-index:3;
+}
+
+.p-money{
+  position:absolute;
+  top:12px;
+  right:12px;
+  font-size:15px;
+  color:#2ea043;
+  font-weight:bold;
+  background:#0d1117;
+  padding:5px 8px;
+  border-radius:4px;
+  border:1px solid #30363d;
+  z-index:3;
+}
+
+/* =========================================================
+   BOARD ANNOUNCEMENT
+========================================================= */
+
+.board-announcement{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.92);
+  width:min(72%,310px);
+  background:rgba(13,17,23,.97);
+  border:2px solid #58a6ff;
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+  z-index:8;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+
+.board-announcement.show{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+.announcement-icon{
+  font-size:34px;
+  margin-bottom:6px;
+}
+
+.announcement-title{
+  color:#f0f6fc;
+  font-size:17px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.announcement-body{
+  color:#8b949e;
+  font-size:12px;
+  line-height:1.45;
+}
+
+.announcement-value{
+  margin-top:9px;
+  color:#58a6ff;
+  font-size:16px;
+  font-weight:900;
+}
+
+/* =========================================================
+   TILE
+========================================================= */
+
+.tile-card{
+  background:#21262d;
+  border:1px solid #30363d;
+  border-radius:8px;
+  padding:10px;
+}
+
+.tile-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #30363d;
+  padding-bottom:5px;
+  margin-bottom:7px;
+}
+
+.tile-title{
+  font-weight:bold;
+  font-size:14px;
+  color:#f0f6fc;
+}
+
+.tile-type{
+  font-size:10px;
+  text-transform:uppercase;
+  padding:3px 7px;
+  border-radius:4px;
+  color:white;
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.info-bar{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.res-box,
+.owned-box{
+  background:#0d1117;
+  padding:7px;
+  border-radius:6px;
+  font-size:11px;
+  color:#8b949e;
+  border:1px solid #30363d;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tab-bar{
+  display:flex;
+  background:#0d1117;
+  border-radius:6px;
+  padding:2px;
+  border:1px solid #30363d;
+}
+
+.tab{
+  flex:1;
+  text-align:center;
+  padding:7px;
+  font-size:11px;
+  cursor:pointer;
+  border-radius:4px;
+  color:#8b949e;
+}
+
+.tab.active{
+  background:#21262d;
+  color:#f0f6fc;
+  font-weight:bold;
+}
+
+/* =========================================================
+   LOG
+========================================================= */
+
+.log-box{
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:6px;
+  height:90px;
+  overflow-y:auto;
+  padding:7px;
+  font-size:11px;
+  font-family:monospace;
+  display:flex;
+  flex-direction:column;
+}
+
+.log-entry{
+  margin-bottom:3px;
+  border-bottom:1px solid #161b22;
+  padding-bottom:3px;
+}
+
+/* =========================================================
+   CONTROL PANEL
+========================================================= */
+
+.control-panel{
+  background:#161b22;
+  border-top:1px solid #30363d;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  z-index:20;
+}
+
+.btn-group{
+  display:flex;
+  gap:8px;
+}
+
+.btn{
+  flex:1;
+  min-height:42px;
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  font-weight:bold;
+  font-size:13px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+
+.btn:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.btn-primary{
+  background:#238636;
+  color:white;
+}
+
+.btn-secondary{
+  background:#30363d;
+  color:#c9d1d9;
+}
+
+.btn-danger{
+  background:#da3633;
+  color:white;
+}
+
+.btn-accent{
+  background:#1f6feb;
+  color:white;
+}
+
+/* =========================================================
+   OVERLAYS
+========================================================= */
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:16px;
+  z-index:100;
+}
+
+.modal{
+  background:#161b22;
+  border:1px solid #30363d;
+  border-radius:14px;
+  width:100%;
+  max-width:390px;
+  max-height:88vh;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.modal-title{
+  font-size:19px;
+  font-weight:bold;
+  color:#f0f6fc;
+  text-align:center;
+}
+
+.modal-body{
+  font-size:13.5px;
+  color:#c9d1d9;
+  line-height:1.55;
+}
+
+.card-icon{
+  font-size:46px;
+  text-align:center;
+  margin:4px 0;
+}
+
+.rule-section{
+  margin-top:8px;
+}
+
+.rule-section b{
+  color:#58a6ff;
+}
+
+/* =========================================================
+   CARD SEQUENCE
+========================================================= */
+
+.sequence-stage{
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:9px;
+  padding:13px;
+  text-align:center;
+}
+
+.sequence-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#8b949e;
+  margin-bottom:6px;
+}
+
+.sequence-title{
+  font-size:20px;
+  font-weight:900;
+  color:#f0f6fc;
+  margin-bottom:7px;
+}
+
+.sequence-text{
+  font-size:13px;
+  color:#c9d1d9;
+  line-height:1.5;
+}
+
+/* =========================================================
+   SETUP
+========================================================= */
+
+.setup-subtitle{
+  text-align:center;
+  color:#8b949e;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.setup-option{
+  width:100%;
+  background:#21262d;
+  border:1px solid #30363d;
+  color:#f0f6fc;
+  border-radius:10px;
+  padding:14px;
+  text-align:left;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.setup-option:hover{
+  border-color:#58a6ff;
+  background:#30363d;
+}
+
+.setup-option strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:3px;
+}
+
+.setup-option span{
+  display:block;
+  font-size:11px;
+  color:#8b949e;
+}
+
+.player-field{
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:8px;
+  padding:10px;
+}
+
+.player-field label{
+  display:block;
+  font-size:11px;
+  color:#8b949e;
+  margin-bottom:5px;
+}
+
+.player-field input{
+  width:100%;
+  padding:10px;
+  background:#161b22;
+  border:1px solid #30363d;
+  color:#f0f6fc;
+  border-radius:6px;
+  outline:none;
+  user-select:text;
+}
+
+.player-field input:focus{
+  border-color:#58a6ff;
+}
+
+@media(max-height:720px){
+
+  .board-wrapper{
+    max-height:43vh;
+  }
+
+  .log-box{
+    height:65px;
+  }
+
+  .control-panel{
+    padding:7px;
+  }
+}
+
+@media(max-width:380px){
+
+  .top-title{
+    font-size:13px;
+  }
+
+  .btn{
+    font-size:11px;
+    padding:8px 4px;
+  }
+
+  .p-money{
+    font-size:13px;
+  }
+
+  .p-turn{
+    font-size:10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <div class="top-bar">
+
+    <div class="top-title">
+
+      ðŸŒ Global Strategy
+
+      <button
+        class="info-btn"
+        id="infoBtn"
+        type="button"
+        title="Rules & Instructions"
+      >
+        â„¹ï¸
+      </button>
+
+    </div>
+
+    <div
+      class="badge"
+      id="turnCounter"
+    >
+      Turn 1
+    </div>
+
+  </div>
+
+
+  <div class="viewport">
+
+    <div class="board-wrapper">
+
+      <div
+        class="p-turn"
+        id="pTurn"
+      >
+        Current: Player 1
+      </div>
+
+      <div
+        class="p-money"
+        id="pMoney"
+      >
+        1500 ðŸª™
+      </div>
+
+      <canvas
+        id="boardCanvas"
+        width="500"
+        height="500"
+      ></canvas>
+
+      <div
+        class="board-announcement"
+        id="boardAnnouncement"
+      >
+
+        <div
+          class="announcement-icon"
+          id="announcementIcon"
+        >
+          ðŸŒ
+        </div>
+
+        <div
+          class="announcement-title"
+          id="announcementTitle"
+        >
+          GLOBAL EVENT
+        </div>
+
+        <div
+          class="announcement-body"
+          id="announcementBody"
+        ></div>
+
+        <div
+          class="announcement-value"
+          id="announcementValue"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div class="tile-card">
+
+      <div class="tile-header">
+
+        <div
+          class="tile-title"
+          id="tileTitle"
+        >
+          #1: PASS GO
+        </div>
+
+        <div
+          class="tile-type"
+          id="tileType"
+          style="background:#2ea043;"
+        >
+          START
+        </div>
+
+      </div>
+
+      <div
+        id="tileDetails"
+        style="font-size:12px;color:#8b949e;"
+      >
+        Collect 200 when you pass GO.
+      </div>
+
+    </div>
+
+
+    <div class="info-bar">
+
+      <div
+        class="res-box"
+        id="resBox"
+      >
+        ðŸ¥‡ 0 | ðŸªµ 0 | ðŸª¨ 0
+      </div>
+
+      <div
+        class="owned-box"
+        id="ownedBox"
+      >
+        Tiles: 0 | Walk
+      </div>
+
+    </div>
+
+
+    <div class="tab-bar">
+
+      <div
+        class="tab active"
+        data-tab="log"
+      >
+        Game Log
+      </div>
+
+      <div
+        class="tab"
+        data-tab="standings"
+      >
+        Leaderboard
+      </div>
+
+    </div>
+
+
+    <div
+      id="logTab"
+      class="log-box"
+    ></div>
+
+    <div
+      id="standingsTab"
+      class="log-box"
+      style="display:none;"
+    ></div>
+
+  </div>
+
+
+  <div class="control-panel">
+
+    <div class="btn-group">
+
+      <button
+        class="btn btn-primary"
+        id="btnRoll"
+        type="button"
+      >
+        ðŸŽ² Roll (<span id="diceCount">1D</span>)
+      </button>
+
+      <button
+        class="btn btn-accent"
+        id="btnBuy"
+        type="button"
+        disabled
+      >
+        ðŸ›ï¸ Buy
+      </button>
+
+    </div>
+
+
+    <div class="btn-group">
+
+      <button
+        class="btn btn-secondary"
+        id="btnBuild"
+        type="button"
+      >
+        ðŸ—ï¸ Build
+      </button>
+
+      <button
+        class="btn btn-danger"
+        id="btnWar"
+        type="button"
+      >
+        âš”ï¸ War
+      </button>
+
+      <button
+        class="btn btn-secondary"
+        id="btnEndTurn"
+        type="button"
+        disabled
+      >
+        â­ï¸ End Turn
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       SETUP
+  ====================================================== -->
+
+  <div
+    class="overlay"
+    id="setupModal"
+  >
+
+    <div class="modal">
+
+      <div class="card-icon">
+        ðŸŒ
+      </div>
+
+      <div class="modal-title">
+        GLOBAL STRATEGY
+      </div>
+
+      <div class="setup-subtitle">
+        Choose who controls the world.
+      </div>
+
+
+      <div
+        id="modeOptions"
+        style="
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+        "
+      >
+
+        <button
+          class="setup-option"
+          type="button"
+          data-mode="1"
+        >
+
+          <strong>
+            ðŸ‘¤ 1 Player + 2 AI
+          </strong>
+
+          <span>
+            You play against two computer-controlled rivals.
+          </span>
+
+        </button>
+
+
+        <button
+          class="setup-option"
+          type="button"
+          data-mode="2"
+        >
+
+          <strong>
+            ðŸ‘¥ 2 Players + 1 AI
+          </strong>
+
+          <span>
+            Two humans share the game against one computer.
+          </span>
+
+        </button>
+
+
+        <button
+          class="setup-option"
+          type="button"
+          data-mode="3"
+        >
+
+          <strong>
+            ðŸ‘¥ 3 Players
+          </strong>
+
+          <span>
+            Three human players compete for the world.
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="playerSetup"
+        style="
+          display:none;
+          flex-direction:column;
+          gap:10px;
+        "
+      >
+
+        <div
+          id="playerFields"
+          style="
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+          "
+        ></div>
+
+
+        <button
+          class="btn btn-primary"
+          id="startGameBtn"
+          type="button"
+        >
+          ðŸŒŽ START WORLD
+        </button>
+
+
+        <button
+          class="btn btn-secondary"
+          id="backSetupBtn"
+          type="button"
+        >
+          BACK
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       BUILD
+  ====================================================== -->
+
+  <div
+    class="overlay"
+    id="buildModal"
+  >
+
+    <div class="modal">
+
+      <div class="modal-title">
+        ðŸ—ï¸ Build / Upgrade
+      </div>
+
+      <div
+        style="
+          font-size:13px;
+          color:#8b949e;
+          text-align:center;
+        "
+      >
+        Transport:
+        <b id="currTransport">Walk</b>
+      </div>
+
+      <div
+        id="buildList"
+        style="
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+        "
+      ></div>
+
+      <button
+        class="btn btn-secondary"
+        id="closeBuildBtn"
+        type="button"
+      >
+        CLOSE
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       CARD / EVENT
+  ====================================================== -->
+
+  <div
+    class="overlay"
+    id="cardModal"
+  >
+
+    <div class="modal">
+
+      <div
+        class="card-icon"
+        id="cardIcon"
+      >
+        ðŸƒ
+      </div>
+
+      <div
+        class="modal-title"
+        id="cardTitle"
+      >
+        Card
+      </div>
+
+      <div
+        id="cardBody"
+        class="modal-body"
+      ></div>
+
+
+      <div
+        id="sequenceStage"
+        class="sequence-stage"
+        style="display:none;"
+      >
+
+        <div
+          class="sequence-label"
+          id="sequenceLabel"
+        >
+          CONSEQUENCE
+        </div>
+
+        <div
+          class="sequence-title"
+          id="sequenceTitle"
+        ></div>
+
+        <div
+          class="sequence-text"
+          id="sequenceText"
+        ></div>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        id="cardActionBtn"
+        type="button"
+      >
+        CONTINUE
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+
+const RESOURCES=[
+  "Gold",
+  "Wood",
+  "Stone",
+  "Water",
+  "Food"
+];
+
+const COUNTRIES=[
+  {name:"USA",color:"#1f6beb"},
+  {name:"France",color:"#f78166"},
+  {name:"Japan",color:"#da3633"},
+  {name:"China",color:"#e3b341"},
+  {name:"Germany",color:"#2ea043"},
+  {name:"India",color:"#f0f6fc"},
+  {name:"Brazil",color:"#238636"},
+  {name:"Egypt",color:"#8b949e"}
+];
+
+
+/* =========================================================
+   ACTION CARDS
+========================================================= */
+
+const ACTION_CARDS=[
+
+  {
+    title:"Resource Boost",
+    icon:"ðŸ“¦",
+    text:"Your traders discover valuable supplies.",
+    consequence:"Gain 2 random resources.",
+
+    effect:p=>{
+
+      const gained=[];
+
+      for(let i=0;i<2;i++){
+
+        const r=
+          RESOURCES[
+            Math.floor(
+              Math.random()*
+              RESOURCES.length
+            )
+          ];
+
+        p.resources[r]=
+          (p.resources[r]||0)+1;
+
+        gained.push(r);
+      }
+
+      return `+1 ${gained[0]} and +1 ${gained[1]}`;
+    }
+  },
+
+
+  {
+    title:"Cash Injection",
+    icon:"ðŸ’°",
+    text:"The World Bank approves emergency funding.",
+    consequence:"Receive 250 Credits.",
+
+    effect:p=>{
+
+      p.money+=250;
+
+      return "+250 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Free Upgrade",
+    icon:"ðŸš€",
+    text:"Your transport network receives an unexpected upgrade.",
+    consequence:"Upgrade your transport for free.",
+
+    effect:p=>{
+
+      if(p.transport==="Walk"){
+
+        p.transport="Car";
+
+        return "Transport upgraded: CAR";
+
+      }
+
+      if(p.transport==="Car"){
+
+        p.transport="Plane";
+
+        return "Transport upgraded: PLANE";
+
+      }
+
+      return "You already have the highest transport level.";
+
+    }
+  },
+
+
+  {
+    title:"War Funding",
+    icon:"âš”ï¸",
+    text:"An allied government sends military support.",
+    consequence:"Receive 150 Credits for military operations.",
+
+    effect:p=>{
+
+      p.money+=150;
+
+      return "+150 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Tax Rebate",
+    icon:"ðŸ§¾",
+    text:"Your government discovers you overpaid your taxes.",
+    consequence:"Government refund: +180 Credits.",
+
+    effect:p=>{
+
+      p.money+=180;
+
+      return "+180 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Lucky Find",
+    icon:"ðŸ’Ž",
+    text:"Rare materials are discovered in your territory.",
+    consequence:"Gain 1 Gold and 120 Credits.",
+
+    effect:p=>{
+
+      p.resources.Gold=
+        (p.resources.Gold||0)+1;
+
+      p.money+=120;
+
+      return "+1 Gold and +120 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Diplomatic Gift",
+    icon:"ðŸ¤",
+    text:"An ally sends an unexpected package of financial aid.",
+    consequence:"Receive 200 Credits.",
+
+    effect:p=>{
+
+      p.money+=200;
+
+      return "+200 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Instant Transport",
+    icon:"âœˆï¸",
+    text:"A private transport network gives you a shortcut across the world.",
+    consequence:"Move forward 4 spaces and resolve the new location.",
+
+    effect:p=>{
+
+      const old=p.pos;
+
+      p.pos=
+        (p.pos+4)%
+        TOTAL_TILES;
+
+      return `Moved from ${BOARD[old].name} to ${BOARD[p.pos].name}.`;
+
+    }
+  }
+
+];
+
+
+/* =========================================================
+   EVENT CARDS
+========================================================= */
+
+const EVENT_CARDS=[
+
+  {
+    title:"Market Crash",
+    icon:"ðŸ“‰",
+    text:"Global markets suddenly collapse.",
+    consequence:"Lose 180 Credits.",
+
+    effect:p=>{
+
+      p.money-=180;
+
+      return "âˆ’180 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Cyber Attack",
+    icon:"ðŸ’»",
+    text:"Your digital infrastructure has been compromised.",
+    consequence:"You must miss your next turn.",
+
+    effect:p=>{
+
+      p.skipTurns=1;
+
+      return "Next turn skipped.";
+
+    }
+  },
+
+
+  {
+    title:"Global Pandemic",
+    icon:"ðŸ¦ ",
+    text:"Borders close and international movement becomes difficult.",
+    consequence:"Miss your next 2 turns.",
+
+    effect:p=>{
+
+      p.skipTurns=2;
+
+      return "Next 2 turns skipped.";
+
+    }
+  },
+
+
+  {
+    title:"Trade Blockade",
+    icon:"ðŸš§",
+    text:"A major trading route is suddenly blocked.",
+    consequence:"Lose 120 Credits.",
+
+    effect:p=>{
+
+      p.money-=120;
+
+      return "âˆ’120 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Natural Disaster",
+    icon:"ðŸŒªï¸",
+    text:"A major disaster damages your infrastructure.",
+    consequence:"Lose 150 Credits.",
+
+    effect:p=>{
+
+      p.money-=150;
+
+      return "âˆ’150 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Inflation Spike",
+    icon:"ðŸ“ˆ",
+    text:"Your currency suddenly loses value.",
+    consequence:"Lose 100 Credits.",
+
+    effect:p=>{
+
+      p.money-=100;
+
+      return "âˆ’100 ðŸª™";
+
+    }
+  },
+
+
+  {
+    title:"Resource Shortage",
+    icon:"âš ï¸",
+    text:"Critical materials become difficult to obtain.",
+    consequence:"Lose one random resource.",
+
+    effect:p=>{
+
+      const owned=
+        Object.keys(p.resources)
+          .filter(
+            r=>p.resources[r]>0
+          );
+
+      if(!owned.length){
+
+        return "You had no resources to lose.";
+
+      }
+
+      const r=
+        owned[
+          Math.floor(
+            Math.random()*
+            owned.length
+          )
+        ];
+
+      p.resources[r]--;
+
+      return `âˆ’1 ${r}`;
+
+    }
+  },
+
+
+  {
+    title:"Political Scandal",
+    icon:"ðŸ“°",
+    text:"A scandal damages your government's reputation.",
+    consequence:"Lose 90 Credits.",
+
+    effect:p=>{
+
+      p.money-=90;
+
+      return "âˆ’90 ðŸª™";
+
+    }
+  }
+
+];
+
+
+/* =========================================================
+   BOARD
+========================================================= */
+
+let BOARD=[];
+
+const SIDE_SIZE=10;
+const BOARD_DIM=9;
+const TOTAL_TILES=36;
+
+
+function generateBoard(){
+
+  BOARD=[];
+
+  const cities=[
+
+    {name:"New York",short:"NYC"},
+    {name:"Paris",short:"PAR"},
+    {name:"Tokyo",short:"TYO"},
+    {name:"Beijing",short:"BJG"},
+    {name:"Berlin",short:"BER"},
+    {name:"Mumbai",short:"MUM"},
+    {name:"London",short:"LDN"},
+    {name:"SÃ£o Paulo",short:"SAO"},
+    {name:"Cairo",short:"CAI"},
+    {name:"Sydney",short:"SYD"},
+    {name:"Moscow",short:"MOW"},
+    {name:"Dubai",short:"DXB"},
+    {name:"Singapore",short:"SIN"},
+    {name:"Seoul",short:"SEL"},
+    {name:"Mexico City",short:"MEX"},
+    {name:"Toronto",short:"TOR"},
+    {name:"Rome",short:"ROM"},
+    {name:"Madrid",short:"MAD"},
+    {name:"Amsterdam",short:"AMS"},
+    {name:"Stockholm",short:"STO"}
+
+  ];
+
+
+  for(let i=0;i<TOTAL_TILES;i++){
+
+    if(i===0){
+
+      BOARD.push({
+        id:0,
+        name:"PASS GO",
+        short:"GO",
+        type:"START",
+        color:"#2ea043"
+      });
+
+    }
+
+    else if(i===BOARD_DIM){
+
+      BOARD.push({
+        id:i,
+        name:"Cyber Node",
+        short:"CYBER",
+        type:"CYBER",
+        color:"#8957e5"
+      });
+
+    }
+
+    else if(i===BOARD_DIM*2){
+
+      BOARD.push({
+        id:i,
+        name:"Pandemic",
+        short:"PAND",
+        type:"PANDEMIC",
+        color:"#da3633"
+      });
+
+    }
+
+    else if(i===BOARD_DIM*3){
+
+      BOARD.push({
+        id:i,
+        name:"Bonus",
+        short:"BONUS",
+        type:"BONUS",
+        color:"#1f6beb"
+      });
+
+    }
+
+    else if(i%5===0){
+
+      BOARD.push({
+        id:i,
+        name:"Global Event",
+        short:"EVENT",
+        type:"EVENT",
+        color:"#da3633"
+      });
+
+    }
+
+    else if(i%4===0){
+
+      BOARD.push({
+        id:i,
+        name:"Action Card",
+        short:"ACTION",
+        type:"ACTION",
+        color:"#1f6beb"
+      });
+
+    }
+
+    else{
+
+      const city=
+        cities[
+          (i-1)%
+          cities.length
+        ];
+
+      const country=
+        COUNTRIES[
+          i%
+          COUNTRIES.length
+        ];
+
+      const cost=
+        130+
+        (i%7)*40+
+        Math.floor(i/5)*25;
+
+      BOARD.push({
+
+        id:i,
+
+        name:city.name,
+
+        short:city.short,
+
+        type:"CITY",
+
+        country:country.name,
+
+        color:country.color,
+
+        cost:cost,
+
+        fine:
+          Math.floor(
+            cost*.13
+          ),
+
+        resource:
+          RESOURCES[
+            i%RESOURCES.length
+          ],
+
+        owner:null,
+
+        buildings:[]
+
+      });
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   PLAYERS
+========================================================= */
+
+let players=[];
+
+let currentPlayerIdx=0;
+let turnNumber=1;
+let hasRolled=false;
+let gameOver=false;
+
+let selectedHumanCount=1;
+
+const PLAYER_COLORS=[
+  "#58a6ff",
+  "#f78166",
+  "#2ea043"
+];
+
+
+/* =========================================================
+   POPUP STATE
+========================================================= */
+
+let activeCard=null;
+let activeCardPlayer=null;
+let activeCardIsEvent=false;
+let cardStage="story";
+
+let simplePopupAction=null;
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+window.onload=()=>{
+
+  generateBoard();
+
+  bindEvents();
+
+  updateUI();
+
+  drawBoard();
+
+  setTimeout(
+    openSetup,
+    300
+  );
+
+};
+
+
+/* =========================================================
+   BIND EVENTS
+========================================================= */
+
+function bindEvents(){
+
+  document
+    .getElementById("btnRoll")
+    .addEventListener(
+      "click",
+      handleRoll
+    );
+
+
+  document
+    .getElementById("btnBuy")
+    .addEventListener(
+      "click",
+      handleBuy
+    );
+
+
+  document
+    .getElementById("btnBuild")
+    .addEventListener(
+      "click",
+      openBuildModal
+    );
+
+
+  document
+    .getElementById("btnWar")
+    .addEventListener(
+      "click",
+      handleWar
+    );
+
+
+  document
+    .getElementById("btnEndTurn")
+    .addEventListener(
+      "click",
+      handleEndTurn
+    );
+
+
+  document
+    .getElementById("infoBtn")
+    .addEventListener(
+      "click",
+      openRules
+    );
+
+
+  document
+    .getElementById("closeBuildBtn")
+    .addEventListener(
+      "click",
+      closeBuildModal
+    );
+
+
+  document
+    .getElementById("startGameBtn")
+    .addEventListener(
+      "click",
+      startConfiguredGame
+    );
+
+
+  document
+    .getElementById("backSetupBtn")
+    .addEventListener(
+      "click",
+      showModeSelection
+    );
+
+
+  document
+    .getElementById("cardActionBtn")
+    .addEventListener(
+      "click",
+      handleCardButton
+    );
+
+
+  document
+    .querySelectorAll(".setup-option")
+    .forEach(button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          selectedHumanCount=
+            Number(
+              button.dataset.mode
+            );
+
+          showPlayerSetup();
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(tab=>{
+
+      tab.addEventListener(
+        "click",
+        ()=>{
+
+          switchTab(
+            tab.dataset.tab,
+            tab
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   SETUP
+========================================================= */
+
+function openSetup(){
+
+  document
+    .getElementById("setupModal")
+    .style.display="flex";
+
+  showModeSelection();
+
+}
+
+
+function showModeSelection(){
+
+  document
+    .getElementById("modeOptions")
+    .style.display="flex";
+
+  document
+    .getElementById("playerSetup")
+    .style.display="none";
+
+}
+
+
+function showPlayerSetup(){
+
+  document
+    .getElementById("modeOptions")
+    .style.display="none";
+
+  document
+    .getElementById("playerSetup")
+    .style.display="flex";
+
+
+  const fields=
+    document.getElementById(
+      "playerFields"
+    );
+
+  fields.innerHTML="";
+
+
+  for(let i=0;i<3;i++){
+
+    const human=
+      i<
+      selectedHumanCount;
+
+    const div=
+      document.createElement("div");
+
+    div.className=
+      "player-field";
+
+
+    if(human){
+
+      const inputId=
+        `playerName${i}`;
+
+      div.innerHTML=`
+
+        <label for="${inputId}">
+          Player ${i+1} ðŸ‘¤ Human
+        </label>
+
+        <input
+          id="${inputId}"
+          maxlength="18"
+          value="Player ${i+1}"
+          autocomplete="off"
+        >
+
+      `;
+
+    }
+
+    else{
+
+      const aiId=
+        `aiPlayer${i}`;
+
+      div.innerHTML=`
+
+        <label for="${aiId}">
+          Player ${i+1} ðŸ¤– Computer AI
+        </label>
+
+        <div
+          id="${aiId}"
+          style="
+            color:#8b949e;
+            padding:10px 0;
+            font-size:13px;
+          "
+        >
+          ðŸ¤– ${
+            i===1
+            ? "Bot Alpha"
+            : "Bot Beta"
+          }
+        </div>
+
+      `;
+
+    }
+
+
+    fields.appendChild(div);
+
+  }
+
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startConfiguredGame(){
+
+  players=[];
+
+
+  for(let i=0;i<3;i++){
+
+    const human=
+      i<
+      selectedHumanCount;
+
+    let name;
+
+
+    if(human){
+
+      const input=
+        document.getElementById(
+          `playerName${i}`
+        );
+
+      name=
+        input.value.trim()||
+        `Player ${i+1}`;
+
+    }
+
+    else{
+
+      name=
+        i===1
+        ? "Bot Alpha"
+        : "Bot Beta";
+
+    }
+
+
+    players.push({
+
+      id:i,
+
+      name:name,
+
+      color:
+        PLAYER_COLORS[i],
+
+      money:1500,
+
+      pos:0,
+
+      transport:"Walk",
+
+      skipTurns:0,
+
+      resources:{
+        Gold:1,
+        Wood:1
+      },
+
+      isAI:!human,
+
+      alive:true
+
+    });
+
+  }
+
+
+  currentPlayerIdx=0;
+  turnNumber=1;
+  hasRolled=false;
+  gameOver=false;
+
+
+  generateBoard();
+
+  clearLog();
+
+
+  addLog(
+    "ðŸŒ New world created."
+  );
+
+
+  addLog(
+    `ðŸ‘‘ ${players[0].name} goes first.`
+  );
+
+
+  document
+    .getElementById("setupModal")
+    .style.display="none";
+
+
+  updateUI();
+
+  drawBoard();
+
+
+  setTimeout(()=>{
+
+    showSimplePopup(
+
+      "ðŸŒ",
+
+      "Welcome to Global Strategy",
+
+      `
+        <b>Your goal is to own the world.</b>
+
+        <br><br>
+
+        Buy cities, build infrastructure,
+        upgrade transport, use cards,
+        and compete against the other players.
+
+        <br><br>
+
+        <span style="color:#8b949e">
+          Last player standing wins.
+        </span>
+      `,
+
+      "START PLAYING",
+
+      ()=>{
+        closeCardModal();
+      }
+
+    );
+
+  },250);
+
+}
+
+
+/* =========================================================
+   RULES
+========================================================= */
+
+function openRules(){
+
+  showSimplePopup(
+
+    "â„¹ï¸",
+
+    "How To Play",
+
+    `
+
+      <div style="text-align:left">
+
+        <div class="rule-section">
+
+          <b>ðŸŽ¯ Goal</b><br>
+
+          Own the world and be
+          the last player standing.
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>ðŸŽ² Turn</b><br>
+
+          1. Roll<br>
+          2. Resolve your space<br>
+          3. Buy / Build / War<br>
+          4. End your turn
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>ðŸ™ï¸ Cities</b><br>
+
+          Buy cities and collect rent.
+          Hotels increase rent.
+          Airports multiply rent.
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>âš”ï¸ War</b><br>
+
+          Stand on an enemy city,
+          pay 300 ðŸª™,
+          then have a 55% chance
+          to seize it.
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>ðŸš— Transport</b><br>
+
+          Walk = 1 die<br>
+          Car = 2 dice<br>
+          Plane = 3 dice
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>ðŸ’» Cyber Node</b><br>
+
+          You miss exactly ONE
+          future turn.
+
+        </div>
+
+
+        <div class="rule-section">
+
+          <b>ðŸƒ Cards</b><br>
+
+          Action cards help you.
+          Event cards create problems.
+
+          <br><br>
+
+          You see the event first,
+          then reveal its consequence.
+
+        </div>
+
+      </div>
+
+    `,
+
+    "CLOSE"
+
+  );
+
+}
+
+
+/* =========================================================
+   COORDINATES
+========================================================= */
+
+function getTileCoords(
+  idx,
+  sideLen,
+  canvasDim
+){
+
+  const dim=
+    sideLen-1;
+
+  const tileSize=
+    canvasDim/
+    sideLen;
+
+
+  if(idx<=dim){
+
+    return{
+
+      x:
+        canvasDim-
+        (idx*tileSize)-
+        tileSize,
+
+      y:
+        canvasDim-
+        tileSize,
+
+      side:"bottom"
+
+    };
+
+  }
+
+
+  if(idx<=dim*2){
+
+    return{
+
+      x:0,
+
+      y:
+        canvasDim-
+        ((idx-dim)*
+        tileSize)-
+        tileSize,
+
+      side:"left"
+
+    };
+
+  }
+
+
+  if(idx<=dim*3){
+
+    return{
+
+      x:
+        (idx-dim*2)*
+        tileSize,
+
+      y:0,
+
+      side:"top"
+
+    };
+
+  }
+
+
+  return{
+
+    x:
+      canvasDim-
+      tileSize,
+
+    y:
+      (idx-dim*3)*
+      tileSize,
+
+    side:"right"
+
+  };
+
+}
+
+
+/* =========================================================
+   DRAW BOARD
+========================================================= */
+
+function drawBoard(){
+
+  const canvas=
+    document.getElementById(
+      "boardCanvas"
+    );
+
+  const ctx=
+    canvas.getContext("2d");
+
+  const canvasDim=
+    canvas.width;
+
+  const tileSize=
+    canvasDim/
+    SIDE_SIZE;
+
+
+  ctx.clearRect(
+    0,
+    0,
+    canvasDim,
+    canvasDim
+  );
+
+
+  /* centre */
+
+  ctx.fillStyle="#0d1117";
+
+  ctx.fillRect(
+
+    tileSize,
+
+    tileSize,
+
+    canvasDim-
+      2*tileSize,
+
+    canvasDim-
+      2*tileSize
+
+  );
+
+
+  const centerX=
+    canvasDim/2;
+
+  const centerY=
+    canvasDim/2;
+
+
+  /* action */
+
+  ctx.fillStyle="#1f6beb";
+
+  ctx.fillRect(
+    centerX-95,
+    centerY-62,
+    82,
+    50
+  );
+
+
+  /* event */
+
+  ctx.fillStyle="#da3633";
+
+  ctx.fillRect(
+    centerX+13,
+    centerY-62,
+    82,
+    50
+  );
+
+
+  ctx.strokeStyle="#58a6ff";
+  ctx.lineWidth=2;
+
+  ctx.strokeRect(
+    centerX-95,
+    centerY-62,
+    82,
+    50
+  );
+
+
+  ctx.strokeStyle="#f85149";
+
+  ctx.strokeRect(
+    centerX+13,
+    centerY-62,
+    82,
+    50
+  );
+
+
+  ctx.fillStyle="white";
+
+  ctx.textAlign="center";
+
+
+  ctx.font=
+    "bold 12px sans-serif";
+
+
+  ctx.fillText(
+    "ACTION",
+    centerX-54,
+    centerY-37
+  );
+
+
+  ctx.fillText(
+    "EVENT",
+    centerX+54,
+    centerY-37
+  );
+
+
+  ctx.font=
+    "9px sans-serif";
+
+
+  ctx.fillText(
+    "CARDS",
+    centerX-54,
+    centerY-23
+  );
+
+
+  ctx.fillText(
+    "CARDS",
+    centerX+54,
+    centerY-23
+  );
+
+
+  ctx.fillStyle="#8b949e";
+
+  ctx.font=
+    "bold 14px sans-serif";
+
+
+  ctx.fillText(
+    "GLOBAL",
+    centerX,
+    centerY+23
+  );
+
+
+  ctx.fillText(
+    "STRATEGY",
+    centerX,
+    centerY+41
+  );
+
+
+  /* tiles */
+
+  BOARD.forEach(
+    (tile,idx)=>{
+
+      const coords=
+        getTileCoords(
+          idx,
+          SIDE_SIZE,
+          canvasDim
+        );
+
+
+      let bg;
+
+
+      if(tile.type==="CITY"){
+
+        bg=
+          tile.owner!==null
+          ? players[tile.owner].color+"55"
+          : "#161b22";
+
+      }
+
+      else{
+
+        bg=
+          tile.color||
+          "#21262d";
+
+      }
+
+
+      ctx.fillStyle=bg;
+
+
+      ctx.fillRect(
+
+        coords.x,
+        coords.y,
+        tileSize,
+        tileSize
+
+      );
+
+
+      ctx.strokeStyle="#30363d";
+
+      ctx.lineWidth=2;
+
+
+      ctx.strokeRect(
+
+        coords.x,
+        coords.y,
+        tileSize,
+        tileSize
+
+      );
+
+
+      /* city strip */
+
+      if(tile.type==="CITY"){
+
+        ctx.fillStyle=
+          tile.color;
+
+
+        if(
+          coords.side==="bottom"||
+          coords.side==="top"
+        ){
+
+          ctx.fillRect(
+
+            coords.x+3,
+            coords.y+3,
+            tileSize-6,
+            8
+
+          );
+
+        }
+
+        else{
+
+          ctx.fillRect(
+
+            coords.x+3,
+            coords.y+3,
+            8,
+            tileSize-6
+
+          );
+
+        }
+
+
+        /* owner marker */
+
+        if(tile.owner!==null){
+
+          ctx.fillStyle=
+            players[
+              tile.owner
+            ].color;
+
+
+          ctx.beginPath();
+
+          ctx.arc(
+
+            coords.x+
+              tileSize-
+              10,
+
+            coords.y+
+              tileSize-
+              10,
+
+            6,
+
+            0,
+            Math.PI*2
+
+          );
+
+          ctx.fill();
+
+
+          ctx.strokeStyle="#fff";
+
+          ctx.lineWidth=1.5;
+
+          ctx.stroke();
+
+        }
+
+      }
+
+
+      /* labels */
+
+      ctx.fillStyle=
+        "#f0f6fc";
+
+      ctx.font=
+        "bold 10px sans-serif";
+
+      ctx.textAlign=
+        "center";
+
+      ctx.textBaseline=
+        "middle";
+
+
+      const label=
+        tile.short||
+        tile.name
+          .substring(0,5)
+          .toUpperCase();
+
+
+      const cx=
+        coords.x+
+        tileSize/2;
+
+      const cy=
+        coords.y+
+        tileSize/2;
+
+
+      if(coords.side==="left"){
+
+        ctx.save();
+
+        ctx.translate(
+          cx,
+          cy
+        );
+
+        ctx.rotate(
+          -Math.PI/2
+        );
+
+        ctx.fillText(
+          label,
+          0,
+          0
+        );
+
+        ctx.restore();
+
+      }
+
+      else if(
+        coords.side==="right"
+      ){
+
+        ctx.save();
+
+        ctx.translate(
+          cx,
+          cy
+        );
+
+        ctx.rotate(
+          Math.PI/2
+        );
+
+        ctx.fillText(
+          label,
+          0,
+          0
+        );
+
+        ctx.restore();
+
+      }
+
+      else{
+
+        ctx.fillText(
+          label,
+          cx,
+          cy+4
+        );
+
+      }
+
+    }
+  );
+
+
+  /* players */
+
+  players.forEach(p=>{
+
+    if(!p.alive)
+      return;
+
+
+    const coords=
+      getTileCoords(
+        p.pos,
+        SIDE_SIZE,
+        canvasDim
+      );
+
+
+    const sameTile=
+      players.filter(
+        q=>
+          q.alive&&
+          q.pos===p.pos
+      );
+
+
+    const index=
+      sameTile.indexOf(p);
+
+
+    const offset=
+      (
+        index-
+        (sameTile.length-1)/2
+      )*13;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+      coords.x+
+        tileSize/2+
+        offset,
+
+      coords.y+
+        tileSize/2,
+
+      8,
+
+      0,
+      Math.PI*2
+
+    );
+
+
+    ctx.fillStyle=
+      p.color;
+
+    ctx.fill();
+
+
+    ctx.strokeStyle="#fff";
+
+    ctx.lineWidth=2;
+
+    ctx.stroke();
+
+
+    ctx.fillStyle="#0d1117";
+
+    ctx.font=
+      "bold 7px sans-serif";
+
+    ctx.textAlign=
+      "center";
+
+    ctx.textBaseline=
+      "middle";
+
+
+    ctx.fillText(
+
+      p.id+1,
+
+      coords.x+
+        tileSize/2+
+        offset,
+
+      coords.y+
+        tileSize/2
+
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   DICE
+========================================================= */
+
+function getDiceCount(p){
+
+  if(p.transport==="Car")
+    return 2;
+
+  if(p.transport==="Plane")
+    return 3;
+
+  return 1;
+
+}
+
+
+/* =========================================================
+   ROLL
+========================================================= */
+
+function handleRoll(){
+
+  if(
+    hasRolled||
+    gameOver
+  )
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  if(!p.alive){
+
+    handleEndTurn();
+
+    return;
+
+  }
+
+
+  /* SKIP TURN */
+
+  if(p.skipTurns>0){
+
+    p.skipTurns--;
+
+    addLog(
+      `â­ï¸ ${p.name} misses this turn. `+
+      `${p.skipTurns} skip(s) remaining.`
+    );
+
+
+    hasRolled=true;
+
+
+    document
+      .getElementById("btnRoll")
+      .disabled=true;
+
+
+    document
+      .getElementById("btnEndTurn")
+      .disabled=false;
+
+
+    updateUI();
+
+
+    showSimplePopup(
+
+      "â­ï¸",
+
+      "TURN SKIPPED",
+
+      `
+
+        <b>${p.name}</b> is affected
+        by a previous event.
+
+        <br><br>
+
+        This turn is skipped.
+
+        <br><br>
+
+        <span style="color:#58a6ff">
+          Remaining skips:
+          ${p.skipTurns}
+        </span>
+
+      `,
+
+      "CONTINUE",
+
+      ()=>{
+
+        if(
+          p.isAI &&
+          !gameOver
+        ){
+
+          setTimeout(
+            handleEndTurn,
+            400
+          );
+
+        }
+
+      }
+
+    );
+
+    return;
+
+  }
+
+
+  const diceCount=
+    getDiceCount(p);
+
+  let total=0;
+
+  const dice=[];
+
+
+  for(
+    let i=0;
+    i<diceCount;
+    i++
+  ){
+
+    const d=
+      Math.floor(
+        Math.random()*6
+      )+1;
+
+    dice.push(d);
+
+    total+=d;
+
+  }
+
+
+  addLog(
+    `ðŸŽ² ${p.name} rolled ${total} [${dice.join("+")}]`
+  );
+
+
+  finishRoll(total);
+
+}
+
+
+/* =========================================================
+   FINISH ROLL
+========================================================= */
+
+function finishRoll(total){
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  const previous=
+    p.pos;
+
+
+  p.pos=
+    (p.pos+total)%
+    TOTAL_TILES;
+
+
+  hasRolled=true;
+
+
+  if(
+    p.pos<previous&&
+    total>0
+  ){
+
+    p.money+=200;
+
+
+    const r=
+      RESOURCES[
+        Math.floor(
+          Math.random()*
+          RESOURCES.length
+        )
+      ];
+
+
+    p.resources[r]=
+      (p.resources[r]||0)+1;
+
+
+    addLog(
+      `âœ¨ ${p.name} passed GO! +200 & 1 ${r}`
+    );
+
+
+    showBoardAnnouncement(
+
+      "âœ¨",
+
+      "PASSED GO",
+
+      `${p.name} crossed the world.`,
+
+      "+200 ðŸª™",
+
+      1300
+
+    );
+
+  }
+
+
+  drawBoard();
+
+  updateUI();
+
+
+  resolveTileSequence(
+    p,
+    BOARD[p.pos]
+  );
+
+}
+
+
+/* =========================================================
+   TILE RESOLUTION
+========================================================= */
+
+function resolveTileSequence(
+  p,
+  tile
+){
+
+  if(tile.type==="CITY"){
+
+    resolveCity(
+      p,
+      tile
+    );
+
+    return;
+
+  }
+
+
+  if(tile.type==="ACTION"){
+
+    resolveCard(
+
+      p,
+
+      tile,
+
+      ACTION_CARDS[
+        Math.floor(
+          Math.random()*
+          ACTION_CARDS.length
+        )
+      ],
+
+      false
+
+    );
+
+    return;
+
+  }
+
+
+  if(tile.type==="EVENT"){
+
+    resolveCard(
+
+      p,
+
+      tile,
+
+      EVENT_CARDS[
+        Math.floor(
+          Math.random()*
+          EVENT_CARDS.length
+        )
+      ],
+
+      true
+
+    );
+
+    return;
+
+  }
+
+
+  if(tile.type==="CYBER"){
+
+    p.skipTurns=1;
+
+    addLog(
+      `ðŸ’» ${p.name} landed on Cyber Node.`
+    );
+
+
+    showSimplePopup(
+
+      "ðŸ’»",
+
+      "CYBER NODE",
+
+      `
+
+        <b>${p.name}</b>'s systems
+        have been compromised.
+
+        <br><br>
+
+        <span style="color:#f78166">
+          The next turn will be skipped.
+        </span>
+
+        <br><br>
+
+        After that, the Cyber effect
+        is completely cleared.
+
+      `,
+
+      "UNDERSTOOD",
+
+      ()=>{
+
+        afterTileResolution();
+
+      }
+
+    );
+
+    return;
+
+  }
+
+
+  if(tile.type==="PANDEMIC"){
+
+    p.skipTurns=2;
+
+    addLog(
+      `ðŸ¦  ${p.name} landed on Pandemic.`
+    );
+
+
+    showSimplePopup(
+
+      "ðŸ¦ ",
+
+      "GLOBAL PANDEMIC",
+
+      `
+
+        Borders close around the world.
+
+        <br><br>
+
+        <b>${p.name}</b> must miss
+        the next <b>2 turns</b>.
+
+      `,
+
+      "UNDERSTOOD",
+
+      ()=>{
+
+        afterTileResolution();
+
+      }
+
+    );
+
+    return;
+
+  }
+
+
+  if(tile.type==="BONUS"){
+
+    const r=
+      RESOURCES[
+        Math.floor(
+          Math.random()*
+          RESOURCES.length
+        )
+      ];
+
+
+    p.resources[r]=
+      (p.resources[r]||0)+2;
+
+
+    p.money+=120;
+
+
+    addLog(
+      `ðŸŽ ${p.name} received +120 & 2 ${r}`
+    );
+
+
+    showSimplePopup(
+
+      "ðŸŽ",
+
+      "BONUS",
+
+      `
+
+        You discovered valuable supplies.
+
+        <br><br>
+
+        <b>+120 ðŸª™</b>
+
+        <br>
+
+        <b>+2 ${r}</b>
+
+      `,
+
+      "CONTINUE",
+
+      ()=>{
+
+        afterTileResolution();
+
+      }
+
+    );
+
+    return;
+
+  }
+
+
+  afterTileResolution();
+
+}
+
+
+/* =========================================================
+   CITY
+========================================================= */
+
+function resolveCity(
+  p,
+  tile
+){
+
+  if(
+    tile.owner!==null&&
+    tile.owner!==p.id
+  ){
+
+    let fine=
+      tile.fine;
+
+
+    if(
+      tile.buildings.includes(
+        "Hotel"
+      )
+    ){
+
+      fine+=70;
+
+    }
+
+
+    if(
+      tile.buildings.includes(
+        "Airport"
+      )
+    ){
+
+      fine=
+        Math.floor(
+          fine*2.6
+        );
+
+    }
+
+
+    p.money-=fine;
+
+
+    players[
+      tile.owner
+    ].money+=fine;
+
+
+    addLog(
+      `ðŸ’¸ ${p.name} paid ${fine} rent to ${players[tile.owner].name}.`
+    );
+
+
+    showSimplePopup(
+
+      "ðŸ’¸",
+
+      "CITY RENT",
+
+      `
+
+        <b>${p.name}</b> landed in
+        <b>${tile.name}</b>.
+
+        <br><br>
+
+        Owner:
+        <b>${players[tile.owner].name}</b>
+
+        <br><br>
+
+        Rent:
+
+        <span style="color:#f78166">
+          âˆ’${fine} ðŸª™
+        </span>
+
+      `,
+
+      "CONTINUE",
+
+      ()=>{
+
+        checkBankrupt(p);
+
+        if(!gameOver){
+          afterTileResolution();
+        }
+
+      }
+
+    );
+
+    return;
+
+  }
+
+
+  if(tile.owner===null){
+
+    if(
+      p.money>=tile.cost
+    ){
+
+      document
+        .getElementById("btnBuy")
+        .disabled=false;
+
+
+      addLog(
+        `ðŸ™ï¸ ${tile.name} is available for ${tile.cost} ðŸª™.`
+      );
+
+
+      if(p.isAI){
+
+        setTimeout(
+          handleAITurn,
+          650
+        );
+
+      }
+
+      else{
+
+        showSimplePopup(
+
+          "ðŸ™ï¸",
+
+          tile.name,
+
+          `
+
+            This city is currently unowned.
+
+            <br><br>
+
+            Purchase price:
+
+            <b>${tile.cost} ðŸª™</b>
+
+            <br><br>
+
+            Resource:
+
+            <b>${tile.resource}</b>
+
+          `,
+
+          "CLOSE"
+
+        );
+
+      }
+
+      return;
+
+    }
+
+  }
+
+
+  afterTileResolution();
+
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+function resolveCard(
+  p,
+  tile,
+  card,
+  isEvent
+){
+
+  activeCard=card;
+
+  activeCardPlayer=p;
+
+  activeCardIsEvent=isEvent;
+
+  cardStage="story";
+
+
+  document
+    .getElementById("cardIcon")
+    .innerText=
+      card.icon;
+
+
+  document
+    .getElementById("cardTitle")
+    .innerText=
+      isEvent
+      ? "ðŸŒ EVENT â€” "+card.title
+      : "ðŸƒ ACTION â€” "+card.title;
+
+
+  document
+    .getElementById("cardBody")
+    .innerHTML=`
+
+      <div style="text-align:center">
+
+        <div style="
+          font-size:11px;
+          color:#8b949e;
+          text-transform:uppercase;
+          letter-spacing:1px;
+          margin-bottom:8px;
+        ">
+
+          ${p.name}
+          landed on
+          ${tile.name}
+
+        </div>
+
+
+        <div style="
+          font-size:15px;
+          line-height:1.55;
+        ">
+
+          ${card.text}
+
+        </div>
+
+      </div>
+
+    `;
+
+
+  document
+    .getElementById(
+      "sequenceStage"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "cardActionBtn"
+    )
+    .innerText=
+      "REVEAL CONSEQUENCE";
+
+
+  document
+    .getElementById(
+      "cardModal"
+    )
+    .style.display="flex";
+
+}
+
+
+/* =========================================================
+   CARD BUTTON
+========================================================= */
+
+function handleCardButton(){
+
+  /* normal popup / simple popup */
+
+  if(simplePopupAction){
+
+    const action =
+      simplePopupAction;
+
+    simplePopupAction=null;
+
+    closeCardModal();
+
+    action();
+
+    return;
+  }
+
+
+  /*
+    If this is a normal popup rather than
+    an Action/Event card, simply close it.
+  */
+
+  if(!activeCard){
+
+    closeCardModal();
+
+    return;
+  }
+
+
+  /* STORY */
+
+  if(cardStage==="story"){
+
+    cardStage="consequence";
+
+    document
+      .getElementById("sequenceStage")
+      .style.display="block";
+
+
+    document
+      .getElementById("sequenceLabel")
+      .innerText=
+        activeCardIsEvent
+        ? "EVENT CONSEQUENCE"
+        : "ACTION CONSEQUENCE";
+
+
+    document
+      .getElementById("sequenceTitle")
+      .innerText=
+        activeCard.consequence;
+
+
+    document
+      .getElementById("sequenceText")
+      .innerText=
+        "Press continue to apply the consequence.";
+
+
+    document
+      .getElementById("cardActionBtn")
+      .innerText=
+        "APPLY CONSEQUENCE";
+
+
+    return;
+  }
+
+
+  /* CONSEQUENCE */
+
+  if(cardStage==="consequence"){
+
+    const result=
+      activeCard.effect(
+        activeCardPlayer
+      );
+
+
+    addLog(
+      `${activeCardIsEvent?"🌐":"🃏"} `+
+      `${activeCard.title}: ${result}`
+    );
+
+
+    document
+      .getElementById("sequenceTitle")
+      .innerText=
+        "RESULT";
+
+
+    document
+      .getElementById("sequenceText")
+      .innerHTML=
+        `<b style="color:#58a6ff">${result}</b>`;
+
+
+    document
+      .getElementById("cardActionBtn")
+      .innerText=
+        "CONTINUE";
+
+
+    cardStage="result";
+
+    return;
+  }
+
+
+  /* RESULT */
+
+  if(cardStage==="result"){
+
+    const card=
+      activeCard;
+
+    const player=
+      activeCardPlayer;
+
+    const isTransport=
+      card.title==="Instant Transport";
+
+
+    activeCard=null;
+    activeCardPlayer=null;
+    cardStage=null;
+
+    activeCardIsEvent=false;
+
+
+    closeCardModal();
+
+
+    if(isTransport){
+
+      setTimeout(()=>{
+        resolveTile(player);
+      },100);
+
+      return;
+    }
+
+
+    afterTileResolution();
+
+    return;
+  }
+
+}
+function handleBuy(){
+
+  if(gameOver)
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  const tile=
+    BOARD[p.pos];
+
+
+  if(
+
+    tile.type!=="CITY"||
+    tile.owner!==null||
+    p.money<tile.cost
+
+  ){
+
+    return;
+
+  }
+
+
+  p.money-=tile.cost;
+
+  tile.owner=p.id;
+
+
+  addLog(
+    `ðŸ›ï¸ ${p.name} bought ${tile.name} for ${tile.cost} ðŸª™.`
+  );
+
+
+  document
+    .getElementById(
+      "btnBuy"
+    )
+    .disabled=true;
+
+
+  drawBoard();
+
+  updateUI();
+
+
+  showBoardAnnouncement(
+
+    "ðŸ›ï¸",
+
+    `${tile.name.toUpperCase()} ACQUIRED`,
+
+    `${p.name} now controls this city.`,
+
+    `âˆ’${tile.cost} ðŸª™`,
+
+    1700
+
+  );
+
+
+  showSimplePopup(
+
+    "ðŸ›ï¸",
+
+    "CITY ACQUIRED",
+
+    `
+
+      <b>${p.name}</b> has purchased
+      <b>${tile.name}</b>.
+
+      <br><br>
+
+      Cost:
+
+      <b>âˆ’${tile.cost} ðŸª™</b>
+
+      <br><br>
+
+      The city now belongs to
+
+      <span style="color:${p.color}">
+        ${p.name}
+      </span>.
+
+    `,
+
+    "CONTINUE",
+
+    ()=>{
+
+      afterTileResolution();
+
+    }
+
+  );
+
+}
+
+
+/* =========================================================
+   WAR
+========================================================= */
+
+function handleWar(){
+
+  if(gameOver)
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  const tile=
+    BOARD[p.pos];
+
+
+  if(
+
+    tile.type!=="CITY"||
+    tile.owner===null||
+    tile.owner===p.id
+
+  ){
+
+    showSimplePopup(
+
+      "âš”ï¸",
+
+      "NO TARGET",
+
+      "You must stand on an enemy city to declare war.",
+
+      "CLOSE"
+
+    );
+
+    return;
+
+  }
+
+
+  if(p.money<300){
+
+    showSimplePopup(
+
+      "âš”ï¸",
+
+      "NOT ENOUGH WAR FUNDS",
+
+      "You need 300 ðŸª™ to declare war.",
+
+      "CLOSE"
+
+    );
+
+    return;
+
+  }
+
+
+  const defender=
+    players[tile.owner];
+
+
+  p.money-=300;
+
+
+  addLog(
+    `âš”ï¸ ${p.name} declared war on ${defender.name} for ${tile.name}.`
+  );
+
+
+  showSimplePopup(
+
+    "âš”ï¸",
+
+    "WAR DECLARED",
+
+    `
+
+      <b>${p.name}</b>
+      has declared war on
+      <b>${defender.name}</b>.
+
+      <br><br>
+
+      Target:
+      <b>${tile.name}</b>
+
+      <br><br>
+
+      War funds:
+      <b>âˆ’300 ðŸª™</b>
+
+      <br><br>
+
+      <span style="color:#8b949e">
+        The battle has a 55% chance of success.
+      </span>
+
+    `,
+
+    "BATTLE",
+
+    ()=>{
+
+      resolveBattle(
+        p,
+        tile,
+        defender
+      );
+
+    }
+
+  );
+
+}
+
+
+/* =========================================================
+   BATTLE
+========================================================= */
+
+function resolveBattle(
+  p,
+  tile,
+  defender
+){
+
+  const win=
+    Math.random()<.55;
+
+
+  if(win){
+
+    tile.owner=p.id;
+
+
+    addLog(
+      `ðŸš© ${p.name} seized ${tile.name}!`
+    );
+
+
+    drawBoard();
+
+    updateUI();
+
+
+    showBoardAnnouncement(
+
+      "ðŸš©",
+
+      "CITY SEIZED",
+
+      `${p.name} captured ${tile.name}.`,
+
+      "VICTORY",
+
+      1500
+
+    );
+
+
+    showSimplePopup(
+
+      "ðŸš©",
+
+      "VICTORY",
+
+      `
+
+        <b>${p.name}</b>
+        successfully seized
+        <b>${tile.name}</b>.
+
+        <br><br>
+
+        The city is now under
+        your control.
+
+      `,
+
+      "CONTINUE",
+
+      ()=>{
+
+        afterTileResolution();
+
+      }
+
+    );
+
+  }
+
+  else{
+
+    addLog(
+      `ðŸ›¡ï¸ ${defender.name} defended ${tile.name}.`
+    );
+
+
+    showSimplePopup(
+
+      "ðŸ›¡ï¸",
+
+      "DEFENCE HOLDS",
+
+      `
+
+        <b>${defender.name}</b>
+        successfully defended
+        <b>${tile.name}</b>.
+
+        <br><br>
+
+        You lost your
+        300 ðŸª™ war funds.
+
+      `,
+
+      "CONTINUE",
+
+      ()=>{
+
+        checkBankrupt(p);
+
+        if(!gameOver){
+          afterTileResolution();
+        }
+
+      }
+
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BUILD
+========================================================= */
+
+function openBuildModal(){
+
+  if(gameOver)
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  const list=
+    document.getElementById(
+      "buildList"
+    );
+
+
+  list.innerHTML="";
+
+
+  document
+    .getElementById(
+      "currTransport"
+    )
+    .innerText=
+      p.transport;
+
+
+  const options=[
+
+    {
+      name:"Car",
+      type:"TR",
+      cost:150,
+      desc:"Upgrade to 2 dice.",
+
+      req:()=>
+        p.transport==="Walk"
+
+    },
+
+
+    {
+      name:"Plane",
+      type:"TR",
+      cost:400,
+      desc:"Upgrade to 3 dice.",
+
+      req:()=>
+        p.transport==="Car"
+
+    },
+
+
+    {
+      name:"Hotel",
+      type:"INF",
+      cost:280,
+      desc:"+70 rent.",
+
+      req:()=>{
+
+        const t=
+          BOARD[p.pos];
+
+        return(
+
+          t.type==="CITY"&&
+          t.owner===p.id&&
+          !t.buildings.includes(
+            "Hotel"
+          )
+
+        );
+
+      }
+
+    },
+
+
+    {
+      name:"Airport",
+      type:"INF",
+      cost:450,
+      desc:"Ã—2.6 rent.",
+
+      req:()=>{
+
+        const t=
+          BOARD[p.pos];
+
+        return(
+
+          t.type==="CITY"&&
+          t.owner===p.id&&
+          !t.buildings.includes(
+            "Airport"
+          )
+
+        );
+
+      }
+
+    }
+
+  ];
+
+
+  options.forEach(o=>{
+
+    if(!o.req())
+      return;
+
+
+    const div=
+      document.createElement("div");
+
+
+    div.style.cssText=
+      `
+        background:#21262d;
+        padding:10px;
+        border-radius:8px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:8px;
+      `;
+
+
+    div.innerHTML=`
+
+      <div style="text-align:left">
+
+        <div style="font-weight:bold">
+          ${o.name} â€“ ${o.cost} ðŸª™
+        </div>
+
+        <div style="
+          font-size:12px;
+          color:#8b949e;
+        ">
+          ${o.desc}
+        </div>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        style="
+          padding:7px 12px;
+          font-size:12px;
+        "
+        type="button"
+      >
+        BUILD
+      </button>
+
+    `;
+
+
+    div
+      .querySelector("button")
+      .addEventListener(
+        "click",
+        ()=>{
+
+          buildAsset(
+            o.name,
+            o.cost,
+            o.type
+          );
+
+        }
+      );
+
+
+    list.appendChild(div);
+
+  });
+
+
+  if(!list.children.length){
+
+    list.innerHTML=`
+
+      <div style="
+        color:#8b949e;
+        text-align:center;
+        padding:10px;
+      ">
+        Nothing available right now.
+      </div>
+
+    `;
+
+  }
+
+
+  document
+    .getElementById(
+      "buildModal"
+    )
+    .style.display="flex";
+
+}
+
+
+function buildAsset(
+  name,
+  cost,
+  type
+){
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  if(p.money<cost){
+
+    showSimplePopup(
+
+      "ðŸ—ï¸",
+
+      "NOT ENOUGH MONEY",
+
+      `You need ${cost} ðŸª™.`,
+
+      "CLOSE"
+
+    );
+
+    return;
+
+  }
+
+
+  p.money-=cost;
+
+
+  if(type==="TR"){
+
+    p.transport=name;
+
+  }
+
+  else{
+
+    BOARD[p.pos]
+      .buildings
+      .push(name);
+
+  }
+
+
+  addLog(
+    `ðŸ—ï¸ ${p.name} built ${name}.`
+  );
+
+
+  closeBuildModal();
+
+  updateUI();
+
+  drawBoard();
+
+
+  showBoardAnnouncement(
+
+    "ðŸ—ï¸",
+
+    `${name.toUpperCase()} BUILT`,
+
+    `${p.name} improved their territory.`,
+
+    `âˆ’${cost} ðŸª™`,
+
+    1300
+
+  );
+
+
+  showSimplePopup(
+
+    "ðŸ—ï¸",
+
+    `${name.toUpperCase()} COMPLETE`,
+
+    `
+
+      <b>${p.name}</b> built
+      <b>${name}</b>.
+
+      <br><br>
+
+      Cost:
+      <b>âˆ’${cost} ðŸª™</b>
+
+    `,
+
+    "CONTINUE",
+
+    ()=>{
+
+      afterTileResolution();
+
+    }
+
+  );
+
+}
+
+
+function closeBuildModal(){
+
+  document
+    .getElementById(
+      "buildModal"
+    )
+    .style.display="none";
+
+}
+
+
+/* =========================================================
+   AFTER TILE
+========================================================= */
+
+function afterTileResolution(){
+
+  updateUI();
+
+  drawBoard();
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  /*
+    The player has finished resolving
+    the square they landed on.
+
+    Human players can now finish their turn.
+  */
+
+  if(
+    !p.isAI &&
+    !gameOver
+  ){
+
+    document
+      .getElementById("btnEndTurn")
+      .disabled=false;
+
+  }
+
+
+  /*
+    AI players continue automatically.
+  */
+
+  if(
+    p.isAI &&
+    !gameOver
+  ){
+
+    document
+      .getElementById("btnEndTurn")
+      .disabled=true;
+
+    setTimeout(
+      handleAITurn,
+      800
+    );
+
+  }
+
+}
+
+function handleAITurn(){
+
+  if(gameOver)
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  if(!p.isAI)
+    return;
+
+
+  const tile=
+    BOARD[p.pos];
+
+
+  if(
+
+    tile.type==="CITY"&&
+    tile.owner===null&&
+    p.money>=tile.cost
+
+  ){
+
+    handleBuy();
+
+    return;
+
+  }
+
+
+  if(
+
+    tile.type==="CITY"&&
+    tile.owner!==null&&
+    tile.owner!==p.id&&
+    p.money>550&&
+    Math.random()<.28
+
+  ){
+
+    handleWar();
+
+    return;
+
+  }
+
+
+  setTimeout(
+    handleEndTurn,
+    700
+  );
+
+}
+
+
+/* =========================================================
+   END TURN
+========================================================= */
+
+function handleEndTurn(){
+
+  if(gameOver)
+    return;
+
+
+  do{
+
+    currentPlayerIdx=
+      (
+        currentPlayerIdx+1
+      )%
+      players.length;
+
+  }
+
+  while(
+    !players[currentPlayerIdx].alive
+  );
+
+
+  if(currentPlayerIdx===0){
+
+    turnNumber++;
+
+  }
+
+
+  hasRolled=false;
+
+
+  document
+    .getElementById(
+      "btnRoll"
+    )
+    .disabled=false;
+
+
+  document
+    .getElementById(
+      "btnBuy"
+    )
+    .disabled=true;
+
+
+  document
+    .getElementById(
+      "btnEndTurn"
+    )
+    .disabled=true;
+
+
+  updateUI();
+
+  drawBoard();
+
+
+  addLog(
+    `ðŸ”„ Turn ${turnNumber}: ${players[currentPlayerIdx].name}`
+  );
+
+
+  checkWin();
+
+
+  if(
+
+    !gameOver&&
+    players[currentPlayerIdx].isAI
+
+  ){
+
+    setTimeout(
+      handleRoll,
+      800
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BANKRUPTCY
+========================================================= */
+
+function checkBankrupt(p){
+
+  if(p.money>=0)
+    return;
+
+
+  p.alive=false;
+
+
+  BOARD.forEach(t=>{
+
+    if(t.owner===p.id){
+
+      t.owner=null;
+
+      t.buildings=[];
+
+    }
+
+  });
+
+
+  addLog(
+    `ðŸ’€ ${p.name} is bankrupt!`
+  );
+
+
+  showBoardAnnouncement(
+
+    "ðŸ’€",
+
+    "PLAYER ELIMINATED",
+
+    `${p.name} has gone bankrupt.`,
+
+    "OUT",
+
+    1600
+
+  );
+
+
+  checkWin();
+
+}
+
+
+/* =========================================================
+   WIN
+========================================================= */
+
+function checkWin(){
+
+  const alive=
+    players.filter(
+      p=>p.alive
+    );
+
+
+  if(alive.length!==1)
+    return;
+
+
+  gameOver=true;
+
+
+  addLog(
+    `ðŸ† ${alive[0].name} wins!`
+  );
+
+
+  showSimplePopup(
+
+    "ðŸ†",
+
+    "GLOBAL DOMINATION",
+
+    `
+
+      <b>${alive[0].name}</b>
+      has conquered the world.
+
+      <br><br>
+
+      Everyone else has been eliminated.
+
+      <br><br>
+
+      <span style="color:#58a6ff">
+        GLOBAL STRATEGY COMPLETE
+      </span>
+
+    `,
+
+    "PLAY AGAIN",
+
+    ()=>{
+
+      restartGame();
+
+    }
+
+  );
+
+
+  document
+    .getElementById(
+      "btnRoll"
+    )
+    .disabled=true;
+
+
+  document
+    .getElementById(
+      "btnEndTurn"
+    )
+    .disabled=true;
+
+}
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateUI(){
+
+  if(!players.length)
+    return;
+
+
+  const p=
+    players[currentPlayerIdx];
+
+
+  document
+    .getElementById(
+      "turnCounter"
+    )
+    .innerText=
+      `Turn ${turnNumber}`;
+
+
+  document
+    .getElementById(
+      "pTurn"
+    )
+    .innerText=
+      `Current: ${p.name}`;
+
+
+  document
+    .getElementById(
+      "pMoney"
+    )
+    .innerText=
+      `${p.money} ðŸª™`;
+
+
+  document
+    .getElementById(
+      "diceCount"
+    )
+    .innerText=
+      getDiceCount(p)+"D";
+
+
+  document
+    .getElementById(
+      "resBox"
+    )
+    .innerText=
+
+      `ðŸ¥‡ ${p.resources.Gold||0} | `+
+      `ðŸªµ ${p.resources.Wood||0} | `+
+      `ðŸª¨ ${p.resources.Stone||0} | `+
+      `ðŸ’§ ${p.resources.Water||0} | `+
+      `ðŸŽ ${p.resources.Food||0}`;
+
+
+  const owned=
+    BOARD.filter(
+      t=>t.owner===p.id
+    ).length;
+
+
+  document
+    .getElementById(
+      "ownedBox"
+    )
+    .innerText=
+      `Tiles: ${owned} | ${p.transport}`;
+
+
+  const tile=
+    BOARD[p.pos];
+
+
+  document
+    .getElementById(
+      "tileTitle"
+    )
+    .innerText=
+      `#${tile.id+1}: ${tile.name}`;
+
+
+  document
+    .getElementById(
+      "tileType"
+    )
+    .innerText=
+      tile.type;
+
+
+  document
+    .getElementById(
+      "tileType"
+    )
+    .style.background=
+      tile.color||
+      "#30363d";
+
+
+  if(tile.type==="CITY"){
+
+    const owner=
+      tile.owner!==null
+      ? players[tile.owner].name
+      : "Unowned";
+
+
+    const builds=
+      tile.buildings.length
+      ? " â€¢ "+tile.buildings.join(", ")
+      : "";
+
+
+    document
+      .getElementById(
+        "tileDetails"
+      )
+      .innerText=
+
+        `Cost ${tile.cost} ðŸª™ | `+
+        `Rent ${tile.fine} | `+
+        `${owner}${builds}`;
+
+  }
+
+  else{
+
+    document
+      .getElementById(
+        "tileDetails"
+      )
+      .innerText=
+        tile.name;
+
+  }
+
+
+  renderStandings();
+
+}
+
+
+/* =========================================================
+   LOG
+========================================================= */
+
+function addLog(txt){
+
+  const log=
+    document.getElementById(
+      "logTab"
+    );
+
+
+  const e=
+    document.createElement(
+      "div"
+    );
+
+
+  e.className=
+    "log-entry";
+
+
+  e.innerText=txt;
+
+
+  log.prepend(e);
+
+}
+
+
+function clearLog(){
+
+  document
+    .getElementById(
+      "logTab"
+    )
+    .innerHTML="";
+
+}
+
+
+/* =========================================================
+   STANDINGS
+========================================================= */
+
+function renderStandings(){
+
+  const tab=
+    document.getElementById(
+      "standingsTab"
+    );
+
+
+  tab.innerHTML="";
+
+
+  [
+    ...players
+  ]
+    .sort(
+      (a,b)=>
+        b.money-a.money
+    )
+    .forEach(
+      (p,i)=>{
+
+        const e=
+          document.createElement(
+            "div"
+          );
+
+
+        e.className=
+          "log-entry";
+
+
+        e.innerHTML=`
+
+          <b>#${i+1}</b>
+
+          <span style="
+            color:${p.color}
+          ">
+            â—
+          </span>
+
+          ${p.name}
+
+          ${p.isAI?" ðŸ¤–":""}
+
+          ${p.alive?"":" (OUT)"}
+
+          <b style="
+            float:right
+          ">
+            ${p.money} ðŸª™
+          </b>
+
+        `;
+
+
+        tab.appendChild(e);
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+function switchTab(
+  tabName,
+  clickedTab
+){
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(
+      el=>
+        el.classList.remove(
+          "active"
+        )
+    );
+
+
+  clickedTab
+    .classList.add(
+      "active"
+    );
+
+
+  document
+    .getElementById(
+      "logTab"
+    )
+    .style.display=
+      tabName==="log"
+      ? "flex"
+      : "none";
+
+
+  document
+    .getElementById(
+      "standingsTab"
+    )
+    .style.display=
+      tabName==="standings"
+      ? "flex"
+      : "none";
+
+}
+
+
+/* =========================================================
+   SIMPLE POPUP
+========================================================= */
+
+function showSimplePopup(
+  icon,
+  title,
+  body,
+  buttonText="CONTINUE",
+  callback=null
+){
+
+  document
+    .getElementById(
+      "cardIcon"
+    )
+    .innerText=icon;
+
+
+  document
+    .getElementById(
+      "cardTitle"
+    )
+    .innerText=title;
+
+
+  document
+    .getElementById(
+      "cardBody"
+    )
+    .innerHTML=body;
+
+
+  document
+    .getElementById(
+      "sequenceStage"
+    )
+    .style.display="none";
+
+
+  const button=
+    document.getElementById(
+      "cardActionBtn"
+    );
+
+
+  button.innerText=
+    buttonText;
+
+
+  simplePopupAction=
+    callback;
+
+
+  document
+    .getElementById(
+      "cardModal"
+    )
+    .style.display="flex";
+
+}
+
+
+/* =========================================================
+   CLOSE POPUP
+========================================================= */
+
+function closeCardModal(){
+
+  document
+    .getElementById(
+      "cardModal"
+    )
+    .style.display="none";
+
+
+  activeCard=null;
+
+  activeCardPlayer=null;
+
+  activeCardIsEvent=false;
+
+  cardStage="story";
+
+  simplePopupAction=null;
+
+}
+
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+function restartGame(){
+
+  players=[];
+
+  currentPlayerIdx=0;
+
+  turnNumber=1;
+
+  hasRolled=false;
+
+  gameOver=false;
+
+  generateBoard();
+
+  clearLog();
+
+  updateUI();
+
+  drawBoard();
+
+  openSetup();
+
+}
+
+
+/* =========================================================
+   BOARD ANNOUNCEMENT
+========================================================= */
+
+let announcementTimer=null;
+
+
+function showBoardAnnouncement(
+  icon,
+  title,
+  body,
+  value="",
+  duration=1400
+){
+
+  const box=
+    document.getElementById(
+      "boardAnnouncement"
+    );
+
+
+  document
+    .getElementById(
+      "announcementIcon"
+    )
+    .innerText=icon;
+
+
+  document
+    .getElementById(
+      "announcementTitle"
+    )
+    .innerText=title;
+
+
+  document
+    .getElementById(
+      "announcementBody"
+    )
+    .innerText=body;
+
+
+  document
+    .getElementById(
+      "announcementValue"
+    )
+    .innerText=value;
+
+
+  clearTimeout(
+    announcementTimer
+  );
+
+
+  box.classList.add(
+    "show"
+  );
+
+
+  announcementTimer=
+    setTimeout(
+
+      ()=>{
+
+        box.classList.remove(
+          "show"
+        );
+
+      },
+
+      duration
+
+    );
+
+}
+
+</script>
+
+</body>
+</html>
+
