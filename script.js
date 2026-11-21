@@ -97,6 +97,8 @@ An unforgettable adventure blending history, romance, and the enduring ties of t
     blurb:"Fifty extraordinary lives, packed with unbelievable adventures, strange encounters, outrageous decisions and remarkable stories from history.",
     cover:"50craziestlivesv1.jpg",
     link:"https://www.amazon.com/dp/B0HS7K16C4",
+    companion:"craziestlivesapp/index.html",
+    companionLabel:"OPEN THE APP →",
     intro:"Fifty of history's most extraordinary lives. A collection of remarkable people, incredible adventures and stories that are difficult to believe — but even harder to forget."
   },
 

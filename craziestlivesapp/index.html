@@ -1,0 +1,1556 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crazy History — 50 Extraordinary Lives</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap');
+
+:root {
+  --bg: #f5f1e9;
+  --paper: #fffdf8;
+  --ink: #211f1b;
+  --muted: #777269;
+  --red: #e64b35;
+  --yellow: #f5c94b;
+  --purple: #6650a4;
+  --line: #e7e0d4;
+  --green: #477a5b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+
+button { font: inherit; cursor: pointer; }
+
+header {
+  background: var(--ink);
+  color: white;
+  padding: 18px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.logo span { color: var(--yellow); }
+
+nav { display: flex; gap: 22px; flex-wrap: wrap; }
+
+nav a {
+  color: #ddd7cc;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+nav a:hover { color: var(--yellow); }
+
+.hero {
+  padding: 65px 20px 50px;
+  text-align: center;
+  background: var(--yellow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero:before {
+  content: "?!";
+  position: absolute;
+  font-family: Georgia, serif;
+  font-weight: 900;
+  font-size: 260px;
+  color: rgba(255,255,255,.16);
+  left: 3%;
+  top: -65px;
+  transform: rotate(-15deg);
+}
+
+.hero:after {
+  content: "!";
+  position: absolute;
+  font-family: Georgia, serif;
+  font-weight: 900;
+  font-size: 300px;
+  color: rgba(255,255,255,.18);
+  right: 7%;
+  bottom: -160px;
+  transform: rotate(15deg);
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 8vw, 88px);
+  line-height: .98;
+  margin: 17px 0;
+  letter-spacing: -4px;
+}
+
+.hero p {
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #554522;
+}
+
+.container {
+  max-width: 1120px;
+  margin: auto;
+  padding: 40px 22px 80px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.section-heading h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.section-heading p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.daily-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  box-shadow: 0 8px 30px rgba(40,30,10,.04);
+}
+
+.daily-art {
+  min-height: 350px;
+  background: #27252c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.daily-art .big-number {
+  position: absolute;
+  font-family: 'Playfair Display', serif;
+  font-size: 230px;
+  font-weight: 900;
+  color: rgba(255,255,255,.06);
+  bottom: -60px;
+  left: -15px;
+}
+
+.daily-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  z-index: 1;
+}
+.daily-emoji {
+  font-size: 105px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 12px 15px rgba(0,0,0,.3));
+}
+
+.daily-info {
+  padding: 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tag {
+  display: inline-block;
+  background: #fce9df;
+  color: #a73b29;
+  padding: 7px 11px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.daily-info h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(34px, 5vw, 53px);
+  margin: 15px 0 5px;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.subtitle {
+  font-weight: 700;
+  color: var(--purple);
+  font-size: 14px;
+  margin: 8px 0 15px;
+}
+
+.description {
+  color: #625e56;
+  line-height: 1.8;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.primary-btn {
+  background: var(--red);
+  border: none;
+  color: white;
+  padding: 14px 22px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: .2s;
+  width: fit-content;
+}
+
+.primary-btn:hover {
+  background: #c93827;
+  transform: translateY(-2px);
+}
+
+.spinner-section {
+  margin-top: 65px;
+  background: #27232f;
+  color: white;
+  padding: 42px 25px;
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.spinner-section:before {
+  content: "★";
+  position: absolute;
+  font-size: 240px;
+  color: rgba(255,255,255,.025);
+  left: -30px;
+  top: -100px;
+}
+
+.spinner-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  margin: 8px 0;
+}
+
+.spinner-section .intro {
+  color: #c4bdcf;
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.slot-machine {
+  max-width: 530px;
+  margin: 0 auto 25px;
+  background: #17151c;
+  padding: 15px;
+  border-radius: 14px;
+  border: 3px solid #8b6dce;
+  box-shadow: 0 0 30px rgba(139,109,206,.2);
+}
+
+.slot-window {
+  background: #fffdf8;
+  color: var(--ink);
+  min-height: 115px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 15px;
+  overflow: hidden;
+}
+
+.slot-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.slot-caption {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 7px;
+}
+
+.spin-btn {
+  background: var(--yellow);
+  color: #282014;
+  border: none;
+  padding: 16px 38px;
+  border-radius: 7px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  font-size: 13px;
+  box-shadow: 0 5px 0 #b48d2e;
+  transition: .15s;
+}
+
+.spin-btn:hover { transform: translateY(-2px); }
+.spin-btn:active { transform: translateY(3px); box-shadow: none; }
+.spin-btn:disabled { opacity: .6; cursor: wait; }
+
+.spin-result {
+  min-height: 30px;
+  margin-top: 20px;
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.archive-section { margin-top: 70px; }
+
+.archive-tools {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 25px;
+  flex-wrap: wrap;
+}
+
+.search {
+  flex: 1;
+  min-width: 200px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 7px;
+  font-size: 13px;
+  outline: none;
+}
+
+.search:focus { border-color: var(--purple); }
+
+.count {
+  background: var(--ink);
+  color: white;
+  border-radius: 7px;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.person-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 19px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: .2s;
+  min-height: 170px;
+}
+
+.person-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--red);
+  box-shadow: 0 8px 20px rgba(0,0,0,.06);
+}
+
+.person-thumb {
+  display: block;
+  width: 100%;
+  height: 125px;
+  object-fit: cover;
+  object-position: center 25%;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.person-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  margin: 10px 0 5px;
+}
+
+.person-card p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.person-card .number {
+  float: right;
+  color: #aaa296;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.story-panel {
+  display: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  margin-top: 30px;
+  padding: 35px;
+  animation: appear .3s ease;
+}
+
+.story-panel.open { display: block; }
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.story-portrait {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  max-height: 440px;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+.story-panel h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  margin: 15px 0 5px;
+}
+
+.story-panel .story-subtitle {
+  color: var(--purple);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.story-panel .story-body {
+  max-width: 760px;
+  color: #514d46;
+  line-height: 1.9;
+  font-size: 15px;
+  white-space: pre-line;
+}
+
+.close-btn {
+  float: right;
+  background: #eee9df;
+  border: none;
+  padding: 8px 13px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+footer {
+  background: var(--ink);
+  color: #bdb6aa;
+  text-align: center;
+  padding: 35px 20px;
+  font-size: 12px;
+}
+
+footer strong {
+  color: var(--yellow);
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+}
+
+@media(max-width:800px) {
+  .daily-card { grid-template-columns: 1fr; }
+  .daily-art { min-height: 220px; }
+  .people-grid { grid-template-columns: repeat(2, 1fr); }
+  .daily-info { padding: 25px; }
+}
+
+@media(max-width:480px) {
+  header { padding: 17px 20px; }
+  nav { gap: 14px; }
+  .hero { padding: 50px 18px; }
+  .hero h1 { letter-spacing: -2px; }
+  .container { padding: 30px 15px 60px; }
+  .people-grid { gap: 9px; }
+  .person-card { padding: 13px; min-height: 160px; }
+  .person-card h3 { font-size: 16px; }
+  .spinner-section { padding: 35px 15px; }
+  .story-panel { padding: 22px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">CRAZY<span>HISTORY</span></div>
+  <nav>
+    <a href="#daily">TODAY'S CRAZY</a>
+    <a href="#spinner">SPINNER</a>
+    <a href="#archive">THE 50</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="eyebrow">50 extraordinary human beings</div>
+    <h1>HISTORY WAS<br>ABSOLUTELY<br>MENTAL.</h1>
+    <p>Meet the people who made ordinary life look painfully boring. One crazy life every day. Or just spin the wheel and see where history takes you.</p>
+  </div>
+</section>
+
+<main class="container">
+
+<section id="daily">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">Your daily dose of madness</div>
+      <h2>Today's Crazy</h2>
+      <p>A different extraordinary life every day.</p>
+    </div>
+    <div class="count" id="today-date"></div>
+  </div>
+
+  <div class="daily-card" id="daily-card"></div>
+</section>
+
+<section class="spinner-section" id="spinner">
+  <div class="eyebrow" style="color:#d4bdff">Feeling lucky?</div>
+  <h2>The Crazy Spinner</h2>
+  <p class="intro">Fifty extraordinary lives. One random spin. Absolutely no idea what you're going to get.</p>
+
+  <div class="slot-machine">
+    <div class="slot-window">
+      <div class="slot-name" id="slot-name">WHO'S NEXT?</div>
+      <div class="slot-caption" id="slot-caption">THE WHEEL OF HISTORICAL MADNESS</div>
+    </div>
+  </div>
+
+  <button class="spin-btn" id="spin-btn" onclick="spin()">🎰 SPIN FOR A CRAZY LIFE</button>
+  <div class="spin-result" id="spin-result"></div>
+</section>
+
+<section class="archive-section" id="archive">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">The complete collection</div>
+      <h2>The 50</h2>
+      <p>Browse the characters. Pick your favourite lunatic.</p>
+    </div>
+    <div class="count">50 LIVES</div>
+  </div>
+
+  <div class="archive-tools">
+    <input class="search" id="search" type="text" placeholder="Search the 50 extraordinary lives..." oninput="renderArchive()">
+    <div class="count" id="visible-count">50 CHARACTERS</div>
+  </div>
+
+  <div class="people-grid" id="people-grid"></div>
+</section>
+
+<section class="story-panel" id="story-panel">
+  <button class="close-btn" onclick="closeStory()">✕ CLOSE</button>
+  <div class="eyebrow">An extraordinary life</div>
+  <img id="story-image" class="story-portrait" src="" alt="">
+  <h2 id="story-name"></h2>
+  <div class="story-subtitle" id="story-subtitle"></div>
+  <div class="story-body" id="story-body"></div>
+</section>
+
+</main>
+
+<footer>
+  <strong>CRAZY HISTORY</strong>
+  <p>Because the truth is often stranger than fiction.</p>
+  <p>© 2026 — The Craziest 50 Lives in History</p>
+</footer>
+
+<script>
+const people = [
+{
+name:"Adrian Carton de Wiart",
+emoji:"⚔️",
+title:"The Unkillable Soldier",
+teaser:"Shot, bombed, captured, wounded and still refusing to die.",
+story:`Meet the man who apparently treated getting shot as a minor inconvenience.
+
+Adrian Carton de Wiart was a Belgian-born British Army officer whose military career stretched across several wars. He was wounded repeatedly, losing his left eye and left hand, and survived a series of extraordinary battlefield experiences.
+
+He fought in the Boer War, the First World War and the Second World War. He was shot in the face, head, stomach, ankle, leg and hip. After losing his hand, he reportedly tore off bandages when a doctor wouldn't amputate damaged fingers quickly enough.
+
+During the Second World War, he was captured by Italian forces and made several escape attempts.
+
+He eventually retired in his eighties. Most people struggle to get through a Monday morning. This bloke struggled to get through a world war without collecting another injury.
+
+WHY HE'S HERE: Because the Grim Reaper apparently got tired of chasing him.`
+},
+{
+name:"Hugh Glass",
+emoji:"🐻",
+title:"The Bear Attack Survivor",
+teaser:"Mauled by a grizzly, abandoned, and somehow crawled back to civilisation.",
+story:`In 1823, American frontiersman Hugh Glass was exploring the wilderness when he encountered a grizzly bear.
+
+The bear attacked him, leaving him horrifically injured. His companions believed he was going to die and eventually left him behind.
+
+Except he didn't die.
+
+Glass reportedly dragged himself through hundreds of miles of wilderness, surviving on whatever he could find. His journey became one of the great survival stories of the American frontier.
+
+The details of his famous revenge story have become mixed with legend over time, but the basic survival ordeal was extraordinary.
+
+WHY HE'S HERE: Most people can't survive a weekend camping trip. Hugh survived being eaten by a bear.`
+},
+{
+name:"Tarrare",
+emoji:"🍖",
+title:"The Man Who Couldn't Stop Eating",
+teaser:"A Frenchman whose appetite baffled doctors and horrified everyone around him.",
+story:`Tarrare was an eighteenth-century Frenchman with an appetite so extreme that it became a medical curiosity.
+
+He could reportedly consume enormous quantities of food and still appear desperately hungry. As a young man, he became a street performer, eating unusual objects to earn money.
+
+He later joined the French military, where his appetite became a serious problem. His fellow soldiers were horrified by the quantities of food he could consume.
+
+Doctors examined him, trying to understand what was happening. Accounts describe a man who could eat extraordinary amounts but remained thin.
+
+Some of the more gruesome stories told about him are difficult to verify, so take the most outrageous claims with caution.
+
+WHY HE'S HERE: The man made competitive eating look like a light snack.`
+},
+{
+name:"Grigori Rasputin",
+emoji:"🧔",
+title:"The Mad Monk",
+teaser:"A Siberian mystic who became dangerously close to the Russian royal family.",
+story:`Rasputin arrived in St Petersburg as a religious wanderer and somehow ended up with extraordinary influence over the Russian royal family.
+
+He became particularly close to Tsarina Alexandra, who believed he could help her son Alexei, who suffered from haemophilia.
+
+His influence over the family made him a target of intense suspicion, gossip and hatred among sections of Russian society.
+
+In December 1916, a group of aristocratic conspirators murdered him. The famous story says he survived poison, bullets and drowning before finally dying. The reality is less theatrical: he was shot and killed, and many of the details of the assassination story are disputed.
+
+WHY HE'S HERE: He went from wandering holy man to one of the most controversial figures in imperial Russia.`
+},
+{
+name:"Vasily Arkhipov",
+emoji:"☢️",
+title:"The Man Who Said No",
+teaser:"A Soviet naval officer caught in a terrifying nuclear confrontation.",
+story:`In October 1962, the Cuban Missile Crisis brought the world terrifyingly close to nuclear war.
+
+A Soviet submarine, B-59, was surrounded by American naval forces. The submarine carried a nuclear torpedo.
+
+The submarine's crew were under enormous pressure, communications were poor and conditions were dreadful. Its commander considered launching the nuclear weapon.
+
+Vasily Arkhipov, one of the senior officers aboard, did not agree to the launch.
+
+His refusal was crucial in preventing the submarine from firing. Historians still debate exactly how close the world came to catastrophe, but his decision is rightly remembered as extraordinarily important.
+
+WHY HE'S HERE: While everyone else was panicking, this man helped keep the nuclear button untouched.`
+},
+{
+name:"Douglas Bader",
+emoji:"✈️",
+title:"The Pilot With No Legs",
+teaser:"Lost both legs, returned to flying, and became an RAF legend.",
+story:`Douglas Bader lost both legs in a flying accident in 1931.
+
+Most people would have considered a career as a fighter pilot finished. Bader apparently disagreed.
+
+He fought to return to flying and eventually rejoined the RAF during the Second World War.
+
+He became a celebrated fighter pilot during the Battle of Britain, leading formations of aircraft and developing a reputation for confidence and determination.
+
+He was eventually shot down over France and captured. Even as a prisoner of war, he attempted escape.
+
+WHY HE'S HERE: Losing both legs was apparently not enough to convince this man to stay on the ground.`
+},
+{
+name:"Ada Blackjack",
+emoji:"❄️",
+title:"Alone in the Arctic",
+teaser:"A stranded woman who survived an Arctic nightmare.",
+story:`In 1921, Ada Blackjack joined an expedition to Wrangel Island in the Arctic.
+
+She was hired partly as a seamstress, but the expedition became a disaster. Supplies were limited, conditions were brutal and the men eventually left to seek help.
+
+They never returned.
+
+Ada was left on the island with the expedition's cat, Vic. She had to learn how to hunt, trap and survive in an environment that could kill a person quickly.
+
+She eventually survived until a rescue party arrived in 1923.
+
+Her story is one of extraordinary endurance, and a reminder that she was a real person facing a genuinely terrifying situation.
+
+WHY SHE'S HERE: An Arctic survival story that would make most adventure films look tame.`
+},
+{
+name:"Ernest Shackleton",
+emoji:"🧊",
+title:"The Antarctic Disaster",
+teaser:"His ship was crushed by ice. Somehow, every member of his crew survived.",
+story:`In 1914, Ernest Shackleton set out on an expedition to cross Antarctica.
+
+His ship, Endurance, became trapped in pack ice. The ice eventually crushed the vessel, leaving the crew stranded in one of the most hostile environments on Earth.
+
+Shackleton's expedition turned into an extraordinary survival operation.
+
+He led his men across the ice, then made an incredibly dangerous open-boat journey to South Georgia to find help.
+
+The rescue operation took months, but every member of his expedition survived.
+
+WHY HE'S HERE: His original mission failed spectacularly. His survival mission became legendary.`
+},
+{
+name:"William Bligh",
+emoji:"🚢",
+title:"The Mutiny Captain",
+teaser:"A famous mutiny, an astonishing sea voyage and another rebellion years later.",
+story:`William Bligh became famous after the mutiny aboard HMS Bounty in 1789.
+
+After being forced from his ship, Bligh and a group of loyal crewmen were placed in a small open boat.
+
+He navigated them on an astonishing journey across the Pacific to safety, demonstrating remarkable seamanship.
+
+But his troubles weren't finished. Years later, as governor of New South Wales, he became involved in another major confrontation: the Rum Rebellion.
+
+Bligh's reputation has been debated ever since, and the story is considerably more complicated than the simple image of a tyrannical captain.
+
+WHY HE'S HERE: One mutiny apparently wasn't enough excitement for one lifetime.`
+},
+{
+name:"Álvar Núñez Cabeza de Vaca",
+emoji:"🌵",
+title:"The Accidental Survivor",
+teaser:"Shipwrecked, captured and forced to survive years across North America.",
+story:`Cabeza de Vaca joined a Spanish expedition to North America in 1527.
+
+It went disastrously wrong. The expedition was devastated by disease, hunger, conflict and shipwreck.
+
+He survived, but his journey became an extraordinary ordeal lasting around eight years.
+
+He lived among different Indigenous communities, experienced captivity and eventually travelled across vast areas of what is now the southern United States and Mexico.
+
+He later wrote an account of his experiences, one of the earliest European descriptions of parts of North America.
+
+WHY HE'S HERE: He set off on an expedition and ended up on an eight-year survival adventure.`
+},
+{
+name:"Isabelle Eberhardt",
+emoji:"🐪",
+title:"The Desert Wanderer",
+teaser:"A Swiss writer who travelled North Africa and lived by her own rules.",
+story:`Isabelle Eberhardt was born in Switzerland in 1877 and became fascinated by North Africa.
+
+She travelled extensively in Algeria, adopted local clothing and lived in ways that challenged European expectations of women at the time.
+
+She converted to Islam and wrote about the people and places she encountered.
+
+Her life was restless, unconventional and often dangerous. In 1904, aged just 27, she died in a flash flood at Aïn Sefra.
+
+WHY SHE'S HERE: She threw away the conventional life expected of her and went looking for adventure in the desert.`
+},
+{
+name:"Alexandra David-Néel",
+emoji:"🏔️",
+title:"The Woman Who Entered Lhasa",
+teaser:"A French explorer who travelled into Tibet disguised as a pilgrim.",
+story:`Alexandra David-Néel was a French explorer, writer and spiritual seeker.
+
+In 1924, she reached Lhasa, the Tibetan capital, at a time when foreign visitors were generally forbidden.
+
+She travelled disguised as a Tibetan pilgrim, accompanied by her adopted son and travelling companion, Yongden.
+
+Her journey made her internationally famous.
+
+She continued writing and travelling for decades, eventually living to the remarkable age of 100.
+
+WHY SHE'S HERE: Most people plan a holiday. She sneaked into a forbidden city in the Himalayas.`
+},
+{
+name:"Mary Kingsley",
+emoji:"🌍",
+title:"The Victorian Explorer",
+teaser:"A Victorian woman who travelled through West Africa on her own terms.",
+story:`Mary Kingsley was born in England in 1862 and became one of the most unusual explorers of her generation.
+
+She travelled through West Africa, often in difficult and dangerous conditions, studying local cultures and collecting specimens.
+
+She navigated rivers, travelled through forests and climbed mountains, all at a time when many people considered such adventures completely unsuitable for a woman.
+
+She later wrote influential accounts of her travels.
+
+She died in South Africa in 1900 while nursing wounded soldiers during the Boer War.
+
+WHY SHE'S HERE: She took Victorian expectations, politely ignored them and went exploring.`
+},
+{
+name:"Nellie Bly",
+emoji:"📰",
+title:"The Journalist Who Beat the Clock",
+teaser:"Went undercover in an asylum and raced around the world in 72 days.",
+story:`Nellie Bly was an American investigative journalist who specialised in doing things other journalists wouldn't.
+
+In 1887, she went undercover inside a New York psychiatric institution to expose the treatment of its patients.
+
+Her reporting helped draw attention to serious abuses.
+
+Then she took on another challenge: travelling around the world to beat the fictional journey in Jules Verne's novel.
+
+In 1889, she completed her journey in just 72 days.
+
+WHY SHE'S HERE: She didn't just write the story. She went and lived it.`
+},
+{
+name:"Ranulph Fiennes",
+emoji:"🧗",
+title:"The World's Greatest Explorer?",
+teaser:"Polar expeditions, Everest and frostbitten fingers removed after an expedition.",
+story:`Sir Ranulph Fiennes is one of Britain's most extraordinary modern explorers.
+
+He has led expeditions across some of the world's most hostile environments, including Antarctica and the Arctic.
+
+During an expedition in the 1990s, severe frostbite damaged several of his fingers. He later removed the dead tissue himself using an electric saw.
+
+He has also climbed Everest and undertaken a series of extreme endurance challenges.
+
+WHY HE'S HERE: His idea of a difficult day out would make most people cancel their weekend plans.`
+},
+{
+name:"Jeanne Baret",
+emoji:"🌿",
+title:"The Woman Who Fooled the Expedition",
+teaser:"Disguised herself as a man to join an eighteenth-century voyage around the world.",
+story:`Jeanne Baret was a French botanist who joined an expedition led by Louis Antoine de Bougainville in the eighteenth century.
+
+Women were not permitted aboard French naval ships, so she disguised herself as a man and travelled as an assistant to botanist Philibert Commerson.
+
+She helped collect and document plants during the voyage.
+
+Her sex was eventually discovered, although the exact circumstances remain uncertain.
+
+She is widely recognised as the first woman known to have circumnavigated the globe.
+
+WHY SHE'S HERE: She wanted to study plants, so she found a way onto a ship that wouldn't let women aboard.`
+},
+{
+name:"Thor Heyerdahl",
+emoji:"🛶",
+title:"The Man Who Sailed on a Raft",
+teaser:"Built a primitive raft and crossed the Pacific to test a controversial theory.",
+story:`In 1947, Norwegian explorer Thor Heyerdahl set out on a remarkable voyage.
+
+He believed that ancient people from South America might have reached Polynesia using simple rafts.
+
+To test whether such a journey was possible, he built the Kon-Tiki, a raft made from balsa logs and traditional materials.
+
+He and his crew sailed across the Pacific Ocean for 101 days before reaching the Tuamotu Islands.
+
+The voyage demonstrated that such a journey was possible, although it did not prove his theory about the origins of Polynesian settlement.
+
+WHY HE'S HERE: He looked at a giant ocean and thought, "That should be manageable on a raft."`
+},
+{
+name:"Joshua Slocum",
+emoji:"⛵",
+title:"The First Solo Circumnavigator",
+teaser:"Sailed around the world alone and later vanished at sea.",
+story:`Joshua Slocum was a Canadian-American sailor who achieved something extraordinary.
+
+Between 1895 and 1898, he sailed around the world alone aboard his small vessel, Spray.
+
+He wrote about the voyage in a bestselling book, inspiring generations of adventurers.
+
+In 1909, he set off on another voyage. He disappeared at sea, and his fate remains unknown.
+
+WHY HE'S HERE: He sailed around the world alone, then disappeared on another adventure.`
+},
+{
+name:"Annie Edson Taylor",
+emoji:"🛢️",
+title:"The Woman in the Barrel",
+teaser:"At 63, she went over Niagara Falls inside a specially designed barrel.",
+story:`In 1901, Annie Edson Taylor decided that the best way to secure her financial future was to go over Niagara Falls.
+
+She was 63 years old.
+
+She used a specially constructed barrel, entered it near the Canadian side and went over the falls.
+
+She survived, becoming the first person known to have gone over Niagara Falls in a barrel and lived.
+
+She hoped the stunt would make her rich, but fame and fortune proved much harder to secure than survival.
+
+WHY SHE'S HERE: At an age when most people are taking it easy, Annie was climbing into a barrel above Niagara Falls.`
+},
+{
+name:"Matthew Webb",
+emoji:"🏊",
+title:"The Channel Swimming Pioneer",
+teaser:"Swam the English Channel and later died attempting Niagara's rapids.",
+story:`Captain Matthew Webb became a national celebrity in 1875 when he became the first person to swim the English Channel without artificial assistance.
+
+The swim took around 22 hours.
+
+But Webb wanted more challenges.
+
+In 1883, he attempted to swim through the dangerous rapids below Niagara Falls.
+
+He was swept away and died during the attempt.
+
+WHY HE'S HERE: He conquered the Channel, then decided that Niagara's rapids needed a go.`
+},
+{
+name:"Victor Lustig",
+emoji:"🎩",
+title:"The Man Who Sold the Eiffel Tower",
+teaser:"One of history's most audacious con artists.",
+story:`Victor Lustig was a sophisticated con artist who became famous for one of the strangest scams in history.
+
+In 1925, he posed as a French government official and convinced a group of scrap-metal dealers that the Eiffel Tower was going to be sold for dismantling.
+
+He arranged a secret auction and persuaded one businessman to pay a bribe and purchase the tower.
+
+The victim was too embarrassed to report the fraud.
+
+Lustig's story became legendary, although popular claims that he successfully sold the tower twice are less certain.
+
+WHY HE'S HERE: He convinced someone that the Eiffel Tower was for sale. That's some salesmanship.`
+},
+{
+name:"Gregor MacGregor",
+emoji:"🏴‍☠️",
+title:"The Man Who Invented a Country",
+teaser:"Created a fictional nation and sold people tickets to a place that barely existed.",
+story:`Gregor MacGregor was a Scottish adventurer who claimed to be the ruler of a Central American territory called Poyais.
+
+He presented it as a wealthy, developed country with fertile land, opportunities and a bright future.
+
+There was just one problem.
+
+The country he was selling was essentially fictional.
+
+MacGregor sold land certificates, bonds and other documents to unsuspecting investors and persuaded settlers to travel there.
+
+Many arrived to find no developed settlement, inadequate supplies and a devastating situation.
+
+WHY HE'S HERE: He didn't sell people a dodgy house. He sold them an entire imaginary country.`
+},
+{
+name:"Cassie Chadwick",
+emoji:"💰",
+title:"The Fake Carnegie Heiress",
+teaser:"Pretended to be the daughter of a billionaire to obtain enormous loans.",
+story:`Cassie Chadwick was an American con artist who became famous for pretending to be the illegitimate daughter of steel magnate Andrew Carnegie.
+
+She used the supposed family connection to convince bankers and financiers that she was enormously wealthy.
+
+People lent her money based on the belief that Carnegie's fortune stood behind her.
+
+The scam eventually collapsed, and she was convicted of fraud.
+
+WHY SHE'S HERE: She managed to turn a made-up family connection into a financial empire.`
+},
+{
+name:"Charles Ponzi",
+emoji:"📈",
+title:"The Man Who Gave Fraud a Name",
+teaser:"Promised investors extraordinary returns and became a financial legend.",
+story:`Charles Ponzi was an Italian immigrant who became notorious in America for a spectacular investment fraud.
+
+He claimed he could make enormous profits trading international postal reply coupons.
+
+The promised returns were unrealistic, and the business model could not support them.
+
+In reality, money from new investors was used to pay earlier investors, creating the illusion of success.
+
+The scheme collapsed in 1920.
+
+His name became permanently attached to this kind of fraud: the Ponzi scheme.
+
+WHY HE'S HERE: He became so famous for a scam that his name became a financial term.`
+},
+{
+name:"Jack Sheppard",
+emoji:"🔓",
+title:"The Great Escape Artist",
+teaser:"An eighteenth-century thief who repeatedly escaped from prison.",
+story:`Jack Sheppard was an English thief whose prison escapes made him a celebrity in eighteenth-century London.
+
+He escaped from several prisons, including Newgate, using a combination of planning, ingenuity and extraordinary nerve.
+
+His escapes became public spectacles, and crowds followed his story like a modern crime drama.
+
+Eventually, he was captured again and executed in 1724.
+
+WHY HE'S HERE: He treated prison security as a puzzle that simply hadn't been solved yet.`
+},
+{
+name:"Belle Starr",
+emoji:"🤠",
+title:"The Bandit Queen",
+teaser:"An American outlaw whose real life became tangled with legend.",
+story:`Belle Starr became one of the most famous women associated with the American outlaw era.
+
+She lived in the Indian Territory and became linked with criminals and gangs, including members of the notorious Younger and James families.
+
+Newspapers portrayed her as a glamorous criminal mastermind, although much of her supposed criminal career is difficult to establish.
+
+She was murdered in 1889. Her killer was never convicted.
+
+WHY SHE'S HERE: Her reputation became almost as wild as the Wild West itself.`
+},
+{
+name:"Charles Sobhraj",
+emoji:"🐍",
+title:"The Serpent",
+teaser:"A charming international criminal who preyed on travellers across Asia.",
+story:`Charles Sobhraj became notorious during the 1970s for crimes committed against travellers along the so-called hippie trail through Asia.
+
+He used charm, deception and false identities to gain the trust of tourists.
+
+He was convicted of serious crimes, including murders, and became the subject of an extraordinary international manhunt.
+
+His ability to evade authorities and repeatedly manipulate people made him one of the most infamous criminals of his era.
+
+WHY HE'S HERE: A real-life criminal whose story reads like a spy thriller.`
+},
+{
+name:"Joseph 'Yellow Kid' Weil",
+emoji:"🃏",
+title:"The Gentleman Con Man",
+teaser:"A prolific American swindler who lived to the age of 100.",
+story:`Joseph Weil, better known as the Yellow Kid, became one of America's best-known con artists.
+
+He specialised in confidence tricks, persuading victims to hand over money through elaborate schemes.
+
+He later wrote about his criminal career and claimed to have stolen millions of dollars over his lifetime.
+
+Some of his stories are difficult to verify, but his reputation as a long-running professional swindler is well established.
+
+He lived to be 100 years old.
+
+WHY HE'S HERE: He spent a century on Earth and apparently used a good chunk of it separating people from their money.`
+},
+{
+name:"Ferdinand Demara",
+emoji:"🩺",
+title:"The Great Impostor",
+teaser:"Assumed multiple identities, including that of a naval doctor.",
+story:`Ferdinand Demara became famous for his extraordinary ability to impersonate people.
+
+He assumed a string of professional identities, including those of a teacher, lawyer, monk and doctor.
+
+During the Korean War, he served aboard the Canadian naval vessel HMCS Cayuga while posing as a surgeon.
+
+The story of his medical work became famous, although some details were later exaggerated in retellings.
+
+He was eventually exposed.
+
+WHY HE'S HERE: Most people struggle to blag their way into a nightclub. Demara blagged his way into entire careers.`
+},
+{
+name:"George Psalmanazar",
+emoji:"📚",
+title:"The Man From a Country He'd Never Visited",
+teaser:"Invented an entire identity and fooled fashionable eighteenth-century society.",
+story:`George Psalmanazar was a European impostor who claimed to come from Formosa, now known as Taiwan.
+
+He fabricated an identity, described imaginary customs and invented details about the island's language and culture.
+
+His stories fascinated fashionable British society, and he even published a book about his supposed homeland.
+
+Eventually, he admitted that the entire identity was invented.
+
+WHY HE'S HERE: He built a whole fake nationality and somehow got away with it for years.`
+},
+{
+name:"Caligula",
+emoji:"🏛️",
+title:"Rome's Infamous Emperor",
+teaser:"A young emperor whose reputation became a byword for excess and cruelty.",
+story:`Caligula became Roman emperor in AD 37.
+
+His early popularity eventually gave way to a reputation for extravagance, cruelty and erratic behaviour.
+
+Ancient writers describe bizarre stories about his court, including the famous claim that he intended to make his horse a consul.
+
+Whether that story is literally true is disputed. His surviving reputation comes largely through hostile ancient accounts.
+
+He was assassinated by members of his own guard in AD 41.
+
+WHY HE'S HERE: Roman imperial politics was already dangerous. Caligula made it spectacularly unpredictable.`
+},
+{
+name:"Elagabalus",
+emoji:"👑",
+title:"Rome's Controversial Teenage Emperor",
+teaser:"A teenage ruler whose reign shocked the Roman establishment.",
+story:`Elagabalus became Roman emperor in AD 218, when he was still a teenager.
+
+He brought the religious traditions of his homeland in Syria into the Roman imperial court, provoking fierce opposition.
+
+Ancient writers describe extravagant banquets, unusual court rituals and scandalous behaviour. These accounts were often hostile, so historians treat many of the details cautiously.
+
+His reign lasted only four years before he was assassinated in AD 222.
+
+WHY THEY'RE HERE: A teenager became emperor of Rome and immediately upset just about everyone who mattered.`
+},
+{
+name:"Ivan the Terrible",
+emoji:"🩸",
+title:"The Tsar of Terror",
+teaser:"A powerful ruler whose reign became associated with violence and paranoia.",
+story:`Ivan IV became the first ruler to be crowned Tsar of all Russia.
+
+His reign saw major territorial expansion, but also brutal repression and political terror.
+
+He created the feared Oprichniki, a force used to attack perceived enemies.
+
+One of the most famous episodes of his life concerns the death of his son in 1581. Historical accounts suggest Ivan struck him during an argument, although the precise circumstances remain debated.
+
+He died in 1584.
+
+WHY HE'S HERE: He helped build a powerful state while creating a reputation that terrified his own country.`
+},
+{
+name:"Nero",
+emoji:"🔥",
+title:"The Emperor Who Became a Legend",
+teaser:"Rome's notorious emperor, surrounded by scandal and stories.",
+story:`Nero became emperor of Rome in AD 54, aged just sixteen.
+
+His reign became associated with extravagance, political murder and persecution.
+
+In AD 64, a huge fire devastated Rome. Nero's later reputation became tied to the famous image of him fiddling while the city burned.
+
+The story is misleading: the instrument was not yet in use, and accounts indicate Nero was not in Rome when the fire began.
+
+He died by suicide in AD 68 as his political support collapsed.
+
+WHY HE'S HERE: Few rulers have attracted so many stories, scandals and historical arguments.`
+},
+{
+name:"Vlad the Impaler",
+emoji:"🦇",
+title:"The Real Dracula Connection",
+teaser:"A fifteenth-century ruler whose enemies feared his methods.",
+story:`Vlad III ruled Wallachia during the fifteenth century.
+
+He became notorious for using impalement as a method of punishment and intimidation.
+
+His enemies circulated stories of enormous cruelty, some of which were exaggerated for propaganda purposes.
+
+His reputation later became associated with Bram Stoker's Dracula, although the fictional vampire is not simply a biography of Vlad.
+
+WHY HE'S HERE: His reputation was so terrifying that centuries later people were still telling stories about him.`
+},
+{
+name:"Theodora",
+emoji:"👸",
+title:"From the Theatre to the Throne",
+teaser:"A Byzantine empress who became one of the most powerful women in the empire.",
+story:`Theodora rose from a relatively humble background to become empress of the Byzantine Empire through her marriage to Justinian I.
+
+She became a powerful political figure in her own right.
+
+During the Nika riots of 532, when Constantinople descended into chaos, Theodora reportedly urged Justinian not to flee.
+
+Her famous speech about royal purple being a fine burial shroud has become legendary, although the exact wording may be a literary reconstruction.
+
+WHY SHE'S HERE: She went from the margins of imperial society to helping decide the fate of an empire.`
+},
+{
+name:"Zenobia",
+emoji:"🏺",
+title:"The Queen Who Challenged Rome",
+teaser:"A ruler who built an eastern empire and took on the Roman superpower.",
+story:`Zenobia became queen of Palmyra in the third century.
+
+Following the death of her husband, she expanded her influence and took control of large areas of the eastern Roman territories.
+
+For a brief period, she ruled a powerful empire that directly challenged Rome.
+
+Emperor Aurelian eventually defeated her forces and captured her.
+
+What happened to her afterwards is uncertain, with different historical accounts offering different endings.
+
+WHY SHE'S HERE: She looked at Rome and decided the empire needed a serious competitor.`
+},
+{
+name:"Ching Shih",
+emoji:"🏴‍☠️",
+title:"The Pirate Queen",
+teaser:"Commanded one of history's most formidable pirate fleets.",
+story:`Ching Shih was a Chinese pirate leader who rose to extraordinary power in the early nineteenth century.
+
+After the death of her husband, Zheng Yi, she took command of a vast pirate confederation.
+
+Her forces controlled large parts of the South China Sea and challenged the Chinese imperial authorities.
+
+She eventually negotiated an amnesty in 1810, allowing her to retire with much of her wealth intact.
+
+WHY SHE'S HERE: One of history's most successful pirates was a woman who negotiated her way out of the business.`
+},
+{
+name:"Emperor Norton",
+emoji:"🎩",
+title:"The Emperor of the United States",
+teaser:"A San Francisco eccentric who declared himself emperor — and became a local legend.",
+story:`Joshua Abraham Norton was a businessman in San Francisco who suffered financial setbacks.
+
+In 1859, he declared himself Emperor of the United States and later added Protector of Mexico to his grand title.
+
+The city largely treated him as a beloved eccentric. He issued proclamations, appeared in public wearing an elaborate uniform and became a local celebrity.
+
+Some businesses even accepted his homemade currency.
+
+He died in 1880, and thousands reportedly attended his funeral.
+
+WHY HE'S HERE: He declared himself emperor, and a city decided to play along.`
+},
+{
+name:"Frederick the Great",
+emoji:"🎼",
+title:"The King Who Wanted to Escape",
+teaser:"A military king, musician and survivor of a brutal upbringing.",
+story:`Frederick II of Prussia had a difficult relationship with his father, Frederick William I.
+
+As a young man, he attempted to escape the court with his friend Hans Hermann von Katte.
+
+The plan failed. Katte was executed in front of Frederick, an experience that deeply affected him.
+
+Frederick eventually became king and one of Europe's most influential military rulers.
+
+He was also a musician and composer who played the flute.
+
+WHY HE'S HERE: A king who survived a nightmare childhood and grew into a military and cultural powerhouse.`
+},
+{
+name:"Diogenes",
+emoji:"🏺",
+title:"The Philosopher Who Lived in a Jar",
+teaser:"A philosopher who rejected society and told Alexander the Great to move.",
+story:`Diogenes was an ancient Greek philosopher who believed people should reject unnecessary possessions and social conventions.
+
+He reportedly lived in a large ceramic jar and made a point of behaving in ways that shocked respectable society.
+
+When Alexander the Great visited him and offered to grant him a wish, Diogenes supposedly replied that Alexander should move because he was blocking the sunlight.
+
+The story may be anecdotal, but it perfectly captures his reputation.
+
+WHY HE'S HERE: One of history's greatest thinkers apparently wanted nothing more than a bit of sunshine and some personal space.`
+},
+{
+name:"Grace O'Malley",
+emoji:"⚓",
+title:"The Pirate Queen of Ireland",
+teaser:"An Irish maritime leader who met Queen Elizabeth I.",
+story:`Grace O'Malley was a powerful Irish leader in the sixteenth century.
+
+She commanded ships, controlled territory and became involved in political and military struggles around Ireland's western coast.
+
+She built a reputation as a formidable maritime figure and negotiated directly with Queen Elizabeth I in 1593.
+
+The meeting became one of the most famous episodes of her life.
+
+WHY SHE'S HERE: She was running ships and negotiating with queens while most women of her era were expected to stay firmly in the background.`
+},
+{
+name:"Manuela Sáenz",
+emoji:"🗡️",
+title:"The Woman Who Saved Bolívar",
+teaser:"A revolutionary who played a key role in South America's independence struggles.",
+story:`Manuela Sáenz was a South American revolutionary who became closely associated with Simón Bolívar.
+
+She was politically active, supported independence movements and became an important figure in the revolutionary world.
+
+In 1828, during an assassination attempt against Bolívar in Bogotá, she helped him escape.
+
+She became known as the Liberator of the Liberator.
+
+WHY SHE'S HERE: She wasn't just standing beside history's famous men. She was actively helping shape it.`
+},
+{
+name:"Sarah Winchester",
+emoji:"🏚️",
+title:"The Woman Behind the Mystery House",
+teaser:"Built a famously strange mansion with staircases leading nowhere.",
+story:`Sarah Winchester inherited a fortune connected to the Winchester rifle business.
+
+She later began an enormous building project in California: the Winchester Mystery House.
+
+The house became famous for its unusual architecture, including doors opening onto walls, staircases leading nowhere and strange room layouts.
+
+Popular stories claim she built continuously because she believed the spirits of people killed by Winchester rifles were haunting her.
+
+That explanation is not proven, and much of the ghost story is later legend.
+
+WHY SHE'S HERE: She built one of America's strangest houses, and nobody can quite agree why.`
+},
+{
+name:"Howard Hughes",
+emoji:"✈️",
+title:"The Billionaire Recluse",
+teaser:"Hollywood, aviation records, enormous wealth and a mysterious final chapter.",
+story:`Howard Hughes was an American businessman, filmmaker and aviation pioneer.
+
+He made films, broke flying records and built an enormous business empire.
+
+He also became increasingly reclusive over the years, withdrawing from public life.
+
+His famous Spruce Goose aircraft made a single flight in 1947, after an enormous and controversial development programme.
+
+He died in 1976, having become one of the most mysterious wealthy figures in modern American history.
+
+WHY HE'S HERE: He lived several extraordinary lives in one: Hollywood producer, billionaire, pilot and recluse.`
+},
+{
+name:"Lord Byron",
+emoji:"📜",
+title:"The Poet With a Bear",
+teaser:"A scandalous poet who reportedly kept a bear at university.",
+story:`Lord Byron was one of the great Romantic poets, but his private life was often as dramatic as his writing.
+
+He became famous for his poetry, romantic scandals and unconventional behaviour.
+
+While studying at Cambridge, he reportedly kept a bear because the university rules prohibited dogs.
+
+He later travelled to Greece and became involved in the Greek struggle for independence.
+
+He died there in 1824, aged just 36.
+
+WHY HE'S HERE: A poet who wrote about heroes, collected scandals and apparently had a bear at university.`
+},
+{
+name:"James Barry",
+emoji:"🩺",
+title:"The Extraordinary Army Surgeon",
+teaser:"A pioneering military doctor who lived and served as a man.",
+story:`James Barry was a British military surgeon who served across the British Empire.
+
+Barry was assigned female at birth and lived as a man throughout adult life.
+
+He became known for demanding high standards of hygiene and medical care, and developed a reputation as a capable surgeon.
+
+In 1826, while stationed in Cape Town, Barry performed a successful caesarean section in which both mother and child survived.
+
+After Barry's death in 1865, the circumstances of his sex assigned at birth became public.
+
+WHY HE'S HERE: A remarkable medical career that challenged the expectations of the nineteenth century.`
+},
+{
+name:"Timothy Dexter",
+emoji:"📦",
+title:"The Luckiest Idiot in America?",
+teaser:"An eccentric businessman whose bizarre ventures somehow made him rich.",
+story:`Timothy Dexter was an American businessman who became famous for his strange personality and unusual business decisions.
+
+He made money through trade and speculation, then became known for sending goods to places where they seemed completely unsuitable.
+
+Stories about his shipments of coal to Newcastle and bedpans to the Caribbean became part of his legend, although some details are difficult to verify.
+
+He also wrote a bizarre book full of eccentric opinions and unusual punctuation.
+
+WHY HE'S HERE: He seemed to approach business with absolutely no conventional logic — and somehow made it work.`
+},
+{
+name:"John Law",
+emoji:"🎲",
+title:"The Gambler Who Nearly Broke France",
+teaser:"A Scottish gambler who became a powerful financier and helped create a financial bubble.",
+story:`John Law was a Scottish financier with a talent for gambling, mathematics and financial speculation.
+
+In 1694, he killed a man named Edward Wilson in a duel and was convicted. He escaped custody and fled England.
+
+He eventually gained influence in France, where he helped develop a major banking and trading system.
+
+His Mississippi Company became the centre of an enormous speculative bubble that eventually collapsed.
+
+WHY HE'S HERE: He escaped a murder conviction and then helped create one of history's most famous financial disasters.`
+},
+{
+name:"Empress Dowager Cixi",
+emoji:"🐉",
+title:"The Woman Behind the Dragon Throne",
+teaser:"Rose from palace concubine to become the dominant political force in China.",
+story:`Cixi entered the Qing imperial court as a concubine and rose to power after giving birth to the future Tongzhi Emperor.
+
+Following the death of her husband, she became one of the dominant political figures in China.
+
+She exercised power behind the throne for decades, influencing emperors, officials and the direction of the Qing dynasty.
+
+Her reign was marked by political manoeuvring, reform efforts, resistance to change and the growing pressure of foreign powers.
+
+She remains one of the most debated figures in Chinese history.
+
+WHY SHE'S HERE: She began inside the imperial palace and ended up controlling the politics of an empire.`
+}
+];
+
+// Daily character is based on the date, so everyone sees the same daily pick.
+function getDailyIndex() {
+  const start = new Date(2026, 0, 1);
+  const today = new Date();
+  const day = Math.floor((new Date(today.getFullYear(),today.getMonth(),today.getDate()) - start) / 86400000);
+  return ((day % people.length) + people.length) % people.length;
+}
+
+function renderDaily() {
+  const p = people[getDailyIndex()];
+  document.getElementById('today-date').textContent =
+    new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+  document.getElementById('daily-card').innerHTML = `
+    <div class="daily-art">
+      <div class="big-number">01</div>
+      <img class="daily-portrait" src="images/${getDailyIndex()+1}.jpg" alt="${p.name}" loading="eager">
+    </div>
+    <div class="daily-info">
+      <div class="tag">TODAY'S HISTORICAL MADNESS</div>
+      <h3>${p.name}</h3>
+      <div class="subtitle">${p.title}</div>
+      <div class="description">${p.teaser}</div>
+      <button class="primary-btn" onclick="openStory(${getDailyIndex()})">READ THE STORY →</button>
+    </div>`;
+}
+
+function renderArchive() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const filtered = people.map((p,i)=>({...p,index:i})).filter(p =>
+    p.name.toLowerCase().includes(query) ||
+    p.title.toLowerCase().includes(query) ||
+    p.teaser.toLowerCase().includes(query)
+  );
+
+  document.getElementById('visible-count').textContent =
+    `${filtered.length} CHARACTER${filtered.length===1?'':'S'}`;
+
+  document.getElementById('people-grid').innerHTML = filtered.map(p => `
+    <div class="person-card" onclick="openStory(${p.index})">
+      <span class="number">#${String(p.index+1).padStart(2,'0')}</span>
+      <img class="person-thumb" src="images/${p.index+1}.jpg" alt="${p.name}" loading="lazy">
+      <h3>${p.name}</h3>
+      <p>${p.title}</p>
+    </div>
+  `).join('');
+}
+
+function openStory(index) {
+  const p = people[index];
+  document.getElementById('story-image').src = 'images/' + (index + 1) + '.jpg';
+  document.getElementById('story-image').alt = p.name;
+  document.getElementById('story-name').textContent = p.name;
+  document.getElementById('story-subtitle').textContent = p.title;
+  document.getElementById('story-body').textContent = p.story;
+  document.getElementById('story-panel').classList.add('open');
+
+  document.getElementById('story-panel').scrollIntoView({
+    behavior:'smooth',
+    block:'start'
+  });
+}
+
+function closeStory() {
+  document.getElementById('story-panel').classList.remove('open');
+}
+
+let spinning = false;
+
+function spin() {
+  if (spinning) return;
+
+  spinning = true;
+  const btn = document.getElementById('spin-btn');
+  const name = document.getElementById('slot-name');
+  const caption = document.getElementById('slot-caption');
+  const result = document.getElementById('spin-result');
+
+  btn.disabled = true;
+  btn.textContent = '🎰 SPINNING...';
+  result.textContent = '';
+
+  const chosen = Math.floor(Math.random()*people.length);
+  const p = people[chosen];
+
+  let count = 0;
+  let speed = 55;
+  const total = 25;
+
+  function tick() {
+    const randomPerson = people[Math.floor(Math.random()*people.length)];
+    name.textContent = randomPerson.name;
+    caption.textContent = 'THE WHEEL OF HISTORICAL MADNESS';
+
+    count++;
+
+    if (count < total) {
+      speed += count > 17 ? 30 : 0;
+      setTimeout(tick,speed);
+    } else {
+      name.textContent = p.name;
+      caption.textContent = p.title;
+      result.textContent = '🎉 YOU GOT: ' + p.name.toUpperCase() + '!';
+
+      btn.disabled = false;
+      btn.textContent = '🎰 SPIN AGAIN';
+      spinning = false;
+
+      setTimeout(() => openStory(chosen),500);
+    }
+  }
+
+  tick();
+}
+
+renderDaily();
+renderArchive();
+</script>
+
+</body>
+</html>
