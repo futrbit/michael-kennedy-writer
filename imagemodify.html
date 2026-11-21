@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KDP Full Cover Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0f1115;
+    color: #e5e7eb;
+    min-height: 100vh;
+    padding: 30px;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .subtitle {
+    color: #9ca3af;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: #1a1d24;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #2a2f3a;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #d1d5db;
+  }
+  select, input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f1115;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+  }
+  .upload-box {
+    border: 2px dashed #374151;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .upload-box:hover { border-color: #60a5fa; background: #1e2530; }
+  .upload-box.has-file { border-color: #34d399; background: #0f2a1f; }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+  }
+  .btn:hover { background: #2563eb; }
+  .btn:disabled { background: #374151; cursor: not-allowed; }
+  .btn-secondary {
+    background: #374151;
+    margin-top: 8px;
+  }
+  .btn-secondary:hover { background: #4b5563; }
+  .preview-area {
+    background: #111;
+    border-radius: 12px;
+    padding: 20px;
+    overflow: auto;
+    text-align: center;
+  }
+  canvas {
+    max-width: 100%;
+    border: 1px solid #333;
+    background: #222;
+  }
+  .info {
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    margin-top: 16px;
+    line-height: 1.5;
+    color: #94a3b8;
+  }
+  .info strong { color: #e2e8f0; }
+  .dimensions {
+    font-family: monospace;
+    color: #60a5fa;
+  }
+</style>
+</head>
+<body>
+
+<h1>KDP Full Cover Builder</h1>
+<p class="subtitle">Create a perfect full-wrap cover (Back + Spine + Front) at 300 DPI</p>
+
+<div class="container">
+  <!-- LEFT PANEL -->
+  <div class="panel">
+    <label>Trim Size</label>
+    <select id="trimSize">
+      <option value="6x9">6 × 9 in (most common)</option>
+      <option value="5.5x8.5">5.5 × 8.5 in</option>
+      <option value="5x8">5 × 8 in</option>
+      <option value="5.25x8">5.25 × 8 in</option>
+      <option value="6.14x9.21">6.14 × 9.21 in</option>
+      <option value="7x10">7 × 10 in</option>
+      <option value="8x10">8 × 10 in</option>
+      <option value="8.5x11">8.5 × 11 in</option>
+    </select>
+
+    <label>Page Count</label>
+    <input type="number" id="pageCount" value="200" min="24" max="828">
+
+    <label>Paper Type</label>
+    <select id="paperType">
+      <option value="white">White paper (B&W)</option>
+      <option value="cream">Cream paper (B&W)</option>
+      <option value="color">Color / Premium Color</option>
+    </select>
+
+    <label>Front Cover Image</label>
+    <div class="upload-box" id="frontBox" onclick="document.getElementById('frontInput').click()">
+      <div id="frontText">Click to upload Front Cover</div>
+      <input type="file" id="frontInput" accept="image/*" hidden>
+    </div>
+
+    <label>Back Cover Image (optional)</label>
+    <div class="upload-box" id="backBox" onclick="document.getElementById('backInput').click()">
+      <div id="backText">Click to upload Back Cover<br><small style="color:#6b7280">(or leave empty for solid color)</small></div>
+      <input type="file" id="backInput" accept="image/*" hidden>
+    </div>
+
+    <label>Spine Color (if no back image)</label>
+    <input type="color" id="spineColor" value="#1a1a1a" style="width:100%; height:42px; border:none; border-radius:8px; margin-bottom:18px; cursor:pointer;">
+
+    <button class="btn" id="buildBtn" onclick="buildCover()" disabled>Build Full Cover</button>
+    <button class="btn btn-secondary" id="downloadBtn" onclick="downloadCover()" disabled>Download PNG (300 DPI)</button>
+
+    <div class="info" id="infoBox">
+      Upload a front cover to begin.<br>
+      The tool will automatically calculate the correct full size + spine.
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel">
+    <div class="preview-area">
+      <canvas id="previewCanvas" width="800" height="400"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Official-ish KDP spine thickness per page (inches)
+  const SPINE = {
+    white: 0.002252,
+    cream: 0.0025,
+    color: 0.002347
+  };
+
+  const TRIM = {
+    "6x9":      { w: 6, h: 9 },
+    "5.5x8.5":  { w: 5.5, h: 8.5 },
+    "5x8":      { w: 5, h: 8 },
+    "5.25x8":   { w: 5.25, h: 8 },
+    "6.14x9.21":{ w: 6.14, h: 9.21 },
+    "7x10":     { w: 7, h: 10 },
+    "8x10":     { w: 8, h: 10 },
+    "8.5x11":   { w: 8.5, h: 11 }
+  };
+
+  let frontImg = null;
+  let backImg = null;
+  let finalCanvas = null;
+
+  // Upload handlers
+  document.getElementById('frontInput').addEventListener('change', function(e) {
+    loadImage(e.target.files[0], (img) => {
+      frontImg = img;
+      document.getElementById('frontBox').classList.add('has-file');
+      document.getElementById('frontText').textContent = "✓ Front Cover loaded";
+      document.getElementById('buildBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('backInput').addEventListener('change', function(e) {
+    loadImage(e.target.files[0], (img) => {
+      backImg = img;
+      document.getElementById('backBox').classList.add('has-file');
+      document.getElementById('backText').textContent = "✓ Back Cover loaded";
+    });
+  });
+
+  function loadImage(file, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = () => callback(img);
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function buildCover() {
+    if (!frontImg) return;
+
+    const trimKey = document.getElementById('trimSize').value;
+    const pages = parseInt(document.getElementById('pageCount').value) || 200;
+    const paper = document.getElementById('paperType').value;
+    const spineColor = document.getElementById('spineColor').value;
+
+    const trim = TRIM[trimKey];
+    const bleed = 0.125; // inches
+    const spineWidth = pages * SPINE[paper];
+
+    // Full cover size in inches
+    const fullWidthIn = (trim.w * 2) + spineWidth + (bleed * 2);
+    const fullHeightIn = trim.h + (bleed * 2);
+
+    // At 300 DPI
+    const dpi = 300;
+    const fullW = Math.round(fullWidthIn * dpi);
+    const fullH = Math.round(fullHeightIn * dpi);
+    const frontW = Math.round(trim.w * dpi);
+    const frontH = Math.round(trim.h * dpi);
+    const spineW = Math.round(spineWidth * dpi);
+    const bleedPx = Math.round(bleed * dpi);
+
+    // Create final canvas
+    finalCanvas = document.createElement('canvas');
+    finalCanvas.width = fullW;
+    finalCanvas.height = fullH;
+    const ctx = finalCanvas.getContext('2d');
+
+    // Fill background
+    ctx.fillStyle = spineColor;
+    ctx.fillRect(0, 0, fullW, fullH);
+
+    // Draw Back Cover (left side)
+    if (backImg) {
+      drawCoverImage(ctx, backImg, bleedPx, bleedPx, frontW, frontH);
+    } else {
+      // Solid color back
+      ctx.fillStyle = spineColor;
+      ctx.fillRect(bleedPx, bleedPx, frontW, frontH);
+    }
+
+    // Draw Spine (middle)
+    ctx.fillStyle = spineColor;
+    ctx.fillRect(bleedPx + frontW, 0, spineW, fullH);
+
+    // Draw Front Cover (right side)
+    drawCoverImage(ctx, frontImg, bleedPx + frontW + spineW, bleedPx, frontW, frontH);
+
+    // Update preview
+    const preview = document.getElementById('previewCanvas');
+    const pctx = preview.getContext('2d');
+    preview.width = 900;
+    preview.height = Math.round(900 * (fullH / fullW));
+    pctx.fillStyle = "#111";
+    pctx.fillRect(0, 0, preview.width, preview.height);
+    pctx.drawImage(finalCanvas, 0, 0, preview.width, preview.height);
+
+    // Draw guides on preview
+    pctx.strokeStyle = "rgba(255,255,255,0.3)";
+    pctx.lineWidth = 1;
+    const scale = preview.width / fullW;
+    // Spine lines
+    pctx.beginPath();
+    pctx.moveTo((bleedPx + frontW) * scale, 0);
+    pctx.lineTo((bleedPx + frontW) * scale, preview.height);
+    pctx.moveTo((bleedPx + frontW + spineW) * scale, 0);
+    pctx.lineTo((bleedPx + frontW + spineW) * scale, preview.height);
+    pctx.stroke();
+
+    // Update info
+    document.getElementById('infoBox').innerHTML = `
+      <strong>Full Cover Size:</strong><br>
+      <span class="dimensions">${fullWidthIn.toFixed(3)}" × ${fullHeightIn.toFixed(3)}" 
+      → ${fullW} × ${fullH} px @ 300 DPI</span><br><br>
+      Spine width: <strong>${spineWidth.toFixed(3)}"</strong> (${spineW} px)<br>
+      Ready to download and upload to KDP.
+    `;
+
+    document.getElementById('downloadBtn').disabled = false;
+  }
+
+  function drawCoverImage(ctx, img, x, y, w, h) {
+    // Cover the area while keeping aspect ratio (center crop)
+    const imgRatio = img.width / img.height;
+    const targetRatio = w / h;
+    let sx, sy, sw, sh;
+
+    if (imgRatio > targetRatio) {
+      // image is wider
+      sh = img.height;
+      sw = img.height * targetRatio;
+      sx = (img.width - sw) / 2;
+      sy = 0;
+    } else {
+      // image is taller
+      sw = img.width;
+      sh = img.width / targetRatio;
+      sx = 0;
+      sy = (img.height - sh) / 2;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  }
+
+  function downloadCover() {
+    if (!finalCanvas) return;
+    const link = document.createElement('a');
+    link.download = `KDP-Full-Cover-${Date.now()}.png`;
+    link.href = finalCanvas.toDataURL('image/png', 1.0);
+    link.click();
+  }
+</script>
+</body>
+</html>

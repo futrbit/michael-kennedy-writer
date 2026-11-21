@@ -1,4 +1,4 @@
-﻿/* ==========================================================
+/* ==========================================================
    MICHAEL KENNEDY // WRITER
    FINAL CLEAN SCRIPT
    ========================================================== */
@@ -89,6 +89,24 @@ An unforgettable adventure blending history, romance, and the enduring ties of t
     cover:"assets/book4.jpg",
     link:"#",
     intro:"Book 04 is currently in development.\n\nMore information will be revealed soon."
+  },
+
+  {
+    number:"BOOK 05",
+    title:"The Craziest 50 Lives in History",
+    blurb:"Fifty extraordinary lives, packed with unbelievable adventures, strange encounters, outrageous decisions and remarkable stories from history.",
+    cover:"50craziestlivesv1.jpg",
+    link:"https://www.amazon.com/dp/B0HS7K16C4",
+    intro:"Fifty of history's most extraordinary lives. A collection of remarkable people, incredible adventures and stories that are difficult to believe — but even harder to forget."
+  },
+
+  {
+    number:"BOOK 06",
+    title:"The 30th Parallel",
+    blurb:"A journey inspired by China, its landscapes, its food, its history and the experiences found along the 30th parallel.",
+    cover:"30thparallelcovered.jpg",
+    link:"#",
+    intro:"The 30th Parallel explores a fascinating stretch of the world, drawing on experiences and discoveries connected with China and the places around this remarkable line of latitude."
   }
 ];
 
