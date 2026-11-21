@@ -1,0 +1,1882 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111714">
+<title>PARALLEL — The Line That Feeds the World</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+:root{--bg:#111714;--panel:#171f1b;--panel2:#1c2621;--ink:#f0eadc;--muted:#a69e8c;--dim:#77796e;--gold:#d4a34d;--gold2:#f0c878;--line:rgba(224,190,125,.2);--red:#b76b55;--green:#839b78;--blue:#7894a2;--sans:'DM Sans',sans-serif;--serif:'Playfair Display',serif;--mono:'DM Mono',monospace}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden}button,input{font:inherit}button{cursor:pointer}
+.shell{height:100dvh;display:grid;grid-template-rows:70px 1fr 42px;min-height:0}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 25px;border-bottom:1px solid var(--line);background:rgba(17,23,20,.96);z-index:500;gap:18px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}.brand-mark{width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font:12px var(--mono);position:relative}.brand-mark:after{content:"";position:absolute;width:46px;height:1px;background:var(--gold);opacity:.55;transform:rotate(-28deg)}
+.brand-name{font:500 17px var(--serif);letter-spacing:.18em}.brand-sub{font:9px var(--mono);letter-spacing:.16em;color:var(--muted);margin-top:3px}
+.header-center{display:flex;align-items:center;gap:10px;color:var(--muted);font:10px var(--mono);letter-spacing:.1em}.live-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;box-shadow:0 0 10px var(--gold)}
+.header-actions{display:flex;gap:8px}.quiet-btn{border:1px solid var(--line);background:transparent;color:var(--muted);padding:9px 12px;font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase}.quiet-btn:hover,.quiet-btn.active{border-color:var(--gold);color:var(--gold2)}
+main{display:grid;grid-template-columns:310px minmax(0,1fr) 350px;min-height:0;position:relative}
+.left{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:400}
+.intro{padding:24px 22px 18px;border-bottom:1px solid var(--line)}.eyebrow{font:9px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}h1{font:500 28px/1.08 var(--serif);margin:12px 0 10px;letter-spacing:-.02em}.intro p{font-size:12px;line-height:1.65;color:var(--muted);margin:0}.intro strong{color:var(--ink);font-weight:500}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-bottom:1px solid var(--line)}.stat{background:var(--panel);padding:12px 20px}.stat b{display:block;font:20px var(--serif);color:var(--gold2)}.stat span{display:block;font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+.search-wrap{padding:14px 16px 8px}.search{width:100%;border:1px solid var(--line);background:#111814;color:var(--ink);padding:11px 12px;outline:none;font-size:12px}.search:focus{border-color:var(--gold)}.search::placeholder{color:#77796e}
+.filter-row{display:flex;gap:6px;padding:5px 16px 12px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);font:9px var(--mono);padding:6px 8px;text-transform:uppercase;letter-spacing:.05em}.filter.active{background:rgba(212,163,77,.12);border-color:var(--gold);color:var(--gold2)}
+.list-heading{padding:8px 20px;color:var(--dim);font:9px var(--mono);letter-spacing:.16em;text-transform:uppercase;display:flex;justify-content:space-between}.stop-list{overflow:auto;min-height:0;padding:0 8px 16px;scrollbar-width:thin;scrollbar-color:#4a5147 transparent}
+.stop-item{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;text-align:left;border:0;border-left:2px solid transparent;background:transparent;color:var(--ink);padding:11px 12px;margin:1px 0}.stop-item:hover{background:rgba(255,255,255,.035)}.stop-item.selected{background:rgba(212,163,77,.09);border-left-color:var(--gold)}.stop-no{font:10px var(--mono);color:var(--gold)}.stop-copy b{display:block;font-size:12px;font-weight:500}.stop-copy small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.stop-kind{font:8px var(--mono);color:var(--dim);text-transform:uppercase;max-width:70px;text-align:right;line-height:1.4}
+.map-wrap{position:relative;min-width:0;min-height:0;background:#202a26}#map{position:absolute;inset:0;background:#202a26}.map-vignette{pointer-events:none;position:absolute;inset:0;z-index:300;background:linear-gradient(90deg,rgba(17,23,20,.18),transparent 15%,transparent 84%,rgba(17,23,20,.18));}
+.map-topline{position:absolute;z-index:350;top:17px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}.map-label{background:rgba(17,23,20,.88);border:1px solid var(--line);padding:10px 13px;backdrop-filter:blur(8px)}.map-label span{display:block;font:9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}.map-label b{display:block;font:14px var(--serif);font-weight:500;margin-top:4px}.map-controls{display:flex;gap:6px;pointer-events:auto}.map-control{width:36px;height:36px;border:1px solid var(--line);background:rgba(17,23,20,.9);color:var(--gold2);font-size:17px}.map-control:hover{background:var(--gold);color:#171914}
+.legend{position:absolute;z-index:350;bottom:18px;left:18px;display:flex;gap:14px;flex-wrap:wrap;background:rgba(17,23,20,.9);border:1px solid var(--line);padding:10px 13px;pointer-events:none}.legend-item{display:flex;align-items:center;gap:6px;color:var(--muted);font:9px var(--mono);text-transform:uppercase}.legend-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px currentColor}.legend-dot.south{background:#91a9a0}.legend-dot.other{background:#c17d65}
+.right{background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:400}.detail-scroll{overflow:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#4a5147 transparent}
+.detail-hero{height:220px;position:relative;background:linear-gradient(140deg,#34433a,#18231e 65%,#493c2c);overflow:hidden;display:flex;align-items:flex-end;padding:20px}.detail-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 70% 20%,rgba(212,163,77,.22),transparent 55%),linear-gradient(0deg,rgba(12,16,14,.85),transparent 80%)}.hero-orbit{position:absolute;width:180px;height:180px;border:1px solid rgba(212,163,77,.28);border-radius:50%;right:-18px;top:-40px}.hero-orbit:before,.hero-orbit:after{content:"";position:absolute;border:1px solid rgba(212,163,77,.18);border-radius:50%;inset:20px}.hero-orbit:after{inset:42px}.hero-glyph{position:absolute;right:44px;top:45px;color:rgba(240,200,120,.85);font:58px var(--serif)}.hero-copy{position:relative;z-index:1}.hero-copy .eyebrow{color:var(--gold2)}.hero-copy h2{font:500 26px/1.1 var(--serif);margin:8px 0 4px}.hero-copy p{font:10px var(--mono);color:#c2b8a3;margin:0}
+.detail-body{padding:22px 23px 26px}.detail-kicker{font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--gold)}.food-title{font:500 22px/1.2 var(--serif);margin:8px 0 7px}.food-sub{font:10px var(--mono);color:var(--muted);letter-spacing:.05em}.description{font-size:12px;line-height:1.8;color:#c4bdad;margin:17px 0 18px}.fact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}.fact{border:1px solid var(--line);padding:10px}.fact span{display:block;font:8px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.12em}.fact b{display:block;font-size:11px;font-weight:500;margin-top:5px;color:var(--ink)}
+.method-label{font:9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:22px 0 10px}.method-tags{display:flex;gap:6px;flex-wrap:wrap}.tag{border:1px solid rgba(131,155,120,.35);color:#b3c1a7;background:rgba(131,155,120,.08);font:9px var(--mono);padding:6px 8px}
+.photo-slot{margin-top:22px;border:1px dashed rgba(212,163,77,.4);height:110px;display:grid;place-items:center;text-align:center;color:var(--dim);background:linear-gradient(135deg,rgba(212,163,77,.04),transparent)}.photo-slot b{display:block;font:9px var(--mono);letter-spacing:.12em;color:var(--gold);text-transform:uppercase}.photo-slot span{font-size:10px;margin-top:5px;display:block}
+.detail-actions{display:flex;gap:8px;margin-top:20px}.action{flex:1;border:1px solid var(--line);background:transparent;color:var(--muted);padding:11px 8px;font:9px var(--mono);letter-spacing:.08em;text-transform:uppercase}.action.primary{background:var(--gold);border-color:var(--gold);color:#171914}.action:hover{border-color:var(--gold);color:var(--gold2)}.action.primary:hover{background:var(--gold2);color:#171914}
+footer{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:var(--dim);font:9px var(--mono);letter-spacing:.08em;background:#111714;gap:12px}.footer-source a{color:var(--gold);text-decoration:none}.footer-source a:hover{text-decoration:underline}.footer-note{white-space:nowrap}
+.leaflet-container{font-family:var(--sans)}.leaflet-control-attribution{background:rgba(17,23,20,.75)!important;color:#9b9b8d!important;font-size:9px!important}.leaflet-control-attribution a{color:#d4a34d!important}.leaflet-control-zoom{display:none}
+.leaflet-tile{filter:brightness(.68) saturate(.55) sepia(.12) hue-rotate(75deg) contrast(1.05)}.leaflet-container{background:#202a26}
+.marker-wrap{background:transparent;border:0}.map-marker{width:13px;height:13px;border-radius:50%;background:var(--gold);border:2px solid #fff0d1;box-shadow:0 0 0 4px rgba(212,163,77,.18),0 0 15px rgba(212,163,77,.65);transition:transform .2s}.map-marker.south{background:#91a9a0;border-color:#e2f0e8;box-shadow:0 0 0 4px rgba(145,169,160,.18),0 0 15px rgba(145,169,160,.55)}.map-marker.other{background:#c17d65;border-color:#ffe1d4;box-shadow:0 0 0 4px rgba(193,125,101,.18)}.map-marker.active{transform:scale(1.6);background:#fff0c9;box-shadow:0 0 0 7px rgba(212,163,77,.22),0 0 22px var(--gold)}
+.route-line{stroke:#d4a34d;stroke-width:2;stroke-opacity:.72;stroke-dasharray:5 9;animation:dash 32s linear infinite}.parallel-line{stroke:#f0c878;stroke-width:1.5;stroke-opacity:.65;stroke-dasharray:3 7}@keyframes dash{to{stroke-dashoffset:-280}}
+.leaflet-tooltip{background:#151d18;border:1px solid rgba(212,163,77,.5);color:#f0eadc;border-radius:0;padding:6px 8px;font:10px var(--mono);box-shadow:0 5px 20px #0008}.leaflet-tooltip:before{border-top-color:#151d18}
+.mobile-toggle{display:none}
+@media(max-width:1150px){main{grid-template-columns:270px minmax(0,1fr) 320px}.intro{padding:18px}.detail-body{padding:18px}}
+@media(max-width:900px){.shell{grid-template-rows:60px 1fr 36px}header{padding:0 14px}.header-center{display:none}.brand-name{font-size:15px}main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}.left{position:absolute;top:0;bottom:0;left:0;width:min(320px,88vw);transform:translateX(-102%);transition:transform .3s;box-shadow:15px 0 45px #0008}.left.open{transform:translateX(0)}.right{position:absolute;right:0;bottom:0;width:min(390px,94vw);height:min(72%,650px);border:1px solid var(--line);box-shadow:0 -15px 50px #0009;transform:translateY(calc(100% - 58px));transition:transform .35s}.right.open{transform:translateY(0)}.detail-hero{height:175px}.map-topline{top:12px;left:12px;right:12px}.map-label{padding:8px 10px}.map-label b{font-size:12px}.legend{bottom:12px;left:12px;gap:9px;padding:8px}.mobile-toggle{display:inline-flex}.header-actions .quiet-btn:not(.mobile-toggle){display:none}.right-handle{height:58px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line);color:var(--gold);font:10px var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}.right-handle:after{content:"↑";font-size:16px}.right.open .right-handle:after{content:"↓"}footer{padding:0 12px}.footer-note{display:none}}
+@media(max-width:480px){.brand-sub{display:none}.brand-mark{width:29px;height:29px}.brand-name{font-size:13px}.map-label{max-width:205px}.map-label b{font-size:11px}.legend-item{font-size:8px}.detail-body{padding:17px}.food-title{font-size:20px}}
+
+/* PARALLEL field-guide expansion */
+.chapter-nav{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:thin}
+.chapter-nav a{flex:0 0 auto;text-decoration:none;color:var(--muted);border:1px solid var(--line);padding:7px 9px;font:9px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.chapter-nav a:hover{border-color:var(--gold);color:var(--gold2)}
+.chapter{border-top:1px solid var(--line);padding:18px 0 3px;scroll-margin-top:12px}
+.chapter h3{font:500 17px var(--serif);margin:0 0 9px;color:var(--ink)}
+.chapter p{font-size:11px;line-height:1.8;color:#c4bdad;margin:7px 0}
+.chapter-kicker{font:8px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.ingredient-list{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.ingredient{border:1px solid rgba(131,155,120,.35);background:rgba(131,155,120,.08);color:#c2cdb8;padding:6px 8px;font-size:10px}
+.recipe-card{border:1px solid rgba(212,163,77,.38);background:linear-gradient(145deg,rgba(212,163,77,.09),rgba(212,163,77,.025));padding:14px;margin-top:10px}
+.recipe-card h4{font:500 16px var(--serif);margin:0 0 5px;color:var(--gold2)}
+.recipe-meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font:9px var(--mono);margin:8px 0 12px}
+.recipe-card h5{font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:14px 0 7px}
+.recipe-card ul,.recipe-card ol{padding-left:18px;margin:6px 0;color:#c4bdad;font-size:10px;line-height:1.8}
+.recipe-note{border-left:2px solid var(--gold);padding:8px 10px;margin-top:12px;background:rgba(212,163,77,.05);font-size:10px;line-height:1.7;color:var(--muted)}
+.timeline{display:grid;gap:9px;margin:12px 0}.timeline-item{display:grid;grid-template-columns:12px 1fr;gap:9px}.timeline-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:5px;box-shadow:0 0 8px rgba(212,163,77,.4)}.timeline-item b{font-size:10px;font-weight:600;color:var(--ink);display:block}.timeline-item span{font-size:10px;line-height:1.65;color:var(--muted);display:block;margin-top:2px}
+.fact-callout{padding:12px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:10px;line-height:1.7;color:#c4bdad;margin-top:10px}
+.source-list{padding-left:16px;color:var(--muted);font-size:10px;line-height:1.8}.source-list a{color:var(--gold2)}
+@media(max-width:1100px){main{grid-template-columns:270px minmax(0,1fr) 320px}}
+@media(max-width:900px){.detail-body{padding:18px}.chapter-nav{position:sticky;top:0;background:var(--panel);z-index:5}}
+
+</style>
+<style>
+.photo-slot.atlas-photo-slot{height:clamp(220px,32vw,390px);border:0;overflow:hidden;border-radius:5px;background:#20251f;margin:22px 0}
+.atlas-photo{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.atlas-photo-slot:hover .atlas-photo{transform:scale(1.025)}
+.photo-missing{padding:20px;font:10px var(--mono);color:var(--dim);text-align:center}
+</style>
+<style id="parallel-top-photo-styles">
+.detail-hero{position:relative;overflow:hidden}
+.detail-hero-photo-wrap{position:absolute;inset:0;z-index:0;overflow:hidden}
+.detail-hero-photo-wrap:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,17,14,.82),rgba(12,17,14,.42) 60%,rgba(12,17,14,.16)),linear-gradient(0deg,rgba(12,17,14,.5),transparent 65%)}
+.detail-hero-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 45%}
+.detail-hero .hero-glyph,.detail-hero .hero-copy{z-index:2}
+@media(max-width:700px){
+.detail-hero-photo{object-position:center 45%}
+.detail-hero-photo-wrap:after{background:linear-gradient(90deg,rgba(12,17,14,.75),rgba(12,17,14,.25)),linear-gradient(0deg,rgba(12,17,14,.45),transparent)}
+}
+</style>
+
+<style id="parallel-layout-upgrade">
+@media (min-width:901px) {
+    main {
+        grid-template-columns:290px minmax(0,1fr) 480px !important;
+        transition:grid-template-columns .35s ease;
+    }
+
+    .right {
+        position:relative;
+        min-width:0;
+        transition:transform .35s ease, opacity .25s ease;
+    }
+
+    .detail-collapse {
+        position:absolute;
+        top:12px;
+        right:12px;
+        z-index:20;
+        border:1px solid rgba(255,255,255,.3);
+        background:rgba(18,27,23,.82);
+        color:#fff;
+        padding:9px 12px;
+        cursor:pointer;
+        font:10px var(--mono);
+        letter-spacing:.08em;
+    }
+
+    .detail-collapse:hover {
+        background:#34433a;
+    }
+
+    .detail-restore {
+        display:none;
+        position:absolute;
+        right:0;
+        top:50%;
+        transform:translateY(-50%);
+        z-index:450;
+        padding:15px 11px;
+        border:1px solid var(--line);
+        border-right:0;
+        background:var(--panel);
+        color:var(--gold);
+        cursor:pointer;
+        writing-mode:vertical-rl;
+        font:10px var(--mono);
+        letter-spacing:.1em;
+    }
+
+    main.detail-collapsed {
+        grid-template-columns:290px minmax(0,1fr) 0px !important;
+    }
+
+    main.detail-collapsed .right {
+        transform:translateX(100%);
+        opacity:0;
+        pointer-events:none;
+        overflow:hidden;
+        border:0;
+    }
+
+    main.detail-collapsed .detail-restore {
+        display:block;
+    }
+}
+
+@media (min-width:1101px) and (max-width:1250px) {
+    main {
+        grid-template-columns:260px minmax(0,1fr) 400px !important;
+    }
+
+    main.detail-collapsed {
+        grid-template-columns:260px minmax(0,1fr) 0px !important;
+    }
+}
+
+@media (min-width:901px) and (max-width:1100px) {
+    main {
+        grid-template-columns:240px minmax(0,1fr) 340px !important;
+    }
+
+    main.detail-collapsed {
+        grid-template-columns:240px minmax(0,1fr) 0px !important;
+    }
+}
+
+@media (max-width:900px) {
+    .detail-collapse,
+    .detail-restore {
+        display:none !important;
+    }
+}
+</style>
+
+<style id="parallel-mobile-reading-upgrade">
+@media (max-width:900px) {
+
+    /* Full-screen reading panel over the map */
+    .right {
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+        width:100%;
+        height:100%;
+        max-height:none;
+        border:0;
+        border-top:1px solid var(--line);
+        border-radius:0;
+        box-shadow:0 -12px 45px #0009;
+        z-index:420;
+        transform:translateY(calc(100% - 58px));
+        transition:transform .35s ease;
+        overflow:hidden;
+    }
+
+    .right.open {
+        transform:translateY(0);
+    }
+
+    /* Keep the handle visible and easy to tap */
+    .right-handle {
+        height:58px;
+        min-height:58px;
+        flex-shrink:0;
+        position:relative;
+        z-index:5;
+        padding-left:20px;
+        padding-right:20px;
+        background:var(--panel);
+        cursor:pointer;
+    }
+
+    /* Let the complete location content scroll independently */
+    .detail-scroll {
+        flex:1 1 auto;
+        min-height:0;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    .detail-hero {
+        height:190px;
+        flex-shrink:0;
+    }
+}
+</style>
+
+<style id="PARALLEL_MOBILE_MINIMAP_V1">
+@media (max-width:900px) {
+    #parallelMobileMiniMap {
+        display:block;
+        position:relative;
+        flex:0 0 158px;
+        height:158px;
+        min-height:158px;
+        background:#202a26;
+        border-bottom:1px solid var(--line);
+        z-index:4;
+    }
+
+    #parallelMiniMap {
+        position:absolute;
+        inset:0;
+        background:#202a26;
+    }
+
+    #parallelMobileMiniMap .leaflet-container {
+        background:#202a26;
+    }
+
+    #parallelMiniMapExpand {
+        position:absolute;
+        z-index:500;
+        right:10px;
+        bottom:10px;
+        padding:8px 11px;
+        border:1px solid rgba(212,163,77,.65);
+        background:rgba(17,23,20,.92);
+        color:#f0c878;
+        font:9px var(--mono);
+        letter-spacing:.07em;
+        cursor:pointer;
+    }
+
+    .detail-scroll {
+        flex:1 1 auto;
+        min-height:0;
+    }
+}
+
+@media (min-width:901px) {
+    #parallelMobileMiniMap {
+        display:none;
+    }
+}
+</style>
+
+<style id="PARALLEL_READABILITY_UPGRADE_V1">
+
+/* PARALLEL READABILITY UPGRADE */
+:root {
+    --reading-size: 14px;
+}
+
+/* Main introduction and sidebar */
+.intro p {
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.eyebrow,
+.detail-kicker {
+    font-size: 10px;
+}
+
+.search {
+    font-size: 14px;
+    padding: 13px;
+}
+
+.stop-copy b {
+    font-size: 14px;
+}
+
+.stop-copy small {
+    font-size: 12px;
+}
+
+.stop-no {
+    font-size: 11px;
+}
+
+.stop-kind {
+    font-size: 10px;
+}
+
+/* Main location information */
+.description {
+    font-size: 14px;
+    line-height: 1.85;
+}
+
+.food-title {
+    font-size: 25px;
+    line-height: 1.25;
+}
+
+.food-sub {
+    font-size: 12px;
+}
+
+.fact span {
+    font-size: 10px;
+}
+
+.fact b {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Historical chapters */
+.chapter p {
+    font-size: 13px;
+    line-height: 1.85;
+}
+
+.timeline-item b,
+.timeline-item span {
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.fact-callout {
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* Recipes */
+.ingredient {
+    font-size: 12px;
+    padding: 8px 10px;
+}
+
+.recipe-card ul,
+.recipe-card ol {
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.recipe-note {
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.source-list {
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+/* Image captions and map information */
+.photo-slot b {
+    font-size: 10px;
+}
+
+.photo-slot span {
+    font-size: 12px;
+}
+
+.map-label span {
+    font-size: 10px;
+}
+
+.map-label b {
+    font-size: 16px;
+}
+
+.leaflet-control-attribution {
+    font-size: 10px !important;
+}
+
+/* Mobile readability */
+@media (max-width: 900px) {
+    .intro p {
+        font-size: 14px;
+    }
+
+    .stop-copy b {
+        font-size: 15px;
+    }
+
+    .stop-copy small {
+        font-size: 13px;
+    }
+
+    .right-handle {
+        font-size: 11px;
+    }
+
+    .detail-body {
+        padding: 20px;
+    }
+
+    .food-title {
+        font-size: 26px;
+    }
+
+    .description,
+    .chapter p {
+        font-size: 14px;
+    }
+
+    .recipe-card ul,
+    .recipe-card ol {
+        font-size: 14px;
+    }
+
+    .recipe-note,
+    .fact-callout {
+        font-size: 13px;
+    }
+
+    .map-label b {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .food-title {
+        font-size: 25px;
+    }
+
+    .detail-body {
+        padding: 18px;
+    }
+
+    .chapter p,
+    .description {
+        font-size: 14px;
+        line-height: 1.85;
+    }
+
+    .recipe-card ul,
+    .recipe-card ol {
+        font-size: 14px;
+    }
+}
+
+</style>
+
+<style id="PARALLEL_DESKTOP_MAXIMISE_V1">
+@media (min-width:901px) {
+
+    main {
+        position:relative;
+    }
+
+    .detail-maximise {
+        position:absolute;
+        top:12px;
+        right:112px;
+        z-index:25;
+        padding:9px 13px;
+        border:1px solid rgba(255,255,255,.3);
+        background:#26362d;
+        color:#e6d2a3;
+        font:10px var(--mono);
+        letter-spacing:.08em;
+        cursor:pointer;
+        transition:background .2s ease;
+    }
+
+    .detail-maximise:hover {
+        background:#405545;
+    }
+
+    main.detail-expanded .right {
+        position:absolute !important;
+        top:0 !important;
+        bottom:0 !important;
+        left:290px !important;
+        right:0 !important;
+        width:auto !important;
+        height:auto !important;
+        max-height:none !important;
+        z-index:600 !important;
+        transform:none !important;
+        opacity:1 !important;
+        pointer-events:auto !important;
+        overflow:hidden !important;
+        border:1px solid var(--line);
+        box-shadow:-15px 0 45px #0009;
+    }
+
+    main.detail-expanded .detail-collapse {
+        display:none !important;
+    }
+
+    main.detail-expanded .detail-maximise {
+        right:12px;
+    }
+
+    main.detail-expanded .detail-scroll {
+        min-height:0;
+        flex:1 1 auto;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+    }
+}
+
+@media (min-width:1101px) and (max-width:1250px) {
+    main.detail-expanded .right {
+        left:260px !important;
+    }
+}
+
+@media (min-width:901px) and (max-width:1100px) {
+    main.detail-expanded .right {
+        left:240px !important;
+    }
+}
+
+@media (max-width:900px) {
+    .detail-maximise {
+        display:none !important;
+    }
+}
+</style>
+<style id="PARALLEL_MOBILE_FULL_WIDTH_MAP_V1">
+@media (max-width:900px) {
+    /* Override the later tablet three-column layout */
+    main {
+        grid-template-columns:minmax(0,1fr) !important;
+        grid-template-rows:minmax(0,1fr) !important;
+        width:100%;
+        min-width:0;
+        overflow:hidden;
+    }
+
+    /* Give the world map the entire available width */
+    .map-wrap {
+        grid-column:1 / -1 !important;
+        grid-row:1 !important;
+        width:100% !important;
+        min-width:0 !important;
+        max-width:100% !important;
+    }
+
+    #map {
+        position:absolute;
+        inset:0;
+        width:100% !important;
+        max-width:100% !important;
+    }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div class="brand"><div class="brand-mark">30°</div><div><div class="brand-name">PARALLEL</div><div class="brand-sub">THE LINE THAT FEEDS THE WORLD</div></div></div>
+  <div class="header-center"><i class="live-dot"></i> AN INTERACTIVE FOOD ATLAS <span style="opacity:.35">/</span> FIELD EDITION 01</div>
+  <div class="header-actions">
+    <button class="quiet-btn mobile-toggle" id="openIndex">☰ INDEX</button>
+    <button class="quiet-btn" id="showRoute">SHOW ROUTE</button>
+    <button class="quiet-btn" id="resetMap">WORLD VIEW</button>
+  </div>
+</header>
+<main>
+<aside class="left" id="leftPanel">
+  <div class="intro">
+    <div class="eyebrow">An atlas of abundance</div>
+    <h1>The world learned<br>how to keep it.</h1>
+    <p>Follow the <strong>30th parallels</strong> through the places where harvests became culture — and perishable food was transformed into something that could last.</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><b id="placeCount">—</b><span>Mapped places</span></div>
+    <div class="stat"><b>2</b><span>Hemispheres</span></div>
+  </div>
+  <div class="search-wrap"><input class="search" id="search" type="search" placeholder="Search a place, food or method…"></div>
+  <div class="filter-row" id="filters">
+    <button class="filter active" data-filter="all">All</button>
+    <button class="filter" data-filter="north">30° North</button>
+    <button class="filter" data-filter="south">30° South</button>
+    <button class="filter" data-filter="other">Beyond line</button>
+  </div>
+  <div class="list-heading"><span>Field locations</span><span id="resultCount"></span></div>
+  <div class="stop-list" id="stopList"></div>
+</aside>
+
+<section class="map-wrap">
+  <div id="map"></div><div class="map-vignette"></div>
+  <div class="map-topline">
+    <div class="map-label"><span>THE GLOBAL FOOD BELT</span><b id="mapFocus">Explore the whole world</b></div>
+    <div class="map-controls">
+      <button class="map-control" id="zoomIn" aria-label="Zoom in">+</button><button class="map-control" id="zoomOut" aria-label="Zoom out">−</button>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><i class="legend-dot"></i> 30° North</div>
+    <div class="legend-item"><i class="legend-dot south"></i> 30° South</div>
+    <div class="legend-item"><i class="legend-dot other"></i> Regional extension</div>
+  </div>
+</section>
+
+<aside class="right" id="detailPanel">
+<button type="button" class="detail-collapse" id="detailCollapse">MINIMISE ×</button>
+<button type="button" class="detail-maximise" id="detailMaximise">MAXIMISE ⛶</button>
+  <div class="right-handle" id="detailHandle">Selected field location <span id="detailIndex">01 / 40</span></div>
+  <div id="parallelMobileMiniMap" aria-label="Map showing the selected location">
+    <div id="parallelMiniMap"></div>
+    <button type="button" id="parallelMiniMapExpand">EXPAND WORLD MAP ↗</button>
+  </div>
+  <div class="detail-scroll" id="detailContent">
+    <div class="detail-hero"><div class="detail-hero-photo-wrap"><img class="detail-hero-photo" src="placeimages/${encodeURIComponent(placeHeroImages[p.id] || "")}" alt="${escapeHTML(p.name)} landscape" loading="lazy"></div><div class="hero-orbit"></div><div class="hero-glyph">30°</div><div class="hero-copy"><div class="eyebrow">The field guide begins</div><h2>Where abundance<br>becomes ingenuity.</h2><p>SELECT A POINT ON THE MAP</p></div></div>
+    <div class="detail-body"><div class="detail-kicker">A living atlas of food cultures</div><div class="food-title">Every place has a deeper story.</div><p class="description">Choose a glowing point on the map or a location in the index. Explore the place, its people, food history, ingredients, preservation knowledge and a recipe you can make at home.</p><div class="photo-slot atlas-photo-slot">${placeImages[p.id] ? `<img class="atlas-photo" src="images/${placeImages[p.id]}" alt="${escapeHTML(p.name)} food and landscape" loading="lazy">` : `<div class="photo-missing">Photography coming soon for ${escapeHTML(p.name)}</div>`}</div></div>
+  </div>
+</aside>
+<button type="button" class="detail-restore" id="detailRestore">SHOW DETAILS ›</button></main>
+<footer><div class="footer-source">BASED ON THE ESSAY · <a href="https://nostredame.substack.com/p/the-30th-parallel-the-line-that-feeds" target="_blank" rel="noopener">THE 30TH PARALLEL — MICHAEL DE NOSTREDAME ↗</a></div><div class="footer-note">A LIVING ATLAS · PLACE COORDINATES ARE APPROXIMATE</div></footer>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const places = [
+{id:'shaoxing',name:'Shaoxing',country:'China',lat:30.00,lng:120.58,band:'north',region:'China · Yangtze Delta',food:'Huangjiu · Daughter’s Red',method:['Fermentation','Clay-jar ageing'],summary:'Rice wine made through a carefully timed starter culture, fermentation and long ageing in sealed clay jars. The essay describes the tradition of burying a daughter’s wedding wine on the day she is born.',detail:'Shaoxing’s rice-growing landscape and Jianhu Lake sit at the heart of a long fermentation tradition. Glutinous rice is steamed, combined with qu starters and water, fermented, pressed and transferred to clay jars. Some are buried and aged for years. The story is not simply about a drink: it is about storing a future celebration in the ground.',latitude:'30.0° N',glyph:'酒'},
+{id:'zhenjiang',name:'Zhenjiang',country:'China',lat:32.20,lng:119.45,band:'other',region:'China · Yangtze Delta',food:'Chinkiang black vinegar',method:['Solid-state fermentation','Ageing'],summary:'A layered vinegar made through a multi-stage fermentation using rice, wheat-based starters and acetic-acid bacteria.',detail:'Zhenjiang vinegar is produced through a multi-stage process. A rice-based ferment is combined with wheat bran, rice hulls and a vinegar starter; the mixture undergoes solid-state fermentation before extraction and maturation. The city’s river and canal setting forms part of the wider food geography.',latitude:'32.2° N',glyph:'醋'},
+{id:'hangzhou',name:'Hangzhou',country:'China',lat:30.27,lng:120.15,band:'north',region:'China · Yangtze Delta',food:'Clay-sealed cooking · Beggar’s chicken',method:['Clay sealing','Slow cooking'],summary:'A whole chicken wrapped in lotus leaves, encased in clay and baked — a dramatic example of a sealed cooking environment.',detail:'Hangzhou’s food culture grew around West Lake, river fisheries, rice, bamboo shoots and tea. The essay uses beggar’s chicken to illustrate the power of a sealed vessel: clay traps steam and moisture while the food cooks slowly in its own juices.',latitude:'30.3° N',glyph:'陶'},
+{id:'nanjing',name:'Nanjing',country:'China',lat:32.06,lng:118.80,band:'other',region:'China · Jiangsu',food:'Salted and smoked duck',method:['Salting','Smoking'],summary:'A rich duck-preservation tradition shaped by the wetlands and waterfowl of the Jiangsu region.',detail:'Nanjing’s food traditions turn seasonal duck abundance into salted duck, smoked duck and braised preparations. Salt draws out moisture and slows spoilage; smoke adds flavour and another preservation layer.',latitude:'32.1° N',glyph:'鴨'},
+{id:'suzhou',name:'Suzhou & Wuxi',country:'China',lat:31.30,lng:120.60,band:'other',region:'China · Taihu Lake',food:'Preserved fruits & sweet ferments',method:['Sugar preservation','Slow cooking'],summary:'Peaches, plums and longans preserved in sugar, alongside the sweet, slow-cooked flavours of the Taihu Lake region.',detail:'The Taihu Lake region is known for preserved fruits and sweet preparations. Fruit is cooked in syrup until concentrated and glazed, transforming a seasonal harvest into something that can be stored and enjoyed later.',latitude:'31.3° N',glyph:'果'},
+{id:'pixian',name:'Pixian · Chengdu',country:'China',lat:30.80,lng:103.88,band:'north',region:'China · Sichuan Basin',food:'Doubanjiang · Fermented chilli-bean paste',method:['Koji fermentation','Sun ageing'],summary:'Broad beans and chillies are transformed in clay vessels through microbial activity, salt, sunlight and repeated stirring.',detail:'Pixian doubanjiang combines broad beans prepared with a qu mould culture and salted chillies. The mixture is aged outdoors, traditionally stirred by hand, sometimes for years. It became a defining flavour base of Sichuan cooking.',latitude:'30.8° N',glyph:'辣'},
+{id:'yibin',name:'Yibin',country:'China',lat:28.77,lng:104.63,band:'other',region:'China · Sichuan',food:'Ya cai · Preserved mustard',method:['Lactic fermentation','Seasoning'],summary:'Stem mustard greens are fermented into a savoury, tangy preserved vegetable central to regional noodle and breakfast dishes.',detail:'The essay points to Yibin as a centre for ya cai, a preserved mustard tuber or stem mustard preparation. Spontaneous lactic fermentation gives it a distinctive savoury tang; it is often used with chilli in Sichuan cooking.',latitude:'28.8° N',glyph:'菜'},
+{id:'maotai',name:'Maotai · Chishui River',country:'China',lat:27.85,lng:106.38,band:'other',region:'China · Guizhou',food:'Baijiu · Living fermentation pits',method:['Solid-state fermentation','Distillation'],summary:'A spirit whose character is closely associated with its local microbial environment and long-used fermentation pits.',detail:'The essay describes the microbial ecosystems of the Chishui River valley and the clay fermentation pits used in the production of Moutai-style baijiu. This is a story of place-specific fermentation and distillation.',latitude:'27.9° N',glyph:'酿'},
+{id:'dongting',name:'Dongting Lake',country:'China',lat:29.30,lng:112.90,band:'north',region:'China · Hunan',food:'Smoked freshwater fish',method:['Smoking','Drying'],summary:'A lake-region example of turning a seasonal fish catch into food that can last beyond the harvest.',detail:'The essay connects Hunan’s Dongting Lake fish surplus with smoking and other preservation practices. Smoke, airflow and reduced moisture help transform a perishable catch into a more durable food.',latitude:'29.3° N',glyph:'魚'},
+{id:'tibet',name:'Yamdrok Lake · Tibetan Plateau',country:'China · Tibet',lat:28.95,lng:90.70,band:'other',region:'Tibet · High plateau',food:'Tsampa · Sha kampo · Chhurpi',method:['Roasting','Air-drying','Cold drying'],summary:'Highland barley flour, air-dried meat and hard dried cheese: preservation shaped by altitude, cold nights and dry air.',detail:'The Tibetan Plateau changes the rules. Tsampa is roasted barley flour that travels well; sha kampo is meat hung in cold, dry air; chhurpi is a hard cheese dried for storage. These are not simply recipes but portable food systems adapted to a demanding landscape.',latitude:'29.0° N',glyph:'བོ'},
+{id:'mohenjo',name:'Mohenjo-Daro',country:'Pakistan',lat:27.33,lng:68.14,band:'other',region:'Indus Valley',food:'Granaries · Engineered grain storage',method:['Ventilated storage','Drying'],summary:'The essay explores the Indus Valley’s large-scale storage architecture and the management of grain surpluses.',detail:'Mohenjo-Daro belongs to the Indus Valley Civilisation. The article presents raised, ventilated storage structures as evidence of organised surplus management. The interpretation of particular buildings as granaries is debated by archaeologists, so this stop is framed as the essay’s argument rather than settled fact.',latitude:'27.3° N',glyph:'▤'},
+{id:'sindh',name:'Sindh · Lower Indus',country:'Pakistan',lat:25.40,lng:68.36,band:'other',region:'Indus Valley',food:'Achaar · Dahi',method:['Pickling','Lactic fermentation'],summary:'Mango, chilli and other seasonal produce preserved with salt, oil and spices; milk transformed into living yoghurt.',detail:'Sindhi achaar is a family of regional pickles made from fruits and vegetables with mustard oil, salt and spices. Dahi represents a shorter-cycle fermentation, often made by adding a little previous yoghurt to fresh milk.',latitude:'25.4° N',glyph:'آچار'},
+{id:'patna',name:'Patna · Ganges Plain',country:'India',lat:25.61,lng:85.14,band:'other',region:'India · Ganges Plain',food:'Idli & dosa batter · Achar',method:['Lactic fermentation','Pickling'],summary:'Rice and black gram batter ferments into a light, tangy base for idli and dosa; seasonal fruit becomes pickle.',detail:'The article uses the Ganges Plain to explore rice surplus and fermented batter. Rice and urad dal are soaked, ground and left to ferment before steaming as idli or spreading on a hot griddle as dosa. The broader region also has extensive achar traditions.',latitude:'25.6° N',glyph:'इडली'},
+{id:'varanasi',name:'Varanasi',country:'India',lat:25.32,lng:82.99,band:'other',region:'India · Ganges Plain',food:'Rice, grain and pickle traditions',method:['Fermentation','Pickling'],summary:'A mapped point within the Ganges food landscape described in the essay.',detail:'Varanasi is one of the cities named in the article’s account of the Ganges Plain. It sits within a vast riverine agricultural region where rice, pulses, vegetables and seasonal fruit shape everyday food traditions.',latitude:'25.3° N',glyph:'काशी'},
+{id:'rajshahi',name:'Rajshahi · Bengal',country:'Bangladesh',lat:24.37,lng:88.60,band:'other',region:'Bengal · Ganges Delta',food:'Fermented fish · Surma',method:['Salting','Fermentation'],summary:'Fish from the delta and river systems is salted and fermented into intense, umami-rich preparations.',detail:'The essay describes Bengal’s fish surplus and fermented fish traditions. Small fish or surplus catch can be salted and stored in sealed vessels, where microbial and enzymatic processes create deeply savoury flavours. Specific products and methods vary across communities.',latitude:'24.4° N',glyph:'মাছ'},
+{id:'dhaka',name:'Dhaka · Ganges Delta',country:'Bangladesh',lat:23.81,lng:90.41,band:'other',region:'Bengal · Ganges Delta',food:'Fish, rice & pickle culture',method:['Fermentation','Salting','Pickling'],summary:'A major city in the deltaic food system of rice, rivers and seasonal fish.',detail:'Dhaka sits within the wider Ganges-Brahmaputra delta food landscape. The article discusses the preservation pressures created by large seasonal fish catches and a humid climate, including salting and fermentation.',latitude:'23.8° N',glyph:'ঢাকা'},
+{id:'uruk',name:'Uruk · Mesopotamia',country:'Iraq',lat:31.32,lng:45.64,band:'other',region:'Mesopotamia · Two Rivers',food:'Bappir · Ancient brewing',method:['Sourdough','Malted grain','Fermentation'],summary:'A baked barley-based product associated with ancient brewing, discussed in the essay as a durable fermentable base.',detail:'The essay follows the Sumerian brewing tradition around Uruk, Ur and other early cities. Bappir is described as a fermented barley bread or cake used in brewing reconstructions. Its exact role and recipe remain subjects of scholarly debate; the map presents the article’s interpretation, not a definitive consensus.',latitude:'31.3° N',glyph:'𒀭'},
+{id:'baghdad',name:'Baghdad',country:'Iraq',lat:33.31,lng:44.36,band:'other',region:'Mesopotamia · Two Rivers',food:'Turshi · Pickle of the Two Rivers',method:['Brining','Lactic fermentation'],summary:'Vegetables preserved in brine, with regional variations that include a sweet-sour second stage.',detail:'The article describes turshi as a two-stage pickle: vegetables are first fermented in brine, then washed and sometimes given a second fermentation with date syrup. Methods differ by region and recipe.',latitude:'33.3° N',glyph:'طرشي'},
+{id:'mosul',name:'Nineveh · Mosul',country:'Iraq',lat:36.36,lng:43.15,band:'other',region:'Mesopotamia · Two Rivers',food:'Turshi · Regional pickle',method:['Brining','Fermentation'],summary:'A regional pickle tradition associated with the ancient city of Nineveh and modern Mosul.',detail:'The essay names Nineveh and Baghdad as centres of turshi. Salt brine and fermentation turn vegetables into a sharp, durable accompaniment; regional varieties differ in vegetables, spices and finishing methods.',latitude:'36.4° N',glyph:'نينوى'},
+{id:'najaf',name:'Al-Najaf',country:'Iraq',lat:32.00,lng:44.33,band:'other',region:'Mesopotamia · Two Rivers',food:'Turshi Medabis',method:['Brining','Date-syrup fermentation'],summary:'A regional variation of turshi described in the essay with a distinctive sweet-sour second fermentation.',detail:'The article refers to Turshi Medabis of Al-Najaf as a distinct regional variety. Its account describes a brine fermentation followed by a second stage using date syrup. Treat the exact proportions as an article claim requiring specialist source verification.',latitude:'32.0° N',glyph:'تمر'},
+{id:'giza',name:'Giza · Nile Valley',country:'Egypt',lat:29.98,lng:31.13,band:'north',region:'Egypt · Nile Delta',food:'Mud-brick grain silos',method:['Dry storage','Ventilation'],summary:'The Egyptian answer to abundance: institutional grain storage designed to carry harvests across lean periods.',detail:'The essay presents mud-brick silos and granary complexes as essential infrastructure for storing barley and emmer wheat. Grain storage linked agricultural surplus to labour, state power and the ability to provision large projects.',latitude:'30.0° N',glyph:'𓂋'},
+{id:'delta',name:'Nile Delta',country:'Egypt',lat:31.05,lng:31.35,band:'other',region:'Egypt · Nile Delta',food:'Fesikh · Salted fermented mullet',method:['Salting','Fermentation','Drying'],summary:'Grey mullet is heavily salted and fermented for a seasonal food associated with Sham El-Nessim.',detail:'Fesikh is a culturally significant but potentially hazardous fermented fish product. Traditional preparation and food safety are critical: unsafe fermentation can cause serious illness. The experience describes the cultural practice, not a recipe or food-safety guide.',latitude:'31.1° N',glyph:'سمك'},
+{id:'siwa',name:'Siwa Oasis',country:'Egypt',lat:29.20,lng:25.52,band:'north',region:'Sahara · Oasis belt',food:'Dates · Oasis abundance',method:['Sun-drying','Storage'],summary:'The date palm turns scarce oasis water into a concentrated, portable food that can be dried and stored.',detail:'The article describes oasis settlements such as Siwa as pockets of abundance in the Sahara. Dates are harvested seasonally and can be dried, concentrated and stored for months, making them a durable source of energy.',latitude:'29.2° N',glyph:'تمر'},
+{id:'tozeur',name:'Tozeur',country:'Tunisia',lat:33.92,lng:8.13,band:'other',region:'Sahara · Oasis belt',food:'Dates · Oasis preservation',method:['Drying','Storage'],summary:'An oasis city associated with date cultivation and the transformation of seasonal fruit into a durable staple.',detail:'Tozeur is one of the oasis locations named in the essay’s Sahara section. Date production and storage show how water, palm cultivation and drying sustain food systems in arid environments.',latitude:'33.9° N',glyph:'نخلة'},
+{id:'ghardaia',name:'Ghardaïa',country:'Algeria',lat:32.49,lng:3.67,band:'other',region:'Sahara · Oasis belt',food:'Date-based oasis foodways',method:['Drying','Storage'],summary:'A Saharan oasis settlement in the article’s map of date-growing communities.',detail:'Ghardaïa is named among the oasis cities where underground water and date palms create local abundance within an arid landscape. The article frames dried dates as a climate-adapted, portable food.',latitude:'32.5° N',glyph:'نخلة'},
+{id:'djerba',name:'Djerba',country:'Tunisia',lat:33.81,lng:10.85,band:'other',region:'Sahara · Mediterranean edge',food:'Island pantry & preserved produce',method:['Drying','Salting','Oil preservation'],summary:'A Mediterranean and Saharan-edge food landscape included in the essay’s oasis belt.',detail:'Djerba is included in the article’s list of oasis and desert-edge settlements. Its island foodways reflect a wider North African pattern of drying, salting and preserving seasonal produce.',latitude:'33.8° N',glyph:'جزيرة'},
+{id:'ouarzazate',name:'Ouarzazate',country:'Morocco',lat:30.92,lng:-6.91,band:'other',region:'Morocco · Argan & oasis edge',food:'Argan oil · Tagine',method:['Drying','Roasting','Oil extraction','Sealed cooking'],summary:'Argan fruit is dried, kernels cracked and pressed; the tagine uses a sealed clay vessel to cook slowly.',detail:'The article follows the argan belt around southern Morocco. Argan kernels are dried, cracked, sometimes roasted and ground before oil is extracted. The tagine is presented as a vessel that recycles steam and creates a controlled cooking environment.',latitude:'30.9° N',glyph:'ⵣ'},
+{id:'agadir',name:'Agadir · Argan belt',country:'Morocco',lat:30.42,lng:-9.60,band:'north',region:'Morocco · Atlantic coast',food:'Argan oil',method:['Drying','Roasting','Stone grinding'],summary:'The argan forest and women-led cooperatives turn a drought-adapted tree into a valuable food oil.',detail:'The argan tree is native to southwestern Morocco. The article describes the labour-intensive process of collecting fruit, removing husks, drying and cracking kernels, then grinding and pressing them into oil. The knowledge and cooperative economy are central to the story.',latitude:'30.4° N',glyph:'ⵣ'},
+{id:'essaouira',name:'Essaouira',country:'Morocco',lat:31.51,lng:-9.77,band:'other',region:'Morocco · Atlantic coast',food:'Preserved lemons · Argan',method:['Salt preservation','Fermentation','Oil'],summary:'Lemons are packed in salt and their own juice, softening into a deeply savoury ingredient over weeks.',detail:'Preserved lemons are scored, packed tightly with coarse salt and left to soften in their brine. The rind becomes tender and intensely flavoured. The article also places Essaouira within the argan-growing region.',latitude:'31.5° N',glyph:'ليمون'},
+{id:'tiznit',name:'Tiznit',country:'Morocco',lat:29.70,lng:-9.73,band:'north',region:'Morocco · Anti-Atlas',food:'Argan & oasis pantry',method:['Drying','Oil extraction'],summary:'A southern Moroccan location on the edge of the argan and oasis landscape.',detail:'Tiznit is named in the essay as part of the southern Moroccan belt. The article’s wider argument follows the relationship between water, hardy crops, seasonal abundance and preservation in semi-arid landscapes.',latitude:'29.7° N',glyph:'ⵣ'},
+{id:'jaen',name:'Jaén · Andalusia',country:'Spain',lat:37.77,lng:-3.79,band:'other',region:'Andalusia · Olive country',food:'Olives & olive oil',method:['Brining','Oil extraction'],summary:'An enormous olive-growing landscape just north of the parallel but part of the same Mediterranean climatic story.',detail:'The essay notes that Jaén lies around 37°N, north of the line itself, while belonging to the wider Mediterranean food region. Olives are cured in brine and oil becomes a stable pantry ingredient used in cooking and preservation.',latitude:'37.8° N',glyph:'🫒'},
+{id:'jabugo',name:'Jabugo · Huelva',country:'Spain',lat:37.97,lng:-6.73,band:'other',region:'Andalusia · Dehesa',food:'Jamón Ibérico',method:['Salting','Air-curing','Ageing'],summary:'Acorn-fed Iberian pigs and long cellar curing create one of the world’s most distinctive hams.',detail:'In the dehesa landscape, Iberian pigs forage among oak trees. Their hind legs are salted, washed, dried and aged in curing cellars. The process can last years, with climate, animal husbandry and time shaping the result.',latitude:'38.0° N',glyph:'J'},
+{id:'jerez',name:'Jerez de la Frontera',country:'Spain',lat:36.69,lng:-6.14,band:'other',region:'Andalusia · Cádiz',food:'Sherry · The solera system',method:['Oxidative ageing','Flor yeast','Fractional blending'],summary:'A living system of casks and fractional blending; some sherries are deliberately exposed to oxygen while others develop under flor yeast.',detail:'Jerez’s solera system moves wine through tiers of casks, blending younger and older vintages. Fino and Manzanilla develop under a layer of flor yeast; Oloroso is aged with greater oxidative exposure. The article treats this as preservation through controlled transformation.',latitude:'36.7° N',glyph:'J'},
+{id:'cordobaES',name:'Córdoba',country:'Spain',lat:37.89,lng:-4.78,band:'other',region:'Andalusia · Inland',food:'Salmorejo · Gazpacho',method:['Acidification','Oil','Cold preparation'],summary:'Summer vegetables, bread, olive oil and vinegar become cold soups that use the pantry’s preserved flavours.',detail:'The article connects gazpacho and salmorejo with seasonal summer produce, vinegar and olive oil. These dishes bring together ingredients and techniques from the Andalusian pantry, including cured ham and preserved vegetables.',latitude:'37.9° N',glyph:'☼'},
+{id:'memphis',name:'Memphis',country:'United States',lat:35.15,lng:-90.05,band:'other',region:'American South · Mississippi',food:'Hickory-smoked pork',method:['Smoking','Dry rub','Slow cooking'],summary:'A long smoke over hickory transforms pork through heat, smoke, salt and time.',detail:'The article describes Memphis barbecue as a regional answer to meat preservation. Pork is seasoned and cooked slowly over wood. Smoke creates its signature flavour and surface; the broader history is shaped by Indigenous, West African, European and local traditions.',latitude:'35.1° N',glyph:'♨'},
+{id:'neworleans',name:'New Orleans',country:'United States',lat:29.95,lng:-90.07,band:'north',region:'American South · Gulf Coast',food:'Gumbo · Andouille · Filé',method:['Smoking','Drying','Whole-animal use'],summary:'Gumbo brings together smoked sausage, seafood, okra, dried filé and a dark roux — a meeting of food cultures.',detail:'The essay presents gumbo as a convergence of West African, Indigenous, French and Spanish foodways. Preserved ingredients such as smoked sausage and dried filé sit alongside fresh Gulf seafood in a dish built around regional abundance.',latitude:'30.0° N',glyph:'♨'},
+{id:'atlanta',name:'Atlanta',country:'United States',lat:33.75,lng:-84.39,band:'other',region:'American South',food:'Southern pickles & pantry',method:['Vinegar pickling','Brining'],summary:'The wider Southern pantry preserves okra, green tomatoes, cucumbers, peaches and more in brine and vinegar.',detail:'The essay names Atlanta as part of the American South crossed by the 30th-parallel narrative. Southern pickling traditions preserve seasonal vegetables and fruit in vinegar or salt brines, often in jars for later use.',latitude:'33.7° N',glyph:'◉'},
+{id:'savannah',name:'Savannah',country:'United States',lat:32.08,lng:-81.09,band:'other',region:'American South · Atlantic',food:'Peaches, pecans & preserved produce',method:['Pickling','Drying','Curing'],summary:'A coastal Southern food landscape within the essay’s story of seasonal abundance and preservation.',detail:'Savannah is one of the cities named along the article’s American South route. The wider region’s harvest includes rice, corn, peaches, pecans and citrus, preserved through smoking, salting, pickling and drying.',latitude:'32.1° N',glyph:'◉'},
+{id:'monterrey',name:'Monterrey · Gulf route',country:'Mexico',lat:25.69,lng:-100.32,band:'other',region:'Mexico · Gulf & highlands',food:'Nixtamal · Tortilla',method:['Alkaline cooking','Grinding','Drying'],summary:'Corn is cooked with lime or ash, releasing niacin and making it workable as masa for tortillas and other staples.',detail:'Nixtamalization treats dried corn with an alkaline solution, traditionally lime or wood ash. The process loosens the hull, changes texture and improves the availability of niacin. It is one of the foundational food technologies of Mesoamerica.',latitude:'25.7° N',glyph:'🌽'},
+{id:'oaxaca',name:'Oaxaca',country:'Mexico',lat:17.07,lng:-96.73,band:'other',region:'Mexico · Central Highlands',food:'Mole · Chipotle · Dried chiles',method:['Sun-drying','Smoking','Fermentation'],summary:'Dried and smoked chiles, fermented cacao, dried fruit and other shelf-stable ingredients converge in mole.',detail:'The article describes mole as a layered catalogue of preservation: dried chiles, dried fruit, nuts, fermented and dried cacao, spices and nixtamalised corn. Chipotle is ripe jalapeño that is smoked and then dried.',latitude:'17.1° N',glyph:'🌶'},
+{id:'cusco',name:'Cusco · Andes',country:'Peru',lat:-13.53,lng:-71.97,band:'other',region:'Andes · Highlands',food:'Chuño · Chicha · Ají',method:['Freeze-drying','Fermentation','Sun-drying'],summary:'Potatoes freeze at night and dry by day; maize ferments into chicha; highland peppers are dried in the sun.',detail:'The Andes turn climate into preservation equipment. Chuño is made through repeated freezing, thawing and drying. Chicha uses fermented maize. Dried ají peppers become an enduring source of flavour. Inca colcas stored surplus food in ventilated stone buildings.',latitude:'13.5° S',glyph:'⛰'},
+{id:'huacaprieta',name:'Huaca Prieta · Chicama',country:'Peru',lat:-7.82,lng:-79.15,band:'other',region:'Peru · Pacific coast',food:'Ancient escabeche traditions',method:['Acid marinade','Chilli preservation'],summary:'The essay points to archaeological evidence for early preservation of ají and fish or vegetables in acidic marinades.',detail:'Huaca Prieta is an important archaeological site on Peru’s north coast. The essay links it to early use of ají and preservation by acidic marinades. The exact interpretation and chronology should be checked against archaeological sources before being treated as settled.',latitude:'7.8° S',glyph:'⛰'},
+{id:'mendoza',name:'Mendoza · Cuyo',country:'Argentina',lat:-32.89,lng:-68.85,band:'other',region:'Argentina · Andes foothills',food:'Malbec · Wine of the desert',method:['Irrigation','Oak ageing'],summary:'Vineyards use Andean meltwater; hot days, cold nights and oak ageing shape the wines of Cuyo.',detail:'Mendoza sits around 33°S, just south of the parallel. The article describes vineyards in the Andean foothills irrigated by glacial meltwater, with warm dry days and cold nights supporting grape growing. Wine then ages in oak before release.',latitude:'32.9° S',glyph:'🍇'},
+{id:'cordobaAR',name:'Córdoba · Pampas',country:'Argentina',lat:-31.42,lng:-64.19,band:'other',region:'Argentina · Pampas',food:'Salame casero · Cured meats',method:['Salting','Air-curing','Ageing'],summary:'Italian immigrant charcuterie traditions meet the meat surplus of the Pampas and Córdoba highlands.',detail:'The essay describes salame casero, bondiola, longaniza and other cured meats as products of salt, air and time. It also mentions goat cheeses aged in the cool, dry highland air.',latitude:'31.4° S',glyph:'🥩'},
+{id:'buenosaires',name:'Río de la Plata · Buenos Aires',country:'Argentina',lat:-34.60,lng:-58.38,band:'other',region:'Argentina · Río de la Plata',food:'Mate · Shared gourd',method:['Drying','Communal ritual'],summary:'Yerba mate is dried and stored, then prepared and passed from hand to hand in a shared gourd.',detail:'Mate is described in the article as a social technology rather than a preservation technique. Dried yerba leaves are stored, steeped with hot water and shared through a gourd and metal straw. The ritual makes the pantry a social bond.',latitude:'34.6° S',glyph:'🧉'},
+{id:'kyushu',name:'Kyushu · Japan',country:'Japan',lat:31.00,lng:130.70,band:'other',region:'Japan · Volcanic islands',food:'Ryūkyū fish · Shochu',method:['Seasoning','Koji fermentation','Distillation'],summary:'Fish is dressed in a rich soy-based sauce; sweet potatoes and koji are fermented and distilled into shochu.',detail:'Kyushu’s volcanic landscapes and coastal waters support varied food traditions. The essay describes ryūkyū-style dressed fish, sweet-potato shochu and dried foods adapted to the island’s plateaus and coastal plains.',latitude:'31.0° N',glyph:'魚'},
+{id:'kagoshima',name:'Kagoshima',country:'Japan',lat:31.60,lng:130.56,band:'other',region:'Japan · Kyushu',food:'Imo-jōchū · Sweet-potato shochu',method:['Koji','Fermentation','Distillation'],summary:'Sweet potato is steamed, mashed, fermented with kōji and yeast, then distilled.',detail:'Kagoshima is a centre of sweet-potato shochu. The article traces the crop’s spread through the Ryukyu Islands and its role as a hardy food in volcanic soils, then describes its fermentation and distillation.',latitude:'31.6° N',glyph:'芋'},
+{id:'okinawa',name:'Okinawa · Ryukyu Islands',country:'Japan',lat:26.21,lng:127.68,band:'other',region:'Ryukyu Islands',food:'Goya · Ahí · Ōgōre',method:['Sun-drying','Salting','Fermentation'],summary:'Bitter melon, pork and fermented fish reflect the island chain’s distinct food culture and limited arable land.',detail:'The essay describes goya (bitter melon), whole-pig preservation, fermented fish condiment ahí and sun-dried noodles. The Ryukyu Kingdom’s historic trading position shaped a food culture drawing on neighbouring regions.',latitude:'26.2° N',glyph:'苦'},
+{id:'samoa',name:'Samoa · Pacific Islands',country:'Samoa',lat:-13.83,lng:-171.76,band:'other',region:'Pacific · Polynesia',food:'Umu · Pit-fermented breadfruit',method:['Earth oven','Pit fermentation'],summary:'An underground earth oven cooks food in a sealed chamber; breadfruit can be stored through pit fermentation.',detail:'The article describes the umu as a pit lined with heated stones, where food wrapped in leaves is cooked under earth. It also describes breadfruit fermentation in leaf-lined pits, turning a seasonal staple into a longer-lasting food.',latitude:'13.8° S',glyph:'◉'},
+{id:'tonga',name:'Tonga',country:'Tonga',lat:-21.14,lng:-175.20,band:'other',region:'Pacific · Polynesia',food:'Umu · Lovo-style earth oven',method:['Earth oven','Leaf wrapping'],summary:'The Pacific earth-oven tradition uses heated stones, leaf-wrapped food and an insulated pit.',detail:'The article groups Tonga with Pacific island food traditions built around the umu or lovo: food is wrapped, placed on heated stones and covered to cook slowly in trapped steam and residual heat.',latitude:'21.1° S',glyph:'◉'},
+{id:'fiji',name:'Fiji',country:'Fiji',lat:-17.71,lng:178.07,band:'other',region:'Pacific · Melanesia',food:'Lovo · Earth oven',method:['Earth oven','Leaf wrapping'],summary:'A communal underground oven turns root crops, fish and meat into a meal cooked in the earth.',detail:'Fiji is included in the article’s Pacific island route. The lovo is an earth oven in which food is wrapped and cooked over heated stones under an insulating cover of leaves and earth.',latitude:'17.7° S',glyph:'◉'},
+{id:'tokelau',name:'Tokelau · Inati',country:'Tokelau',lat:-9.20,lng:-171.85,band:'other',region:'Pacific · Atolls',food:'Inati · The shared catch',method:['Collective fishing','Community distribution'],summary:'A community fishing and sharing system distributes the catch according to household needs.',detail:'The essay presents inati as a social technology: a community fishing system in which leaders organise the catch and shares are distributed among households. It is included as a form of abundance management, not a food-preservation technique.',latitude:'9.2° S',glyph:'◉'},
+{id:'cookislands',name:'Cook Islands',country:'Cook Islands',lat:-21.23,lng:-159.78,band:'other',region:'Pacific · Polynesia',food:'Umu · Breadfruit',method:['Earth oven','Pit fermentation'],summary:'Root crops, breadfruit, fish and meat are cooked in earth ovens and preserved through island-specific methods.',detail:'The Cook Islands are named in the article’s Pacific section. The essay groups island food preservation around earth ovens, pit fermentation, kelp or leaf containers and the challenge of storing food where arable land is limited.',latitude:'21.2° S',glyph:'◉'},
+{id:'aotearoa',name:'Aotearoa · Māori pōhā',country:'New Zealand',lat:-45.87,lng:170.50,band:'other',region:'Pacific · Southern Ocean',food:'Pōhā · Kelp food bag',method:['Kelp preservation','Sealed storage'],summary:'A traditional kelp bag used to store and transport food, described in the essay as a natural container.',detail:'The article describes pōhā as a food-storage bag made from bull kelp by Māori communities. The kelp is prepared and fashioned into a container for foods such as preserved fish and meat. This stop needs careful cultural attribution and consultation with Māori sources.',latitude:'45.9° S',glyph:'◉'}
+];
+
+const recipeBook = {
+  "shaoxing": {
+    "title": "Shaoxing-style red-braised pork with huangjiu",
+    "meta": "75 min · Easy · Serves 4",
+    "ingredients": [
+      "600 g pork belly, cut into cubes",
+      "2 tbsp Shaoxing rice wine",
+      "2 tbsp light soy sauce",
+      "1 tbsp dark soy sauce",
+      "1 tbsp sugar",
+      "ginger, spring onion and water"
+    ],
+    "steps": [
+      "Blanch the pork briefly, then rinse.",
+      "Caramelise the sugar gently; add pork and turn to coat.",
+      "Add ginger, soy sauces, Shaoxing wine and enough water to nearly cover.",
+      "Cover and simmer gently until tender and glossy, about 60–75 minutes.",
+      "Serve with rice. This is a modern home-cooking pairing, not a claim to reproduce an ancient dish."
+    ]
+  },
+  "zhenjiang": {
+    "title": "Cucumber and tofu salad with Chinkiang vinegar",
+    "meta": "15 min · Easy · Serves 2",
+    "ingredients": [
+      "1 cucumber",
+      "200 g firm tofu",
+      "1½ tbsp Chinkiang black vinegar",
+      "1 tbsp soy sauce",
+      "1 tsp sesame oil",
+      "garlic, chilli and spring onion"
+    ],
+    "steps": [
+      "Pat tofu dry and cut into cubes; slice or lightly crush cucumber.",
+      "Mix vinegar, soy, sesame oil, minced garlic and chilli.",
+      "Toss gently and finish with spring onion.",
+      "Taste and adjust the vinegar-salt balance before serving."
+    ]
+  },
+  "hangzhou": {
+    "title": "Home-style lotus-leaf clay-baked chicken (oven adaptation)",
+    "meta": "90 min · Medium · Serves 4",
+    "ingredients": [
+      "1 whole chicken",
+      "2 tbsp soy sauce",
+      "1 tbsp Shaoxing wine",
+      "ginger and spring onion",
+      "dried shiitake mushrooms",
+      "1 large lotus leaf (or baking parchment)"
+    ],
+    "steps": [
+      "Season chicken with soy, wine, ginger and spring onion; rest 30 minutes.",
+      "Stuff with mushrooms and aromatics; wrap securely in a soaked lotus leaf.",
+      "Wrap the parcel in several layers of foil and bake at 180°C until the centre reaches 75°C.",
+      "Rest 10 minutes before opening. Traditional versions may use clay; this is a safe home-oven adaptation."
+    ]
+  },
+  "nanjing": {
+    "title": "Nanjing-inspired tea-scented duck (simplified home version)",
+    "meta": "75 min plus chilling · Medium · Serves 4",
+    "ingredients": [
+      "4 duck legs",
+      "2 tbsp salt",
+      "1 tsp Sichuan pepper",
+      "2 star anise",
+      "2 slices ginger",
+      "black tea and spring onion"
+    ],
+    "steps": [
+      "Rub duck with salt and crushed spices; chill for 6–12 hours.",
+      "Rinse and simmer gently with ginger and spring onion until cooked through.",
+      "Air-dry uncovered in the fridge, then briefly roast or pan-crisp the skin.",
+      "Serve sliced. This simplified version is inspired by regional salted-duck traditions."
+    ]
+  },
+  "suzhou": {
+    "title": "Chinese-style syrup-preserved plums",
+    "meta": "35 min · Easy · Makes 1 jar",
+    "ingredients": [
+      "500 g firm plums",
+      "250 g sugar",
+      "250 ml water",
+      "1 strip lemon peel",
+      "1 tsp lemon juice"
+    ],
+    "steps": [
+      "Wash and prick the plums; simmer water and sugar to dissolve.",
+      "Add plums and poach gently until just tender.",
+      "Lift fruit into a clean heatproof jar; reduce syrup briefly and pour over.",
+      "Cool, refrigerate and use within a week. This is a modern refrigerator preserve, not shelf-stable canning."
+    ]
+  },
+  "pixian": {
+    "title": "Mapo tofu with Pixian doubanjiang",
+    "meta": "30 min · Easy · Serves 3–4",
+    "ingredients": [
+      "400 g soft tofu",
+      "1½ tbsp Pixian doubanjiang",
+      "150 g minced pork or mushrooms",
+      "garlic and ginger",
+      "200 ml stock",
+      "spring onion and Sichuan pepper"
+    ],
+    "steps": [
+      "Cut tofu into cubes and warm gently in hot water.",
+      "Fry pork or mushrooms; add garlic, ginger and doubanjiang.",
+      "Add stock and tofu; simmer gently for 5–7 minutes.",
+      "Thicken lightly if desired; finish with spring onion and Sichuan pepper."
+    ]
+  },
+  "yibin": {
+    "title": "Yibin-inspired noodles with preserved mustard greens",
+    "meta": "20 min · Easy · Serves 2",
+    "ingredients": [
+      "200 g wheat noodles",
+      "3 tbsp ya cai (preserved mustard greens)",
+      "1 tbsp chilli oil",
+      "1 tsp soy sauce",
+      "½ tsp black vinegar",
+      "spring onion and garlic"
+    ],
+    "steps": [
+      "Cook noodles according to packet directions; reserve a little cooking water.",
+      "Warm garlic, ya cai and chilli oil in a pan.",
+      "Toss noodles with soy, vinegar and a splash of noodle water.",
+      "Top with spring onion. Adjust salt carefully because ya cai is already salty."
+    ]
+  },
+  "maotai": {
+    "title": "Guizhou-style sour-and-spicy vegetable broth (non-alcoholic)",
+    "meta": "35 min · Easy · Serves 4",
+    "ingredients": [
+      "700 ml vegetable stock",
+      "2 tomatoes",
+      "200 g mushrooms",
+      "1 tbsp fermented chilli or chilli-bean paste",
+      "ginger and garlic",
+      "spring onion and leafy greens"
+    ],
+    "steps": [
+      "Soften ginger and garlic in a little oil.",
+      "Add chopped tomatoes and cook until pulpy.",
+      "Add stock, mushrooms and fermented chilli; simmer 15 minutes.",
+      "Add greens at the end and serve hot. This recipe explores the region's fermented savoury profile without attempting baijiu production."
+    ]
+  },
+  "dongting": {
+    "title": "Hunan-inspired smoked-fish and chilli rice bowl",
+    "meta": "25 min · Easy · Serves 2",
+    "ingredients": [
+      "250 g cooked rice",
+      "150 g cooked smoked fish",
+      "1 green chilli",
+      "1 tsp soy sauce",
+      "1 tsp black vinegar",
+      "garlic and spring onion"
+    ],
+    "steps": [
+      "Flake the fish and check carefully for bones.",
+      "Briefly fry garlic and chilli; add fish to warm through.",
+      "Season with soy and vinegar, then spoon over hot rice.",
+      "Finish with spring onion. Use commercially prepared fish and follow its storage instructions."
+    ]
+  },
+  "tibet": {
+    "title": "Tsampa porridge with butter tea",
+    "meta": "10 min · Easy · Serves 2",
+    "ingredients": [
+      "100 g roasted barley flour (tsampa)",
+      "250 ml hot water or milk",
+      "pinch of salt",
+      "butter or ghee",
+      "optional honey"
+    ],
+    "steps": [
+      "Put roasted barley flour into two bowls.",
+      "Gradually add hot liquid, stirring to make a thick porridge or dough.",
+      "Add a little butter and salt; sweeten if preferred.",
+      "Serve with tea. Traditional tsampa is often mixed by hand with butter tea rather than cooked as porridge."
+    ]
+  },
+  "mohenjo": {
+    "title": "Indus-inspired barley and lentil khichdi",
+    "meta": "40 min · Easy · Serves 4",
+    "ingredients": [
+      "100 g barley",
+      "100 g red lentils",
+      "1 onion",
+      "½ tsp cumin",
+      "turmeric and salt",
+      "700 ml water or stock"
+    ],
+    "steps": [
+      "Rinse barley and lentils.",
+      "Soften onion with cumin and turmeric.",
+      "Add grains, lentils, water and salt.",
+      "Simmer until soft and porridge-like, adding water as needed. This is a contemporary inspired dish, not a recovered Harappan recipe."
+    ]
+  },
+  "sindh": {
+    "title": "Sindhi-style seasonal mango achaar",
+    "meta": "25 min plus resting · Easy",
+    "ingredients": [
+      "2 firm green mangoes",
+      "2 tbsp mustard seeds, coarsely crushed",
+      "1 tbsp fennel seeds",
+      "1 tsp chilli powder",
+      "salt",
+      "mustard oil"
+    ],
+    "steps": [
+      "Wash and completely dry mangoes; cut into pieces.",
+      "Toss with salt and spices in a clean bowl.",
+      "Cover with mustard oil and transfer to a clean jar.",
+      "Refrigerate and allow flavours to develop. For safe storage, keep refrigerated and use clean utensils; this is not a validated shelf-stable canning recipe."
+    ]
+  },
+  "patna": {
+    "title": "Idli with fermented rice and urad batter",
+    "meta": "30 min cooking · Medium · Makes 12",
+    "ingredients": [
+      "2 cups idli rice",
+      "1 cup urad dal",
+      "½ tsp fenugreek seeds",
+      "salt",
+      "water"
+    ],
+    "steps": [
+      "Soak rice and dal separately for 4–6 hours; add fenugreek to the dal.",
+      "Grind separately with water, then combine to a thick batter.",
+      "Cover and ferment in a warm place until aerated and risen, often overnight.",
+      "Fold in salt and steam in greased idli moulds for 10–12 minutes."
+    ]
+  },
+  "varanasi": {
+    "title": "Bengal- and Ganges-style lemon rice",
+    "meta": "25 min · Easy · Serves 3",
+    "ingredients": [
+      "3 cups cooked rice",
+      "1 tbsp oil or ghee",
+      "½ tsp mustard seeds",
+      "8 curry leaves",
+      "1 green chilli",
+      "½ tsp turmeric and lemon juice"
+    ],
+    "steps": [
+      "Heat oil; crackle mustard seeds, then add curry leaves and chilli.",
+      "Stir in turmeric and cooked rice.",
+      "Turn off heat and add lemon juice and salt.",
+      "Rest briefly and serve with yoghurt or pickle. A contemporary regional-style everyday dish."
+    ]
+  },
+  "rajshahi": {
+    "title": "Bengali mustard fish curry (shorshe-inspired)",
+    "meta": "30 min · Medium · Serves 3",
+    "ingredients": [
+      "400 g firm fish fillets",
+      "2 tbsp mustard paste",
+      "½ tsp turmeric",
+      "2 green chillies",
+      "2 tbsp mustard oil",
+      "salt and a little water"
+    ],
+    "steps": [
+      "Season fish with salt and turmeric.",
+      "Warm mustard oil; briefly sear fish on both sides and remove.",
+      "Mix mustard paste with water, turmeric and chilli; simmer gently.",
+      "Return fish and cook until opaque and safely cooked through. Serve with rice."
+    ]
+  },
+  "dhaka": {
+    "title": "Bangladeshi fish and rice bhuna",
+    "meta": "35 min · Easy · Serves 3",
+    "ingredients": [
+      "300 g firm fish pieces",
+      "1 onion",
+      "1 tomato",
+      "½ tsp turmeric",
+      "1 tsp ground coriander",
+      "green chilli and rice"
+    ],
+    "steps": [
+      "Season fish with salt and turmeric.",
+      "Cook onion until golden; add tomato and spices.",
+      "Add a splash of water and simmer to make a thick sauce.",
+      "Add fish and cook gently until done. Serve with steamed rice."
+    ]
+  },
+  "uruk": {
+    "title": "Ancient-grain barley flatbread (modern reconstruction)",
+    "meta": "35 min · Easy · Makes 6",
+    "ingredients": [
+      "250 g barley flour",
+      "100 g plain wheat flour",
+      "½ tsp salt",
+      "1 tbsp olive oil",
+      "180 ml warm water"
+    ],
+    "steps": [
+      "Mix flours and salt; add oil and water to form a soft dough.",
+      "Rest 15 minutes, divide into six balls and roll thin.",
+      "Cook on a hot dry skillet for 2–3 minutes per side.",
+      "Serve with dates, onions or lentil stew. This is an illustrative modern flatbread, not a definitive ancient bappir recipe."
+    ]
+  },
+  "baghdad": {
+    "title": "Iraqi-style quick mixed vegetable turshi",
+    "meta": "30 min plus chilling · Easy",
+    "ingredients": [
+      "1 carrot",
+      "1 small cauliflower",
+      "1 cucumber",
+      "2 garlic cloves",
+      "250 ml vinegar",
+      "250 ml water, salt and turmeric"
+    ],
+    "steps": [
+      "Cut vegetables into bite-sized pieces and blanch the firmest briefly.",
+      "Heat vinegar, water, salt and turmeric just to dissolve the salt.",
+      "Pack vegetables and garlic into a clean heatproof jar.",
+      "Cover with brine, cool and refrigerate. Eat after 24–48 hours; not shelf-stable without a tested process."
+    ]
+  },
+  "mosul": {
+    "title": "Mosul-inspired turnip and beet pickle",
+    "meta": "20 min plus chilling · Easy",
+    "ingredients": [
+      "2 turnips",
+      "1 small beetroot",
+      "250 ml vinegar",
+      "250 ml water",
+      "1 tbsp salt",
+      "garlic and optional chilli"
+    ],
+    "steps": [
+      "Peel and slice turnips and beetroot.",
+      "Dissolve salt in warm vinegar and water.",
+      "Pack vegetables with garlic into a clean jar and cover with liquid.",
+      "Cool and refrigerate for at least a day before serving."
+    ]
+  },
+  "najaf": {
+    "title": "Iraqi-style pickled aubergine",
+    "meta": "45 min plus chilling · Medium",
+    "ingredients": [
+      "4 small aubergines",
+      "2 garlic cloves",
+      "parsley",
+      "chilli",
+      "150 ml vinegar",
+      "salt and olive oil"
+    ],
+    "steps": [
+      "Simmer whole aubergines until just tender; drain and cool.",
+      "Mix chopped garlic, parsley, chilli and salt.",
+      "Make a small slit in each aubergine and fill with the herb mixture.",
+      "Cover with vinegar and a little oil; refrigerate and eat within several days."
+    ]
+  },
+  "giza": {
+    "title": "Egyptian ful medames",
+    "meta": "8 hours soak + 2 hours · Easy · Serves 4",
+    "ingredients": [
+      "300 g dried fava beans",
+      "2 garlic cloves",
+      "½ tsp cumin",
+      "lemon juice",
+      "olive oil",
+      "tomato, parsley and flatbread"
+    ],
+    "steps": [
+      "Soak beans overnight, then drain.",
+      "Cover with fresh water and simmer until very tender, 1½–2 hours or longer.",
+      "Mash some beans with garlic, cumin, lemon and cooking liquid.",
+      "Serve warm with olive oil, tomato, parsley and flatbread."
+    ]
+  },
+  "delta": {
+    "title": "Egyptian-style salted fish alternative: spiced baked mullet",
+    "meta": "35 min · Medium · Serves 2",
+    "ingredients": [
+      "2 cleaned grey mullet fillets",
+      "lemon",
+      "cumin",
+      "coriander",
+      "garlic",
+      "olive oil and salt"
+    ],
+    "steps": [
+      "Mix crushed garlic, cumin, coriander, lemon and oil.",
+      "Coat fish and rest 15 minutes in the refrigerator.",
+      "Bake at 200°C until opaque and safely cooked through.",
+      "Serve with bread and salad. Traditional fesikh is a specialist fermented fish; this safer fresh-fish dish is not a substitute for its preservation process."
+    ]
+  },
+  "siwa": {
+    "title": "Siwa-inspired date and nut bites",
+    "meta": "15 min · Easy · Makes 12",
+    "ingredients": [
+      "200 g soft dates",
+      "60 g almonds",
+      "1 tbsp sesame seeds",
+      "pinch of cinnamon",
+      "orange zest"
+    ],
+    "steps": [
+      "Remove date stones.",
+      "Pulse dates and almonds until a sticky mixture forms.",
+      "Mix in sesame, cinnamon and orange zest.",
+      "Roll into small bites and chill. A modern snack inspired by oasis ingredients."
+    ]
+  },
+  "tozeur": {
+    "title": "Tunisian date-and-almond stuffed dates",
+    "meta": "15 min · Easy · Makes 12",
+    "ingredients": [
+      "12 soft dates",
+      "12 almonds",
+      "1 tbsp orange blossom water",
+      "2 tbsp ground almonds",
+      "optional sesame"
+    ],
+    "steps": [
+      "Split dates and remove stones.",
+      "Mix ground almonds with a few drops of orange blossom water.",
+      "Fill each date with the almond paste and press an almond on top.",
+      "Dust with sesame or ground almonds and serve."
+    ]
+  },
+  "ghardaia": {
+    "title": "Algerian oasis couscous with dates and vegetables",
+    "meta": "40 min · Easy · Serves 4",
+    "ingredients": [
+      "250 g couscous",
+      "1 carrot",
+      "1 courgette",
+      "1 onion",
+      "handful chickpeas",
+      "dates, cumin and olive oil"
+    ],
+    "steps": [
+      "Cook onion, carrot, courgette and chickpeas with cumin in water until tender.",
+      "Prepare couscous according to its packet instructions, fluffing with a fork.",
+      "Serve vegetables and broth over couscous.",
+      "Add chopped dates for a sweet-savoury oasis-inspired variation."
+    ]
+  },
+  "djerba": {
+    "title": "Djerban rice with fish and vegetables",
+    "meta": "50 min · Medium · Serves 4",
+    "ingredients": [
+      "250 g rice",
+      "250 g firm fish pieces",
+      "1 onion",
+      "tomato paste",
+      "spinach or chard",
+      "coriander, caraway and chilli"
+    ],
+    "steps": [
+      "Mix rice, chopped vegetables, tomato paste and spices.",
+      "Fold in fish and a little oil and water.",
+      "Steam or bake covered until rice is tender and fish is cooked through, adding liquid if needed.",
+      "Fluff gently and serve hot. Inspired by Djerbian one-pot cooking."
+    ]
+  },
+  "ouarzazate": {
+    "title": "Moroccan chicken and preserved-lemon tagine",
+    "meta": "70 min · Easy · Serves 4",
+    "ingredients": [
+      "4 chicken thighs",
+      "1 preserved lemon",
+      "1 onion",
+      "olives",
+      "ginger, turmeric and saffron",
+      "coriander and water"
+    ],
+    "steps": [
+      "Brown chicken lightly with onion and spices.",
+      "Add a little water, cover and simmer until tender.",
+      "Add rinsed preserved lemon peel and olives for the final 15 minutes.",
+      "Finish with coriander and serve with bread or couscous."
+    ]
+  },
+  "agadir": {
+    "title": "Amlou-inspired almond and argan dip",
+    "meta": "15 min · Easy · Makes 1 jar",
+    "ingredients": [
+      "150 g toasted almonds",
+      "2–3 tbsp culinary argan oil",
+      "2 tbsp honey",
+      "pinch of salt"
+    ],
+    "steps": [
+      "Grind almonds to a coarse or smooth paste.",
+      "Gradually mix in culinary-grade argan oil.",
+      "Stir through honey and a pinch of salt.",
+      "Serve as a dip with bread. Use food-grade culinary argan oil only, not cosmetic oil."
+    ]
+  },
+  "essaouira": {
+    "title": "Moroccan preserved-lemon and olive salad",
+    "meta": "15 min · Easy · Serves 4",
+    "ingredients": [
+      "2 tomatoes",
+      "½ cucumber",
+      "½ preserved lemon",
+      "handful olives",
+      "parsley",
+      "olive oil and cumin"
+    ],
+    "steps": [
+      "Dice tomatoes and cucumber.",
+      "Rinse preserved lemon peel if very salty; slice finely.",
+      "Toss with olives, parsley, olive oil and a pinch of cumin.",
+      "Rest 10 minutes and serve with bread or grilled fish."
+    ]
+  },
+  "tiznit": {
+    "title": "Moroccan barley soup with argan-oil finish",
+    "meta": "40 min · Easy · Serves 4",
+    "ingredients": [
+      "100 g pearl barley",
+      "1 onion",
+      "1 carrot",
+      "1 tomato",
+      "1 tsp cumin",
+      "vegetable stock and culinary argan oil"
+    ],
+    "steps": [
+      "Soften onion and carrot in a little olive oil.",
+      "Add tomato, barley, cumin and stock.",
+      "Simmer until barley is tender, about 30 minutes.",
+      "Finish with a small drizzle of food-grade argan oil."
+    ]
+  },
+  "jaen": {
+    "title": "Andalusian pan con aceite",
+    "meta": "10 min · Easy · Serves 2",
+    "ingredients": [
+      "2 slices rustic bread",
+      "2 ripe tomatoes",
+      "extra-virgin olive oil",
+      "flaky salt",
+      "optional garlic"
+    ],
+    "steps": [
+      "Toast or grill the bread.",
+      "Rub lightly with garlic if desired.",
+      "Grate tomato and spoon over the toast.",
+      "Finish generously with good olive oil and salt. Keep the oil's flavour at the centre."
+    ]
+  },
+  "jabugo": {
+    "title": "Melon and jamón Ibérico plate",
+    "meta": "10 min · Easy · Serves 4",
+    "ingredients": [
+      "100 g thinly sliced jamón Ibérico",
+      "½ ripe melon",
+      "rocket",
+      "olive oil",
+      "black pepper"
+    ],
+    "steps": [
+      "Cut melon into thin wedges.",
+      "Arrange with the jamón and rocket.",
+      "Add a few drops of olive oil and black pepper.",
+      "Serve cool. This is a contemporary serving suggestion; curing itself requires specialist controlled conditions."
+    ]
+  },
+  "jerez": {
+    "title": "Sherry vinegar and tomato gazpacho",
+    "meta": "15 min plus chilling · Easy · Serves 4",
+    "ingredients": [
+      "600 g ripe tomatoes",
+      "½ cucumber",
+      "½ red pepper",
+      "1 small garlic clove",
+      "2 tbsp olive oil",
+      "1 tbsp sherry vinegar and cold water"
+    ],
+    "steps": [
+      "Roughly chop vegetables and blend with garlic, oil and vinegar.",
+      "Add cold water to reach the desired consistency.",
+      "Season and chill thoroughly.",
+      "Serve cold with diced vegetables. This uses sherry vinegar, not homemade wine production."
+    ]
+  },
+  "cordobaES": {
+    "title": "Salmorejo cordobés",
+    "meta": "20 min plus chilling · Easy · Serves 4",
+    "ingredients": [
+      "1 kg ripe tomatoes",
+      "200 g day-old bread",
+      "1 garlic clove",
+      "100 ml olive oil",
+      "sherry vinegar",
+      "boiled egg and optional cured ham"
+    ],
+    "steps": [
+      "Blend tomatoes until smooth; strain if desired.",
+      "Add bread, garlic and vinegar; blend until thick.",
+      "Slowly blend in olive oil to emulsify; season.",
+      "Chill and serve with chopped egg and optional ham."
+    ]
+  },
+  "memphis": {
+    "title": "Memphis-style dry-rub pork shoulder (oven version)",
+    "meta": "4–5 hours · Medium · Serves 6",
+    "ingredients": [
+      "1.5 kg pork shoulder",
+      "2 tbsp paprika",
+      "1 tbsp brown sugar",
+      "1 tsp black pepper",
+      "1 tsp garlic powder",
+      "salt and cayenne"
+    ],
+    "steps": [
+      "Mix spices and rub all over the pork.",
+      "Place on a rack in a roasting tin and cook at 150°C until very tender.",
+      "Rest covered for 20 minutes, then pull or slice.",
+      "Serve with slaw. Traditional smoking uses controlled low heat and smoke; this is an oven adaptation."
+    ]
+  },
+  "neworleans": {
+    "title": "New Orleans-style chicken and sausage gumbo",
+    "meta": "90 min · Medium · Serves 6",
+    "ingredients": [
+      "500 g chicken thighs",
+      "250 g smoked sausage",
+      "1 onion, 1 pepper, 2 celery sticks",
+      "60 g flour and 60 ml oil",
+      "1 litre stock",
+      "okra or filé, thyme and bay"
+    ],
+    "steps": [
+      "Cook flour and oil slowly, stirring, until a deep brown roux forms.",
+      "Add onion, pepper and celery; soften.",
+      "Gradually add stock, then chicken, sausage and herbs.",
+      "Simmer until chicken is cooked and tender; add okra near the end. Serve over rice; add filé off the heat if using."
+    ]
+  },
+  "atlanta": {
+    "title": "Southern quick cucumber pickles",
+    "meta": "20 min plus chilling · Easy",
+    "ingredients": [
+      "2 cucumbers",
+      "½ onion",
+      "120 ml cider vinegar",
+      "120 ml water",
+      "1 tbsp sugar",
+      "1 tsp salt, dill and mustard seed"
+    ],
+    "steps": [
+      "Slice cucumber and onion thinly.",
+      "Warm vinegar, water, sugar and salt until dissolved.",
+      "Pour over vegetables with dill and mustard seed.",
+      "Cool and refrigerate at least 2 hours. Keep refrigerated; this is a quick pickle, not shelf-stable canning."
+    ]
+  },
+  "savannah": {
+    "title": "Georgia peach and pecan crumble",
+    "meta": "45 min · Easy · Serves 6",
+    "ingredients": [
+      "5 ripe peaches",
+      "60 g pecans",
+      "100 g flour",
+      "60 g oats",
+      "70 g butter",
+      "60 g brown sugar and cinnamon"
+    ],
+    "steps": [
+      "Heat oven to 180°C; slice peaches into a baking dish.",
+      "Rub butter into flour, oats and sugar; stir in chopped pecans and cinnamon.",
+      "Scatter topping over peaches.",
+      "Bake 30–35 minutes until bubbling and golden. Serve warm."
+    ]
+  },
+  "monterrey": {
+    "title": "Fresh nixtamal-style corn tortillas (masa harina method)",
+    "meta": "30 min · Easy · Makes 10",
+    "ingredients": [
+      "250 g masa harina",
+      "325 ml warm water (approx.)",
+      "pinch of salt"
+    ],
+    "steps": [
+      "Mix masa harina and salt; add water gradually to make a soft dough.",
+      "Rest covered for 15 minutes.",
+      "Divide into balls and press between plastic sheets.",
+      "Cook on a hot dry skillet until puffed and lightly browned. This uses prepared masa harina; traditional nixtamalisation starts with dried maize and food-grade lime."
+    ]
+  },
+  "oaxaca": {
+    "title": "Oaxacan-inspired black bean and chile mole-style sauce",
+    "meta": "60 min · Medium · Serves 4",
+    "ingredients": [
+      "2 dried ancho or pasilla chiles",
+      "1 tomato",
+      "1 tbsp sesame seeds",
+      "20 g almonds",
+      "1 small tortilla",
+      "½ tsp cinnamon and cumin",
+      "400 g cooked black beans"
+    ],
+    "steps": [
+      "Toast chiles briefly and soak in hot water; discard stems and seeds.",
+      "Toast sesame and almonds; char tomato and tortilla lightly.",
+      "Blend with spices and soaking liquid until smooth.",
+      "Simmer sauce 20 minutes, then spoon over warm black beans. This is a simplified home-style mole-inspired sauce, not a definitive regional mole recipe."
+    ]
+  },
+  "cusco": {
+    "title": "Andean-style potato and quinoa soup",
+    "meta": "40 min · Easy · Serves 4",
+    "ingredients": [
+      "150 g quinoa, rinsed",
+      "400 g potatoes",
+      "1 onion",
+      "1 carrot",
+      "1 litre vegetable stock",
+      "ají amarillo paste, coriander and salt"
+    ],
+    "steps": [
+      "Soften onion and carrot in a pot.",
+      "Add potatoes, quinoa and stock; simmer until tender.",
+      "Season with a little ají amarillo paste.",
+      "Finish with coriander. Use locally available potato varieties where possible."
+    ]
+  },
+  "huacaprieta": {
+    "title": "Peruvian escabeche-inspired fish with red onion",
+    "meta": "35 min · Medium · Serves 3",
+    "ingredients": [
+      "400 g firm white fish",
+      "1 red onion",
+      "1 garlic clove",
+      "½ tsp cumin",
+      "2 tbsp vinegar",
+      "ají amarillo, lime and coriander"
+    ],
+    "steps": [
+      "Season fish and pan-sear until just cooked; set aside.",
+      "Soften onion and garlic with cumin and ají amarillo.",
+      "Add vinegar and a little water; simmer briefly.",
+      "Spoon warm onion mixture over fish and finish with lime and coriander. This is a modern inspired dish, not an archaeological reconstruction."
+    ]
+  },
+  "mendoza": {
+    "title": "Mendoza-style roasted squash and chimichurri",
+    "meta": "40 min · Easy · Serves 4",
+    "ingredients": [
+      "1 large squash",
+      "2 tbsp olive oil",
+      "parsley",
+      "2 garlic cloves",
+      "2 tbsp red-wine vinegar",
+      "oregano and chilli flakes"
+    ],
+    "steps": [
+      "Roast squash wedges at 200°C with oil and salt until caramelised.",
+      "Finely chop parsley and garlic.",
+      "Mix with vinegar, oregano, chilli and olive oil.",
+      "Spoon chimichurri over hot squash. Serve alongside grilled food if desired."
+    ]
+  },
+  "cordobaAR": {
+    "title": "Argentine provoleta with oregano",
+    "meta": "15 min · Easy · Serves 2",
+    "ingredients": [
+      "200 g provolone cheese",
+      "1 tsp oregano",
+      "chilli flakes",
+      "black pepper",
+      "crusty bread"
+    ],
+    "steps": [
+      "Heat a small cast-iron pan or ovenproof dish.",
+      "Add thick slices of provolone and sprinkle with oregano and chilli.",
+      "Grill until bubbling and browned at the edges.",
+      "Serve immediately with bread. Cured salami is a separate specialist preservation tradition."
+    ]
+  },
+  "buenosaires": {
+    "title": "Mate — prepare and share the traditional infusion",
+    "meta": "10 min · Easy · 1 gourd",
+    "ingredients": [
+      "Yerba mate",
+      "hot water around 70–80°C",
+      "mate gourd",
+      "bombilla (filtered metal straw)"
+    ],
+    "steps": [
+      "Fill the gourd about halfway to two-thirds with yerba mate.",
+      "Tilt the leaves to one side and add a little cool water to moisten them.",
+      "Insert the bombilla into the lower, emptier side.",
+      "Add hot, not boiling, water near the bombilla and sip; refill and share according to local custom."
+    ]
+  },
+  "kyushu": {
+    "title": "Kyushu-style chicken nanban",
+    "meta": "35 min · Medium · Serves 3",
+    "ingredients": [
+      "400 g chicken thigh",
+      "1 egg",
+      "80 g flour",
+      "soy sauce",
+      "rice vinegar",
+      "sugar and tartar sauce"
+    ],
+    "steps": [
+      "Cut chicken into pieces and coat lightly in flour, then beaten egg.",
+      "Pan-fry or shallow-fry until golden and cooked through.",
+      "Simmer soy, vinegar and sugar briefly to make a tangy dressing.",
+      "Dip chicken in dressing and serve with tartar sauce and shredded cabbage."
+    ]
+  },
+  "kagoshima": {
+    "title": "Kagoshima-style sweet-potato rice",
+    "meta": "35 min · Easy · Serves 4",
+    "ingredients": [
+      "300 g rice",
+      "200 g sweet potato",
+      "350 ml water (adjust for rice)",
+      "pinch of salt",
+      "black sesame"
+    ],
+    "steps": [
+      "Rinse rice; cut sweet potato into bite-sized cubes.",
+      "Combine rice, water, sweet potato and salt in a rice cooker or covered pot.",
+      "Cook until rice and potato are tender; rest 10 minutes.",
+      "Fluff gently and finish with black sesame. A home dish celebrating the region's sweet-potato crop."
+    ]
+  },
+  "okinawa": {
+    "title": "Goya champuru",
+    "meta": "25 min · Easy · Serves 3",
+    "ingredients": [
+      "1 bitter melon (goya)",
+      "200 g firm tofu",
+      "2 eggs",
+      "100 g pork or mushrooms",
+      "soy sauce",
+      "sesame oil and bonito flakes optional"
+    ],
+    "steps": [
+      "Halve goya, remove seeds and slice thinly; salt briefly then rinse to soften bitterness.",
+      "Brown pork or mushrooms; add tofu and cook until lightly coloured.",
+      "Add goya and stir-fry until just tender.",
+      "Add beaten eggs and soy sauce; finish with bonito flakes if desired."
+    ]
+  },
+  "samoa": {
+    "title": "Samoan-style panipopo-inspired coconut rolls",
+    "meta": "2 hours · Medium · Makes 8",
+    "ingredients": [
+      "8 soft bread rolls",
+      "250 ml coconut milk",
+      "2 tbsp sugar",
+      "pinch of salt",
+      "optional vanilla"
+    ],
+    "steps": [
+      "Arrange rolls snugly in a baking dish.",
+      "Mix coconut milk, sugar, salt and vanilla.",
+      "Pour around and over the rolls; allow to soak briefly.",
+      "Bake at 180°C until the sauce bubbles and rolls are golden. This is a contemporary home-oven adaptation, not an umu recipe."
+    ]
+  },
+  "tonga": {
+    "title": "Tongan-style lu pulu-inspired taro-leaf parcels",
+    "meta": "60 min · Medium · Serves 4",
+    "ingredients": [
+      "12 large taro leaves (or spinach as an alternative)",
+      "400 g corned beef or cooked beans",
+      "1 onion",
+      "200 ml coconut cream",
+      "salt and pepper"
+    ],
+    "steps": [
+      "Wash leaves thoroughly; remove tough stems.",
+      "Layer leaves, add onion and filling, then spoon over coconut cream.",
+      "Fold into secure parcels and place in a covered baking dish with a little water.",
+      "Bake at 180°C until leaves are fully tender. Traditional versions are cooked in an earth oven; use edible taro leaves prepared safely."
+    ]
+  },
+  "fiji": {
+    "title": "Fijian kokoda-style citrus fish",
+    "meta": "25 min plus chilling · Easy · Serves 4",
+    "ingredients": [
+      "400 g very fresh sashimi-grade white fish",
+      "150 ml lime juice",
+      "150 ml coconut cream",
+      "½ cucumber",
+      "1 tomato",
+      "spring onion, chilli and salt"
+    ],
+    "steps": [
+      "Cut fish into small cubes and cover with lime juice in a non-reactive bowl.",
+      "Refrigerate until the fish changes texture; citrus does not reliably kill all pathogens, so use fish suitable for raw consumption.",
+      "Drain some lime juice and fold in coconut cream and chopped vegetables.",
+      "Season and serve immediately, well chilled."
+    ]
+  },
+  "tokelau": {
+    "title": "Pacific-style coconut fish salad",
+    "meta": "20 min · Easy · Serves 3",
+    "ingredients": [
+      "300 g cooked flaked fish",
+      "150 ml coconut cream",
+      "½ cucumber",
+      "1 tomato",
+      "lime juice",
+      "spring onion and salt"
+    ],
+    "steps": [
+      "Flake fully cooked, cooled fish.",
+      "Dice cucumber and tomato; slice spring onion.",
+      "Mix coconut cream with lime and salt.",
+      "Fold together and chill briefly. This is a modern accessible dish, not a reconstruction of inati distribution practice."
+    ]
+  },
+  "cookislands": {
+    "title": "Cook Islands-style ika mata",
+    "meta": "25 min plus chilling · Easy · Serves 4",
+    "ingredients": [
+      "400 g sashimi-grade white fish",
+      "120 ml lime juice",
+      "150 ml coconut cream",
+      "½ cucumber",
+      "1 tomato",
+      "spring onion and salt"
+    ],
+    "steps": [
+      "Dice fish and cover with lime juice; refrigerate until the texture firms.",
+      "Drain excess juice.",
+      "Fold in coconut cream, diced cucumber, tomato and spring onion.",
+      "Season and serve cold. Citrus does not make unsafe fish safe; choose fish intended for raw consumption."
+    ]
+  },
+  "aotearoa": {
+    "title": "Māori-inspired kūmara and watercress salad",
+    "meta": "35 min · Easy · Serves 4",
+    "ingredients": [
+      "600 g kūmara (sweet potato)",
+      "1 bunch watercress",
+      "2 tbsp olive oil",
+      "1 tbsp cider vinegar",
+      "lemon",
+      "salt and pepper"
+    ],
+    "steps": [
+      "Cube kūmara and roast at 200°C with oil until tender and browned.",
+      "Cool slightly and toss with washed watercress.",
+      "Dress with vinegar, lemon, salt and pepper.",
+      "Serve warm. This is a contemporary seasonal dish, not a traditional pōhā-preservation recipe."
+    ]
+  }
+};
+
+function chapterContext(p){
+ const r=recipeBook[p.id];
+ const ingredients=p.food.split(/[·,]/).map(x=>x.trim()).filter(Boolean);
+ const regionText=p.region.split('·').map(x=>x.trim()).join(' / ');
+ const techniques=p.method.join(', ').toLowerCase();
+ return {ingredients,regionText,techniques,recipe:r};
+}
+function recipeHTML(p){
+ const r=recipeBook[p.id];
+ return `<div class="chapter" id="chapter-recipe"><div class="chapter-kicker">Cook the history · modern home adaptation</div><h3>${escapeHTML(r.title)}</h3><p>This is a practical contemporary recipe inspired by the ingredients or food tradition associated with ${escapeHTML(p.name)}. It is not presented as an unchanged ancient recipe.</p><div class="recipe-card"><h4>${escapeHTML(r.title)}</h4><div class="recipe-meta"><span>${escapeHTML(r.meta)}</span><span>Home kitchen</span></div><h5>Ingredients</h5><ul>${r.ingredients.map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ul><h5>Method</h5><ol>${r.steps.map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ol><div class="recipe-note"><b>Historical note:</b> The dish is a modern, cookable interpretation connected to the local food story. It should not be mistaken for a verified historical recipe unless a specific source establishes that.</div></div></div>`;
+}
+function expandedChapters(p){
+ const c=chapterContext(p);
+ const evidence=p.id==='mohenjo'||p.id==='huacaprieta'||p.id==='uruk'||p.id==='aotearoa'?'Some interpretations at this stop are debated or require careful cultural and archaeological context. The chapter distinguishes the essay’s account from what can be independently established.':'The food practices described here developed over generations. Exact dates and origin stories can be difficult to establish, so this guide avoids assigning a single inventor or unsupported date.';
+ return `<div class="chapter-nav"><a href="#chapter-place">Place</a><a href="#chapter-history">History</a><a href="#chapter-ingredients">Ingredients</a><a href="#chapter-technique">Technique</a><a href="#chapter-recipe">Recipe</a><a href="#chapter-connections">Connections</a><a href="#chapter-evidence">Evidence</a></div>
+ <section class="chapter" id="chapter-place"><div class="chapter-kicker">01 · Landscape and people</div><h3>Why this place matters</h3><p>${escapeHTML(p.name)} sits within ${escapeHTML(c.regionText)}. Its local food story is shaped by the relationship between landscape, climate, available crops or animals, water, transport and the knowledge of the communities who live here.</p><p>${escapeHTML(p.detail)}</p><div class="fact-callout"><b>Read the landscape:</b> Consider how local growing conditions, seasonality and access to rivers, coastlines, pasture or trade routes influence what can be produced and how it can be kept.</div></section>
+ <section class="chapter" id="chapter-history"><div class="chapter-kicker">02 · A historical lens</div><h3>Food, time and adaptation</h3><div class="timeline"><div class="timeline-item"><i class="timeline-dot"></i><div><b>Land and seasonal knowledge</b><span>Communities learned to work with local harvest cycles, weather, soils and available resources.</span></div></div><div class="timeline-item"><i class="timeline-dot"></i><div><b>Techniques become traditions</b><span>${escapeHTML(p.method.join(', '))} represent accumulated practical knowledge: ways to transform ingredients, reduce waste or extend their useful life.</span></div></div><div class="timeline-item"><i class="timeline-dot"></i><div><b>Exchange and change</b><span>Migration, markets, political change and contact with neighbouring regions continually reshape food cultures.</span></div></div><div class="timeline-item"><i class="timeline-dot"></i><div><b>Living food heritage</b><span>Some practices continue in homes and workshops; others have changed, become commercial products or survive mainly through cultural memory.</span></div></div></div><p>${escapeHTML(evidence)}</p></section>
+ <section class="chapter" id="chapter-ingredients"><div class="chapter-kicker">03 · The pantry</div><h3>Ingredients at the heart of the story</h3><p>The foods associated with this stop include:</p><div class="ingredient-list">${c.ingredients.map(x=>`<span class="ingredient">${escapeHTML(x)}</span>`).join('')}</div><p>Look at each ingredient as more than a flavour: it is also a crop, a harvest, a storage challenge and a product of local knowledge. Availability and preparation vary across households and communities.</p></section>
+ <section class="chapter" id="chapter-technique"><div class="chapter-kicker">04 · Human ingenuity</div><h3>The technique behind the food</h3><p><b>${escapeHTML(p.method.join(' · '))}</b></p><p>${escapeHTML(p.summary)}</p><p>These techniques change food through physical or biological processes. Drying removes moisture; salting changes the conditions in which microbes can grow; fermentation uses communities of microorganisms; smoking adds flavour compounds and, depending on the process, can contribute to preservation. The precise mechanism differs by food and method.</p></section>
+ ${recipeHTML(p)}
+ <section class="chapter" id="chapter-connections"><div class="chapter-kicker">06 · The wider world</div><h3>How this story connects</h3><p>Food traditions rarely develop in isolation. Crops, livestock, techniques, vessels and tastes move with traders, travellers, migrants and empires. The ingredients named at ${escapeHTML(p.name)} can be followed through the atlas to explore neighbouring food systems and long-distance exchanges.</p><p><b>Try this:</b> choose another point on the map and compare its climate, staple foods and preservation methods. What problems did both places solve, and what solutions were different?</p></section>
+ <section class="chapter" id="chapter-evidence"><div class="chapter-kicker">07 · Sources and confidence</div><h3>What we know — and what needs checking</h3><p>This atlas uses the supplied feature article as its narrative starting point. Individual claims about dates, archaeological interpretations, named traditions and cultural practices should be checked against specialist sources before being treated as definitive.</p><ul class="source-list"><li><a href="https://nostredame.substack.com/p/the-30th-parallel-the-line-that-feeds" target="_blank" rel="noopener">The 30th Parallel: The Line That Feeds — original feature</a></li><li>For crop histories and food systems: FAO publications and regional agricultural research.</li><li>For archaeological claims: excavation reports, peer-reviewed scholarship and museum collections.</li><li>For living traditions: local cultural institutions and community-authored sources.</li></ul><div class="fact-callout">Editorial standard: recipes in this atlas are practical modern adaptations unless explicitly identified and sourced as historical reconstructions. Food preservation instructions are not safety-certified canning or fermentation protocols. Follow tested food-safety guidance.</div></section>`;
+}
+
+const map = L.map('map',{zoomControl:false,scrollWheelZoom:true,worldCopyJump:true,minZoom:2,maxZoom:9}).setView([18,8],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'}).addTo(map);
+
+// Latitude references are deliberately drawn as straight geographic parallels.
+const northLine = L.polyline([[30,-180],[30,180]],{color:'#f0c878',weight:1.5,opacity:.62,dashArray:'3 7',interactive:false}).addTo(map);
+const southLine = L.polyline([[-30,-180],[-30,180]],{color:'#91a9a0',weight:1.5,opacity:.62,dashArray:'3 7',interactive:false}).addTo(map);
+const markers = new Map();
+let selectedId = null, activeFilter = 'all', routeLayer = null;
+const $ = id => document.getElementById(id);
+const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function markerIcon(place,active=false){
+ const cls=place.band==='south'?'south':(place.band==='other'?'other':'');
+ return L.divIcon({className:'marker-wrap',html:`<div class="map-marker ${cls} ${active?'active':''}"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
+}
+places.forEach((p,i)=>{
+ const m=L.marker([p.lat,p.lng],{icon:markerIcon(p),title:p.name,keyboard:true}).addTo(map);
+ m.bindTooltip(`${p.name} · ${p.country}`,{direction:'top',offset:[0,-8]});
+ m.on('click',()=>selectPlace(p.id,true));
+ markers.set(p.id,m);
+});
+$('placeCount').textContent=places.length;
+$('detailIndex').textContent=`01 / ${String(places.length).padStart(2,'0')}`;
+
+function renderList(){
+ const q=$('search').value.trim().toLowerCase();
+ const visible=places.filter(p=>{
+   const filterOK=activeFilter==='all'||(activeFilter==='north'&&p.band==='north')||(activeFilter==='south'&&p.band==='south')||(activeFilter==='other'&&p.band==='other');
+   const hay=[p.name,p.country,p.region,p.food,p.method.join(' '),p.summary].join(' ').toLowerCase();
+   return filterOK&&(!q||hay.includes(q));
+ });
+ $('resultCount').textContent=visible.length;
+ $('stopList').innerHTML=visible.map(p=>`<button class="stop-item ${p.id===selectedId?'selected':''}" data-id="${p.id}"><span class="stop-no">${String(places.indexOf(p)+1).padStart(2,'0')}</span><span class="stop-copy"><b>${escapeHTML(p.name)}</b><small>${escapeHTML(p.food)}</small></span><span class="stop-kind">${escapeHTML(p.region.split('·')[0].trim())}</span></button>`).join('')||'<div style="padding:20px;color:var(--muted);font-size:12px">No locations match that search.</div>';
+ document.querySelectorAll('.stop-item').forEach(b=>b.addEventListener('click',()=>selectPlace(b.dataset.id,true)));
+}
+const placeImages = {"oaxaca":"Making_traditional_corn_tortillas_mexico.jpg","shaoxing":"Shaoxing_rice_wine.jpg","tonga":"pacific-earth-oven.jpg","suzhou":"china-rice-terraces.jpg","kyushu":"Fermenting_miso_and_soy_sauce_kyushu.jpg","okinawa":"Traditional_Okinawan_ingredients.jpg","yibin":"china-soy-fermentation.jpg","tibet":"Tsampa_and_butter_tea_preparation.jpg","memphis":"egypt-ancient-bread.jpg","huacaprieta":"south-america-cassava.jpg","mohenjo":"indus-ancient-granary.jpg","monterrey":"mesoamerica-maize-varieties.jpg","pixian":"Pixian_Fermented_chilli_bean.jpg","siwa":"arabia-date-oasis.jpg","aotearoa":"parallel-ancient-food-trade.jpg","patna":"Indian_meal_in_clay_bowls.jpg","varanasi":"india-spice-market.jpg","jaen":"Olive_oil_with_bread_and_andulusia.jpg","sindh":"Sindhi_sai_bhaji_and_flatbread.jpg","cordobaES":"mediterranean-ancient-wheat.jpg","ghardaia":"west-africa-millet-sorghum.jpg","giza":"Ful_medames_with_rustic_flatbread_.jpg","zhenjiang":"Zhenjiang_black_vinegar.jpg","samoa":"Pacific_island_feast_featuring_food.jpg","hangzhou":"Farmers_working_on_rice_terraces.jpg","uruk":"mesopotamia-irrigation.jpg","rajshahi":"bengal-rice-harvest.jpg","essaouira":"Morocco_preserved_lemons_and_olives.jpg","kagoshima":"japan-rice-cultivation.jpg","mendoza":"Beef_roasting_over_wood_embers_argentina.jpg","cusco":"andes-quinoa-fields.jpg","cookislands":"polynesia-breadfruit.jpg","dhaka":"Fish_cooked_in_mustard_sauce.jpg","tozeur":"parallel-food-preservation.jpg","djerba":"parallel-world-grains.jpg","atlanta":"Ancient_food_reconstruction_on.jpg","fiji":"pacific-earth-oven.jpg","baghdad":"parallel-ancient-food-trade.jpg","neworleans":"Southern_food_ingredients_on_table_americansouth.jpg"};
+
+const placeHeroImages = {"fiji":"Earth_oven_in_Fiji.jpg","tozeur":"Tozeur_Tunisia.jpg","cordobaAR":"Landscape_of_Córdoba_Pampas_Arge.jpg","tibet":"Yamdrok_Lake_on_Tibetan_Plateau.jpg","monterrey":"Monterrey_Gulf_route_landscape.jpg","jaen":"Jaén_Spain.jpg","mohenjo":"Mohenjo-Daro_landscape_in_Pakistan.jpg","kyushu":"Kyushu_landscape_photography.jpg","patna":"Patna_in_Ganges_Plain_India.jpg","aotearoa":"Photographed_Māori_pōhā_New_Zealand.jpg","atlanta":"Atlanta_landscape_photograph.jpg","huacaprieta":"Huaca_Prieta_landscape_Peru.jpg","tiznit":"Tiznit_Morocco.jpg","mosul":"Nineveh_Mosul_Iraq.jpg","hangzhou":"Hangzhou.jpg","zhenjiang":"Zhenjiang.jpg","tokelau":"Tokelau_Inati_photography.jpg","ghardaia":"Ghardaia_Algeria.jpg","essaouira":"Essaouira_Morocco.jpg","ouarzazate":"Ouarzazate.jpg","tonga":"Tonga_landscape_photography.jpg","cordobaES":"Landscape_photography_in_Spain.jpg","shaoxing":"Shaoxing.jpg","agadir":"Morocco_landscape.jpg","rajshahi":"Bangladesh.jpg","siwa":"Siwa_Oasis_landscape.jpg","uruk":"Uruk_Mesopotamia.jpg","oaxaca":"Oaxaca_landscape_photography.jpg","dongting":"Dongting_Lake.jpg","varanasi":"Varanasi_landscape_photography.jpg","yibin":"Yibin_China.jpg","giza":"Giza_Nile_Valley_landscape_photo.jpg","jabugo":"Jabugo_Huelva_Spain.jpg","najaf":"Al-Najaf_Iraq_landscape_photography.jpg","delta":"Nile_Delta.jpg","buenosaires":"Río_de_la_Plata_landscape.jpg","savannah":"Savannah_landscape_photography.jpg","cookislands":"Cook_Islands_landscape.jpg","djerba":"Djerba.jpg","cusco":"Cusco.jpg","pixian":"Pixian.jpg","samoa":"Samoa_landscape_photography.jpg","memphis":"Memphis_landscape.jpg","kagoshima":"Kagoshima_landscape_in_Japan.jpg","neworleans":"New_Orleans_landscape.jpg","maotai":"Chishui_River.jpg","dhaka":"Dhaka_Ganges_Delta_Bangladesh.jpg","okinawa":"Okinawa_Ryukyu_Islands_landscape.jpg","jerez":"Jerez.jpg","nanjing":"Nanjing.jpg","suzhou":"Suzhou_\u0026_Wuxi_China.jpg","sindh":"Landscape_photography_in_Sindh_P.jpg","mendoza":"Mendoza_landscape_photography.jpg","baghdad":"Baghdad_Iraq.jpg"};
+
+// PARALLEL_MOBILE_MINIMAP_V1
+let parallelMiniMap = null;
+let parallelMiniMarker = null;
+
+function updateParallelMiniMap(place) {
+    if (window.innerWidth > 900) return;
+
+    const holder = $('parallelMobileMiniMap');
+    if (!holder || !place) return;
+
+    if (!parallelMiniMap) {
+        parallelMiniMap = L.map('parallelMiniMap', {
+            zoomControl:false,
+            attributionControl:false,
+            scrollWheelZoom:false,
+            dragging:true,
+            doubleClickZoom:true,
+            touchZoom:true,
+            boxZoom:false,
+            keyboard:false,
+            tap:true
+        }).setView([place.lat, place.lng], 4);
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {maxZoom:19}
+        ).addTo(parallelMiniMap);
+
+        parallelMiniMarker = L.marker(
+            [place.lat, place.lng],
+            {icon:markerIcon(place,true),title:place.name}
+        ).addTo(parallelMiniMap);
+
+        setTimeout(() => {
+            parallelMiniMap.invalidateSize({pan:false});
+        }, 250);
+    } else {
+        parallelMiniMap.setView(
+            [place.lat, place.lng],
+            4,
+            {animate:false}
+        );
+
+        parallelMiniMarker.setLatLng([place.lat, place.lng]);
+        parallelMiniMarker.setIcon(markerIcon(place,true));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const expand = $('parallelMiniMapExpand');
+    if (expand) {
+        expand.addEventListener('click', () => {
+            $('detailPanel').classList.remove('open');
+
+            setTimeout(() => {
+                map.invalidateSize({pan:false});
+                map.flyTo(
+                    places.find(p => p.id === selectedId)
+                        ? [
+                            places.find(p => p.id === selectedId).lat,
+                            places.find(p => p.id === selectedId).lng
+                          ]
+                        : [18,8],
+                    4,
+                    {duration:0.8}
+                );
+            }, 400);
+        });
+    }
+});
+// END PARALLEL_MOBILE_MINIMAP_V1
+function selectPlace(id,fly=false){
+ const p=places.find(x=>x.id===id);if(!p)return;
+ selectedId=id;
+ updateParallelMiniMap(p);
+ markers.forEach((m,key)=>m.setIcon(markerIcon(places.find(x=>x.id===key),key===id)));
+ const idx=places.indexOf(p)+1;
+ $('detailIndex').textContent=`${String(idx).padStart(2,'0')} / ${String(places.length).padStart(2,'0')}`;
+ $('mapFocus').textContent=p.name;
+ $('detailContent').innerHTML=`
+ <div class="detail-hero"><div class="detail-hero-photo-wrap"><img class="detail-hero-photo" src="placeimages/${encodeURIComponent(placeHeroImages[p.id] || "")}" alt="${escapeHTML(p.name)} landscape" loading="lazy"></div><div class="hero-orbit"></div><div class="hero-glyph">${escapeHTML(p.glyph||'30°')}</div><div class="hero-copy"><div class="eyebrow">${escapeHTML(p.region)}</div><h2>${escapeHTML(p.name)}</h2><p>${escapeHTML(p.country)} · ${escapeHTML(p.latitude)}</p></div></div>
+ <div class="detail-body">
+ <div class="detail-kicker">The food · The method</div><div class="food-title">${escapeHTML(p.food)}</div>
+ <div class="food-sub">${escapeHTML(p.country)} &nbsp; / &nbsp; ${p.lat.toFixed(2)}°, ${p.lng.toFixed(2)}°</div>
+ <p class="description">${escapeHTML(p.detail)}</p>
+ <div class="fact-grid"><div class="fact"><span>Latitude</span><b>${escapeHTML(p.latitude)}</b></div><div class="fact"><span>Longitude</span><b>${p.lng.toFixed(2)}° ${p.lng<0?'W':'E'}</b></div><div class="fact"><span>Region</span><b>${escapeHTML(p.region)}</b></div><div class="fact"><span>Map position</span><b>${p.band==='north'?'30° North belt':p.band==='south'?'30° South belt':'Regional extension'}</b></div></div>
+ <div class="method-label">Preservation / food technologies</div><div class="method-tags">${p.method.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join('')}</div>
+ <div class="photo-slot atlas-photo-slot">${placeImages[p.id] ? `<img class="atlas-photo" src="images/${placeImages[p.id]}" alt="${escapeHTML(p.name)} food and landscape" loading="lazy">` : `<div class="photo-missing">Photography coming soon for ${escapeHTML(p.name)}</div>`}</div>
+ ${expandedChapters(p)}
+ <div class="detail-actions"><button class="action primary" id="nextPlace">NEXT LOCATION →</button><button class="action" id="copyCoords">COPY COORDS</button></div>
+ </div>`;
+ $('nextPlace').addEventListener('click',()=>{
+    const next=(idx)%places.length;
+    selectPlace(places[next].id,true);
+
+    // Mobile: return the new location panel to its beginning.
+    if(window.innerWidth<=900){
+        const scroller=$('detailContent');
+        if(scroller){
+            scroller.scrollTo({top:0,behavior:'smooth'});
+        }
+    }
+});
+ $('copyCoords').addEventListener('click',()=>navigator.clipboard?.writeText(`${p.name}, ${p.country}: ${p.lat}, ${p.lng}`));
+ renderList();
+ if(fly){map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),4),{duration:1.15});if(window.innerWidth<=900)$('detailPanel').classList.add('open')}
+}
+function showRoute(){
+ if(routeLayer){map.removeLayer(routeLayer);routeLayer=null;$('showRoute').classList.remove('active');return}
+ const order=['shaoxing','zhenjiang','hangzhou','nanjing','suzhou','pixian','yibin','maotai','dongting','tibet','mohenjo','sindh','patna','varanasi','rajshahi','dhaka','uruk','baghdad','mosul','najaf','giza','delta','siwa','tozeur','ghardaia','djerba','ouarzazate','agadir','essaouira','tiznit','jaen','jabugo','jerez','cordobaES','memphis','neworleans','atlanta','savannah','monterrey','oaxaca','cusco','huacaprieta','mendoza','cordobaAR','buenosaires','kyushu','kagoshima','okinawa','samoa','tonga','fiji','tokelau','cookislands','aotearoa'];
+ const pts=order.map(id=>places.find(p=>p.id===id)).filter(Boolean).map(p=>[p.lat,p.lng]);
+ routeLayer=L.polyline(pts,{color:'#d4a34d',weight:2,dashArray:'5 9',opacity:.8,interactive:false}).addTo(map);
+ $('showRoute').classList.add('active');
+}
+$('search').addEventListener('input',renderList);
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{activeFilter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));renderList()}));
+$('showRoute').addEventListener('click',showRoute);
+$('resetMap').addEventListener('click',()=>{map.flyTo([18,8],2,{duration:1});$('mapFocus').textContent='Explore the whole world'});
+$('zoomIn').addEventListener('click',()=>map.zoomIn());$('zoomOut').addEventListener('click',()=>map.zoomOut());
+$('openIndex').addEventListener('click',()=>$('leftPanel').classList.toggle('open'));
+$('detailHandle').addEventListener('click',()=>$('detailPanel').classList.toggle('open'));
+$('detailMaximise').addEventListener('click',()=>{
+    const main = document.querySelector('main');
+    const expanded = main.classList.toggle('detail-expanded');
+
+    $('detailMaximise').textContent = expanded
+        ? 'RETURN ↙'
+        : 'MAXIMISE ⛶';
+
+    setTimeout(()=>{
+        map.invalidateSize({pan:false});
+        if (parallelMiniMap) {
+            parallelMiniMap.invalidateSize({pan:false});
+        }
+    },350);
+});
+renderList();
+selectPlace('shaoxing',false);
+if(window.innerWidth>900){map.fitBounds([[58,-178],[-52,178]],{padding:[18,18]})}
+// PARALLEL_MOBILE_MAP_ALIGNMENT
+map.whenReady(()=>{
+    setTimeout(()=>map.invalidateSize({pan:false}),300);
+});
+
+window.addEventListener('resize',()=>{
+    setTimeout(()=>map.invalidateSize({pan:false}),250);
+});
+</script>
+</body>
+</html>

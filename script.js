@@ -1,4 +1,4 @@
-/* ==========================================================
+﻿/* ==========================================================
    MICHAEL KENNEDY // WRITER
    FINAL CLEAN SCRIPT
    ========================================================== */
@@ -11,7 +11,7 @@ const books = [
     cover:"assets/book1.jpg",
     link:"https://www.amazon.co.uk/Ancient-Wisdom-Modern-Souls-Self-Help/dp/B0DSQZYJCL/ref=sr_1_2?sr=8-2",
     companion:"wisdom_toolkit.html",
-    companionLabel:"WISDOM TOOLKIT →",
+    companionLabel:"WISDOM TOOLKIT â†’",
     intro:`Timeless Guidance for Modern Challenges
 
 In a world overwhelmed by stress, uncertainty, and disconnection, Ancient Wisdom for Modern Souls brings together timeless teachings from sages, prophets, and philosophers to offer practical guidance for today's struggles.
@@ -36,7 +36,7 @@ Perfect for readers new to self-help and those seeking fresh perspectives, Ancie
     cover:"assets/book2.jpg",
     link:"https://www.amazon.co.uk/What-Lions-Manchester-United-Takeover/dp/B0F3J2RZWR/ref=sr_1_3?sr=8-3",
     companion:"lions_takeover.html",
-    companionLabel:"LIONS TAKEOVER →",
+    companionLabel:"LIONS TAKEOVER â†’",
     intro:`A Gripping Expose of Football's Darkest Corners: A Must-Read for Every Fan
 
 What Do Lions Eat? The Manchester United Takeover offers a searing look at the intersection of football and corporate greed, diving deep into the story of Manchester United and the forces shaping its future.
@@ -63,7 +63,7 @@ Like Barbarians at the Gate, but about football instead of corporate takeovers.`
     cover:"assets/book3.jpg",
     link:"https://www.amazon.co.uk/Merchant-Silk-Road-journey-through/dp/B0FP293BFC/ref=sr_1_1?sr=8-1",
     companion:"silkroad_caravan.html",
-    companionLabel:"CARAVAN // GAME →",
+    companionLabel:"CARAVAN // GAME â†’",
     blurb:"An historical adventure of trade, danger, romance and cultural exchange across China and the Silk Road in 66 AD.",
     cover:"assets/book3.jpg",
     link:"https://www.amazon.co.uk/Merchant-Silk-Road-journey-through/dp/B0FP293BFC/ref=sr_1_1?sr=8-1",
@@ -98,8 +98,8 @@ An unforgettable adventure blending history, romance, and the enduring ties of t
     cover:"50craziestlivesv1.jpg",
     link:"https://www.amazon.com/dp/B0HS7K16C4",
     companion:"craziestlivesapp/index.html",
-    companionLabel:"OPEN THE APP →",
-    intro:"Fifty of history's most extraordinary lives. A collection of remarkable people, incredible adventures and stories that are difficult to believe — but even harder to forget."
+    companionLabel:"OPEN THE APP â†’",
+    intro:"Fifty of history's most extraordinary lives. A collection of remarkable people, incredible adventures and stories that are difficult to believe â€” but even harder to forget."
   },
 
   {
@@ -108,6 +108,8 @@ An unforgettable adventure blending history, romance, and the enduring ties of t
     blurb:"A journey inspired by China, its landscapes, its food, its history and the experiences found along the 30th parallel.",
     cover:"30thparallelcovered.jpg",
     link:"#",
+    companion:"parallelapp/index.html",
+    companionLabel:"EXPLORE THE ATLAS →",
     intro:"The 30th Parallel explores a fascinating stretch of the world, drawing on experiences and discoveries connected with China and the places around this remarkable line of latitude."
   }
 ];
@@ -1099,7 +1101,7 @@ window.addEventListener(
                 "&body=" + body;
 
             note.textContent =
-                "THANK YOU — YOUR EMAIL APP SHOULD OPEN TO COMPLETE THE SIGNUP.";
+                "THANK YOU â€” YOUR EMAIL APP SHOULD OPEN TO COMPLETE THE SIGNUP.";
 
             localStorage.setItem(
                 STORAGE_KEY,
@@ -1155,6 +1157,7 @@ window.addEventListener(
     );
 
 })();
+
 
 
 
